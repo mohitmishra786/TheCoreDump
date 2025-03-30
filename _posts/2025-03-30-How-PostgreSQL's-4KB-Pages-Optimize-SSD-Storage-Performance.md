@@ -37,6 +37,8 @@ Each PostgreSQL page has a specific structure:
 - **Free Space:** The area where new row data can be added
 - **Row Data:** The actual data stored in the page, organized from the bottom up
 
+![PostgreSQL 4KB Page Structure](/assets/images/posts/postgresql-ssd-alignment/postgresql-4kb-page-structure.png)
+
 PostgreSQL Page StructureWhen PostgreSQL performs a write operation, it writes entire pages to disk. Even if only a few bytes within a page are modified, the entire page is written as a single unit. This is known as a "page-level write granularity" and is fundamental to understanding how PostgreSQL interacts with storage systems.
 
 ## SSD Architecture Fundamentals
@@ -61,10 +63,14 @@ This creates a unique constraint: to update even a single byte on an SSD, the dr
 
 This process is known as "write amplification" and is one of the primary factors affecting SSD performance and longevity.
 
+![SSD Architecture Hierarchy](/assets/images/posts/postgresql-ssd-alignment/ssd-architecture-hierarchy.png)
+
 SSD Architecture HierarchyThe Perfect Alignment: PostgreSQL and SSDs
 
 ## The Perfect Alignment: PostgreSQL and SSDs
 Now, let's examine the fortuitous alignment between PostgreSQL's 4KB pages and SSD's 4KB pages. This alignment creates several performance advantages that significantly improve database operations on SSDs.
+
+![PostgreSQL 4KB to SSD 4KB Page Alignment](/assets/images/posts/postgresql-ssd-alignment/postgresql-ssd-alignment-detailed.png)
 
 PostgreSQL to SSD Page AlignmentBenefits of Perfect Alignment
 
@@ -90,6 +96,8 @@ When PostgreSQL's 4KB pages align perfectly with the SSD's 4KB pages, write ampl
 
 The following diagram illustrates how misaligned writes can increase write amplification:
 Write AmplificationImproved TRIM/DISCARD Operation Efficiency
+
+![Write Amplification](/assets/images/posts/postgresql-ssd-alignment/write-amplification.png)
 
 ### Improved TRIM/DISCARD Operation Efficiency
 Modern SSDs support the TRIM command (called DISCARD in PostgreSQL), which allows the operating system to inform the SSD which blocks of data are no longer in use. This enables more efficient garbage collection and wear leveling.
@@ -190,6 +198,8 @@ Ongoing monitoring helps maintain optimal performance:
 - **Write amplification:** Some SSDs provide this metric through vendor-specific tools
 
 PostgreSQL SSD Performance DashboardAdvanced Optimization Techniques
+
+![PostgreSQL SSD Performance Dashboard](/assets/images/posts/postgresql-ssd-alignment/postgresql-ssd-performance-dashboard.png)
 
 ## Advanced Optimization Techniques
 Beyond the basic alignment, several advanced techniques can further enhance PostgreSQL performance on SSDs:
