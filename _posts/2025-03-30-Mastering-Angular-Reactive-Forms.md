@@ -1,6 +1,6 @@
 ---
 title: "Mastering Angular Reactive Forms: FormBuilder, Validators, and Dynamic Controls"
-date: 2025-03-31 12:00:00 +0000
+date: 2025-03-30 12:00:00 +0530
 categories: [Angular, Forms, Web Development]
 tags: [angular, reactive-forms, formbuilder, validation, dynamic-forms]
 author: LotusInMud
