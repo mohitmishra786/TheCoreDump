@@ -12,18 +12,18 @@ toc: true
 
 ## Table of Contents
 
-1. [FormBuilder – Simplifying Form Creation](#formbuilder--simplifying-form-creation)
+1. [FormBuilder – Simplifying Form Creation](#formbuilder-simplifying-form-creation)
 2. [Listening to Status Changes](#listening-to-status-changes)
 3. [Custom Async Validator with HTTP API](#custom-async-validator-with-http-api)
 4. [Multi-Step Form with Reactive Forms](#multi-step-form-with-reactive-forms)
 5. [Dynamic Form Controls with FormArray](#dynamic-form-controls-with-formarray)
 6. [Disable or Enable Form Controls Dynamically](#disable-or-enable-form-controls-dynamically)
-7. [Submitting & Sending Form Data to API](#submitting--sending-form-data-to-api)
+7. [Submitting & Sending Form Data to API](#submitting-sending-form-data-to-api)
 8. [Reactive Forms with Material UI](#reactive-forms-with-material-ui)
 9. [Prefilling Form with Data (Edit Mode)](#prefilling-form-with-data-edit-mode)
 10. [Reset Form After Submission](#reset-form-after-submission)
 
-## 1. FormBuilder – Simplifying Form Creation
+## 1. FormBuilder Simplifying Form Creation
 
 FormBuilder makes it easier to create forms by reducing boilerplate code.
 
