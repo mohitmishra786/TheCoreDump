@@ -28,3 +28,16 @@ background:
   - Software Engineer
   - Full Stack Developer
 philosophy: "If you can't measure it, you can't improve it"
+
+## 🌐 Connect
+- Twitter: [@chessMan786](https://x.com/chessMan786)
+- GitHub: [mohitmishra786](https://github.com/mohitmishra786)
+- LinkedIn: [Mohit Mishra](https://www.linkedin.com/in/mohitmishraml/)
+
+## 📬 Get in Touch
+For consulting inquiries or technical questions:  
+📧 [dukechessman@gmail.com](mailto:dukechessman@gmail.com)
+
+*"The most profound technologies are those that disappear."*  
+— Mark Weiser
+```
