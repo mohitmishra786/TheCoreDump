@@ -1,6 +1,6 @@
 ---
 title: "PostgreSQL and SSDs: The Hidden Performance Advantage of 4KB Alignment"
-date: 2025-03-31 12:00:00 +0530
+date: 2025-03-30 12:00:00 +0530
 categories: [Database, Performance]
 tags: [postgresql, ssd, database-optimization, storage]
 author: mohitmishra786
