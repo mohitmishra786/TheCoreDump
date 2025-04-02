@@ -24,7 +24,6 @@ toc: true
 10. [Reset Form After Submission](#10-reset-form-after-submission)
 
 ## 1. FormBuilder – Simplifying Form Creation
-
 FormBuilder makes it easier to create forms by reducing boilerplate code.
 
 ### Without FormBuilder (Verbose)
@@ -51,7 +50,6 @@ this.userForm = this.fb.group({
 **Use Case:** Use FormBuilder for cleaner, more readable code.
 
 ## 2. Listening to Status Changes
-
 `statusChanges` lets you detect when the form becomes valid, invalid, pending, or disabled.
 
 ### Example: Listen to Form Status Changes
