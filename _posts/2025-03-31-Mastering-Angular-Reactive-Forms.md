@@ -8,7 +8,6 @@ description: "A comprehensive guide to mastering Angular Reactive Forms with For
 toc: true
 ---
 
-# Angular Reactive Forms Best Practices
 
 ## Table of Contents
 
