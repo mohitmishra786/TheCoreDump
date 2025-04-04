@@ -8,7 +8,6 @@ description: "A complete guide to converting data between JavaScript objects and
 toc: true
 ---
 
-# Mastering JSON.stringify() and JSON.parse() in JavaScript
 
 ## Table of Contents
 
