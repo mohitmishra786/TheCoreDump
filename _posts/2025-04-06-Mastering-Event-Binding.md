@@ -2,7 +2,7 @@
 title: "Mastering Event Binding in Angular"
 date: 2025-04-05 00:00:00 +0530
 categories: [Angular, Binding]
-tags: [angular, events, event-binding, typescript, dom]
+tags: [angular, event-binding, typescript]
 author: LotusInMud
 description: "Learn how to use event binding in Angular to respond to user interactions like clicks, keypresses, and mouse movements. Includes practical examples and detailed explanations."
 toc: true
