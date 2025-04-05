@@ -1,6 +1,6 @@
 ---
 title: "Mastering Event Binding in Angular"
-date: 2025-04-06 12:30:00 +0530
+date: 2025-04-05 00:00:00 +0530
 categories: [Angular, Binding]
 tags: [angular, events, event-binding, typescript, dom]
 author: LotusInMud
