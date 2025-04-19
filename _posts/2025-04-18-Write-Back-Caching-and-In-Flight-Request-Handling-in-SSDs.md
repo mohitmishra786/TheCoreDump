@@ -1,5 +1,5 @@
 ---
-title: "Write-Back Caching and In-Flight Request Handling in SSDs: A Technical Introduction"
+title: "Write-Back Caching and In-Flight Request Handling in SSDs"
 date: 2025-04-18 00:00:00 +0530
 categories: [Storage, SSD Technology, Computer Science]
 tags: [write-back-caching, ssd-architecture, flash-memory, power-loss-protection, caching-strategies]
@@ -46,6 +46,8 @@ This paper explores the ins and outs of write-back caching and in-flight request
 SSDs use several caching approaches to manage data flow between the host computer and flash storage. Each approach has its own benefits and drawbacks:
 
 **Write-back caching** stores incoming write operations in fast, temporary memory (usually DRAM) and immediately tells the host that the write is complete. The data is later moved to permanent flash storage in the background.
+
+![Write Back Caching](/assets/images/posts/write-back-caching/Write-Back-Caching.png)
 
 This method dramatically improves write performance by separating the host operations from the slower flash programming steps. The main advantage is significantly better write speeds, especially for random writes, as the host only experiences the quick DRAM write times rather than waiting for data to be saved to flash.
 
@@ -168,7 +170,11 @@ The entire procedure typically finishes within milliseconds, limited mainly by t
 
 ### 4.1 Write Coalescing and Command Merging
 
-Write coalescing is a fundamental optimization technique in SSD caching. It combines multiple write operations targeting nearby or overlapping addresses into unified operations before saving them to flash. This strategy provides several benefits:
+Write coalescing is a fundamental optimization technique in SSD caching. It combines multiple write operations targeting nearby or overlapping addresses into unified operations before saving them to flash. 
+
+![Write Coalescing](/assets/images/posts/write-back-caching/Write-Coalescing.png)
+
+This strategy provides several benefits:
 
 1. **Reduced Write Amplification**: By consolidating partial page writes into full page writes, the SSD reduces the overhead of read-modify-write operations.
 
