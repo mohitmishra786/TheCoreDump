@@ -8,8 +8,6 @@ description: "A practical examination of PostgreSQL 18 Beta's new features inclu
 toc: true
 ---
 
-# PostgreSQL 18 Beta: New Features and Improvements
-
 ## Asynchronous I/O (AIO) Subsystem
 ### The I/O Bottleneck Problem
 Traditional PostgreSQL I/O operations were synchronous – a design that worked well for local SSDs but struggles with cloud storage (AWS EBS, Azure Disk) where latency fluctuates.
