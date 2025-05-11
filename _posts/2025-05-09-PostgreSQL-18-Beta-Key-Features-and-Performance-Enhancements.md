@@ -20,10 +20,11 @@ PostgreSQL 18 introduces platform-specific async I/O:
 - **Other OS**: Fallback to worker processes
 
 **Benchmark Results (AWS r6i.large, 1TB EBS gp3):**
-| Operation          | PG17 Time | PG18 Time (io_uring) | Improvement |
-|---------------------|-----------|----------------------|-------------|
-| Cold-cache SELECT * | 15.8s     | 5.7s                 | 2.77x       |
-| VACUUM FULL         | 42m       | 29m                  | 1.45x       |
+
+| Operation | PG17 Time | PG18 Time (io_uring) | Improvement |
+| --- | --- | --- | --- |
+| Cold-cache SELECT * | 15.8s | 5.7s | 2.77x |
+| VACUUM FULL | 42m | 29m | 1.45x |
 
 ### Configuration
 ```sql
@@ -114,9 +115,10 @@ WITH (parallel_workers = 4);
 ```
 
 **Performance Gains:**
+
 | Dataset Size | PG17 Time | PG18 Time (4 workers) | Speedup |
-|--------------|-----------|-----------------------|---------|
-| 100M rows    | 82m       | 23m                   | 3.56x   |
+| --- | --- | --- | --- |
+| 100M rows | 82m | 23m | 3.56x |
 
 ## Virtual Generated Columns
 ### Stored vs. Virtual
