@@ -22,26 +22,7 @@ Long polling resembles a client sitting at a restaurant, asking the server, "Got
 
 Here's how long polling works:
 
-```mermaid
-sequenceDiagram
-    participant C as Client
-    participant S as Server
-    participant D as Data Source
-
-    C->>S: HTTP GET /poll (request #1)
-    Note over S: Server holds connection open
-    S-->>S: Wait for data...
-    D->>S: New data arrives
-    S->>C: HTTP 200 + data
-    Note over C: Process data
-    C->>S: HTTP GET /poll (request #2)
-    Note over S: No data available, wait...
-    Note over S: Timeout reached (30s)
-    S->>C: HTTP 200 (empty response)
-    C->>S: HTTP GET /poll (request #3)
-    D->>S: More data arrives
-    S->>C: HTTP 200 + data
-```
+[![](https://mermaid.ink/img/pako:eNqNU0tvozAQ_iuj2UuiUkogLQmHXMhqe2lUiUiVVly8MEksgYfaJt1ulP--BpJuX9LWJ9vfYz5bMwcsuCRM0NBjS6qgpRRbLepcgVuN0FYWshHKQgrCQFpJUvYjmHVgRnpP-iO47MClsAIybnVBuRo46eVikSVwu17fw4_va7hquKpgpLskxsK3yXjgrdgSsLMGxx6KwI6r0kDBSlFhJSvghk622eXg-yCkhQ1rKF1p3_cHdDmAK3rq70FoLfdkztLFIj0lCoMALnrO-xSOca-5IGNewf97TPjZY1Z8CrEXshK_KvLgyaV-CfuGvJY1cWtBkyh2VMIoCsz489wjqhv77JimYWVo_LWI0fjNF92xpi__EXq41bLEZCMqQx7WpGvRnfHQyXK0O6opx8RtS9qItrI55urodK5HfjLXmFjdOqXmdrs7H9rGmZ978sVckypJp9wqi8m8d8DkgL8xCYPYn95MZ9M4DqPr2czDZ0ymoT-P4usgiOaTOI6jm6OHf_qKgT_r7v-tiYdUSsv6bpiKfjiOfwGxe_TT?type=png)](https://mermaid.live/edit#pako:eNqNU0tvozAQ_iuj2UuiUkogLQmHXMhqe2lUiUiVVly8MEksgYfaJt1ulP--BpJuX9LWJ9vfYz5bMwcsuCRM0NBjS6qgpRRbLepcgVuN0FYWshHKQgrCQFpJUvYjmHVgRnpP-iO47MClsAIybnVBuRo46eVikSVwu17fw4_va7hquKpgpLskxsK3yXjgrdgSsLMGxx6KwI6r0kDBSlFhJSvghk622eXg-yCkhQ1rKF1p3_cHdDmAK3rq70FoLfdkztLFIj0lCoMALnrO-xSOca-5IGNewf97TPjZY1Z8CrEXshK_KvLgyaV-CfuGvJY1cWtBkyh2VMIoCsz489wjqhv77JimYWVo_LWI0fjNF92xpi__EXq41bLEZCMqQx7WpGvRnfHQyXK0O6opx8RtS9qItrI55urodK5HfjLXmFjdOqXmdrs7H9rGmZ978sVckypJp9wqi8m8d8DkgL8xCYPYn95MZ9M4DqPr2czDZ0ymoT-P4usgiOaTOI6jm6OHf_qKgT_r7v-tiYdUSsv6bpiKfjiOfwGxe_TT)
 
 The long polling process:
 
@@ -51,19 +32,7 @@ The long polling process:
 4. **Cycle Restart**: The client immediately sends another request to continue the cycle
 5. **Timeout Handling**: If no data appears after a set time (usually 30 seconds), the server sends an empty response
 
-**Connection State Diagram:**
-
-```mermaid
-stateDiagram-v2
-    [*] --> Connecting
-    Connecting --> WaitingForData: HTTP Request Sent
-    WaitingForData --> DataReceived: New Data Available
-    WaitingForData --> Timeout: Timer Expires
-    DataReceived --> ProcessingData: HTTP Response
-    Timeout --> ProcessingData: Empty Response
-    ProcessingData --> Connecting: Immediate Reconnect
-    ProcessingData --> [*]: Client Shutdown
-```
+[![](https://mermaid.ink/img/pako:eNp1Uk1vwjAM_SuRj1NBpS205DBpAqbtsAkB0qStO2StKZHapEsTPob470tbNgYaPtnOe8_Ji_eQyBSBQqWZxjFnmWJFZ-3Fgth4u3knnc4tGUkhMNFcZG3_VDfHL4zX-b1UY6YZJQ-LxZTM8NNgpckchW5Z57CGWSczTJCvMaXkGTdNh9ytGc_ZR45XiQteoDSaNokik23JFVYt_K9oA54qmWBVWYmz-1WlFNVxxFHvX_ikKPXuAn-OuTCJkseiwJRbRy0taftXedZkSkY5tz6R-croVG4EOJApngJdsrxCB-wbC1bXsK91YtArLDAGatMUl8zkOoZYHCyvZOJVygKoVsYylTTZ6qcwZXr65V9xhSJFNZJGaKA9v5EAuoctUM8Nu8EgiIIw9Px-FDmwAxp43aEf9l3XH_bCMPQHBwe-mpFuN6r7p-g5YH3QUj21W9Ys2-Eb9M_KvA?type=png)](https://mermaid.live/edit#pako:eNp1Uk1vwjAM_SuRj1NBpS205DBpAqbtsAkB0qStO2StKZHapEsTPob470tbNgYaPtnOe8_Ji_eQyBSBQqWZxjFnmWJFZ-3Fgth4u3knnc4tGUkhMNFcZG3_VDfHL4zX-b1UY6YZJQ-LxZTM8NNgpckchW5Z57CGWSczTJCvMaXkGTdNh9ytGc_ZR45XiQteoDSaNokik23JFVYt_K9oA54qmWBVWYmz-1WlFNVxxFHvX_ikKPXuAn-OuTCJkseiwJRbRy0taftXedZkSkY5tz6R-croVG4EOJApngJdsrxCB-wbC1bXsK91YtArLDAGatMUl8zkOoZYHCyvZOJVygKoVsYylTTZ6qcwZXr65V9xhSJFNZJGaKA9v5EAuoctUM8Nu8EgiIIw9Px-FDmwAxp43aEf9l3XH_bCMPQHBwe-mpFuN6r7p-g5YH3QUj21W9Ys2-Eb9M_KvA)
 
 **Advantages:**
 - Works with existing HTTP infrastructure
@@ -83,54 +52,7 @@ WebSockets establish a persistent, bidirectional connection between client and s
 
 **WebSocket Connection Flow:**
 
-```mermaid
-sequenceDiagram
-    participant C as Client
-    participant S as Server
-
-    Note over C,S: HTTP Handshake Phase
-    C->>S: HTTP GET with Upgrade: websocket
-    S->>C: HTTP 101 Switching Protocols
-    Note over C,S: WebSocket Protocol Active
-    
-    Note over C,S: Bidirectional Communication
-    C->>S: WebSocket Frame: "Hello Server"
-    S->>C: WebSocket Frame: "Hello Client"
-    S->>C: WebSocket Frame: "Push notification"
-    C->>S: WebSocket Frame: "User action data"
-    
-    Note over C,S: Connection remains open
-    loop Real-time Communication
-        alt Server has data
-            S->>C: WebSocket Frame: Data
-        else Client has data
-            C->>S: WebSocket Frame: Data
-        end
-    end
-    
-    Note over C,S: Connection Termination
-    C->>S: Close Frame
-    S->>C: Close Frame Ack
-```
-
-**WebSocket State Management:**
-
-```mermaid
-stateDiagram-v2
-    [*] --> CONNECTING
-    CONNECTING --> OPEN: Handshake Complete
-    CONNECTING --> CLOSED: Handshake Failed
-    OPEN --> CLOSING: Close Frame Sent
-    OPEN --> CLOSED: Connection Error
-    CLOSING --> CLOSED: Close Handshake Complete
-    CLOSED --> [*]
-    
-    note right of OPEN
-        - Send/receive messages
-        - Full duplex communication
-        - Low latency frames
-    end note
-```
+[![](https://mermaid.ink/img/pako:eNqFVE1v2zAM_SsEz26Qzzr1ocDmbstlQzCnKDDkotpMLEQWPUlutwX575O_smVNFp0s8fHxPdLSHlPOCCO09L0indKDFFsjirUGv0phnExlKbSDGISFWEnS7m0wqYMJmRcya92Gv7AjYH8AcZBEsFitlrAQOrO52BEsc2GpBcY39_c94NOHFbxKl8Nj6VVkFMErPVtOd9QVTTw47sCj4QgSj05zqbewNOw4ZWXPln-i56ShOeLgXerkS6fhbM57mUlDHsVaKIi5KCotU1HvT5T_4f7oO-c1r3FBSnHfEDyRfhHd9fYqelnZHDQ7uenF4DU5j9Z7Eo0TyIQTfcZZ2zFr3boGQ4WQ2gKX1FlWzCV8JaFunCzoXFPqJZTrzIOfc1vyGPyfu4cTJClLXVsu8Fyy_A-PztrN8eOa8RWZQuq3o44Ve0lNkZMx_XXu_6sdBrg1MsNoI7yFAAtPJ-o97uu0NbqcPAPWs8loIyrVzP3g8_x1-sZcYORM5TMNV9u831Sl70B_Q4_kxrsiE3OlHUajsKHAaI8_MBoPw8H0djqfhuF4MpvPA_yJ0XQ8uJuEs-FwcjcKw3ByewjwV1NyOJiHswApk47N5_ZdaJ6Hw288AkwC?type=png)](https://mermaid.live/edit#pako:eNqFVE1v2zAM_SsEz26Qzzr1ocDmbstlQzCnKDDkotpMLEQWPUlutwX575O_smVNFp0s8fHxPdLSHlPOCCO09L0indKDFFsjirUGv0phnExlKbSDGISFWEnS7m0wqYMJmRcya92Gv7AjYH8AcZBEsFitlrAQOrO52BEsc2GpBcY39_c94NOHFbxKl8Nj6VVkFMErPVtOd9QVTTw47sCj4QgSj05zqbewNOw4ZWXPln-i56ShOeLgXerkS6fhbM57mUlDHsVaKIi5KCotU1HvT5T_4f7oO-c1r3FBSnHfEDyRfhHd9fYqelnZHDQ7uenF4DU5j9Z7Eo0TyIQTfcZZ2zFr3boGQ4WQ2gKX1FlWzCV8JaFunCzoXFPqJZTrzIOfc1vyGPyfu4cTJClLXVsu8Fyy_A-PztrN8eOa8RWZQuq3o44Ve0lNkZMx_XXu_6sdBrg1MsNoI7yFAAtPJ-o97uu0NbqcPAPWs8loIyrVzP3g8_x1-sZcYORM5TMNV9u831Sl70B_Q4_kxrsiE3OlHUajsKHAaI8_MBoPw8H0djqfhuF4MpvPA_yJ0XQ8uJuEs-FwcjcKw3ByewjwV1NyOJiHswApk47N5_ZdaJ6Hw288AkwC)
 
 ```javascript
 // WebSocket client example
@@ -162,24 +84,6 @@ ws.onmessage = function(event) {
 Both approaches maintain long-lived TCP connections with kernels waiting for interrupts. The key difference lies in the protocol layer:
 
 **Protocol Comparison:**
-
-```mermaid
-graph TD
-    A[TCP Connection] --> B[Long Polling]
-    A --> C[WebSockets]
-    
-    B --> D[HTTP Request/Response]
-    B --> E[Full Headers Each Time]
-    B --> F[Request-Driven]
-    
-    C --> G[WebSocket Frames]
-    C --> H[Minimal Frame Overhead]
-    C --> I[Bidirectional]
-    
-    style B fill:#ffcccc
-    style C fill:#ccffcc
-```
-
 - **Long Polling**: Uses HTTP with full request/response overhead
 - **WebSockets**: Uses lightweight framing protocol after initial handshake
 
@@ -193,73 +97,11 @@ Kafka takes a different approach entirely. Instead of pushing data to consumers,
 
 **Kafka Architecture Overview:**
 
-```mermaid
-graph TB
-    subgraph "Kafka Cluster"
-        B1[Broker 1]
-        B2[Broker 2]
-        B3[Broker 3]
-    end
-    
-    subgraph "Producers"
-        P1[Producer 1]
-        P2[Producer 2]
-    end
-    
-    subgraph "Consumer Groups"
-        subgraph "Group A"
-            C1[Consumer 1]
-            C2[Consumer 2]
-        end
-        subgraph "Group B"
-            C3[Consumer 3]
-            C4[Consumer 4]
-        end
-    end
-    
-    P1 -->|Push Messages| B1
-    P2 -->|Push Messages| B2
-    
-    C1 -->|Pull Messages| B1
-    C2 -->|Pull Messages| B2
-    C3 -->|Pull Messages| B1
-    C4 -->|Pull Messages| B3
-    
-    style B1 fill:#e1f5fe
-    style B2 fill:#e1f5fe
-    style B3 fill:#e1f5fe
-```
+[![](https://mermaid.ink/img/pako:eNqFU9FugjAU_RVy94pGWhTlYclgyR4WEx72NNlDJxchAjUtTebUf19BEVC23afec3rPaTn0AGseIbiwEWyXGG9eWBi6pPo8AyG8snjLDD9TskQRwpmvyrNWnuBbFIb10UFJg5IuShuUXlAsovPizjAQPFJrFLJrFlirBu_ZBaTFyb_SPi-kyvXWF8HVrmfQ2VWTxlOXrcq3Vtf57hFqjrRc997XowxaeHcWtJWhtxZ2y9lDFjfXDixjNHo8BkomxhKlZBuURx3ahSWDLOkq-I1Clg0o-GSQvSj49M9Ze5ClvdjKfYZ6wojTLHMf0IqnMfYo8jtFexSY-vdOI3Bjlkk0QX_CnFU9HKqpEMoEcwzB1csIY6ayskrmpOd2rHjnPAe3FEpP6tg2SdOoXcRKfE6ZTjW_igudAwqfq6IEl0xrCXAP8KW7iTO2Z_bcdhxCp_O5CXtwbTJeUGc6mdCF5TgOnZ1M-K4tJ-N5hbdlmYBRWnKxPL_Z-umefgBfrBYu?type=png)](https://mermaid.live/edit#pako:eNqFU9FugjAU_RVy94pGWhTlYclgyR4WEx72NNlDJxchAjUtTebUf19BEVC23afec3rPaTn0AGseIbiwEWyXGG9eWBi6pPo8AyG8snjLDD9TskQRwpmvyrNWnuBbFIb10UFJg5IuShuUXlAsovPizjAQPFJrFLJrFlirBu_ZBaTFyb_SPi-kyvXWF8HVrmfQ2VWTxlOXrcq3Vtf57hFqjrRc997XowxaeHcWtJWhtxZ2y9lDFjfXDixjNHo8BkomxhKlZBuURx3ahSWDLOkq-I1Clg0o-GSQvSj49M9Ze5ClvdjKfYZ6wojTLHMf0IqnMfYo8jtFexSY-vdOI3Bjlkk0QX_CnFU9HKqpEMoEcwzB1csIY6ayskrmpOd2rHjnPAe3FEpP6tg2SdOoXcRKfE6ZTjW_igudAwqfq6IEl0xrCXAP8KW7iTO2Z_bcdhxCp_O5CXtwbTJeUGc6mdCF5TgOnZ1M-K4tJ-N5hbdlmYBRWnKxPL_Z-umefgBfrBYu)
 
 **Kafka Consumer Pull Flow:**
 
-```mermaid
-sequenceDiagram
-    participant C as Consumer
-    participant B as Broker
-    participant L as Log Storage
-
-    Note over C: Consumer starts up
-    C->>B: Establish TCP Connection
-    
-    loop Continuous Polling
-        C->>B: poll(timeout=1000ms)
-        Note over B: Check consumer offset
-        B->>L: Fetch messages from offset
-        L->>B: Return message batch
-        
-        alt Messages Available
-            B->>C: Return message batch
-            Note over C: Process messages
-            C->>B: Commit offset (async)
-        else No Messages
-            Note over B: Wait up to timeout
-            B->>C: Empty response
-        end
-        
-        Note over C: Process messages locally
-        Note over C: Control fetch timing
-    end
-```
+[![](https://mermaid.ink/img/pako:eNqFU01v2zAM_SuETh2QFW6S1omBFVi87pQOwTpgwOCLatOOUEv09FEsC_LfR8dxnCHppoMgiY-PfBS5FTkVKBLh8GdAk-MnJSsrdWaAVyOtV7lqpPGQgnSQknFBoz03L1rzwtLLJeOyNS6pgidPVlaYmQ7zhTwCvaKFNDlyg_Ps6iA0HSh9f3-_SOCBn59r5dbwLV21YIO5V3Rg6vaaqGlNXplAwcGK6lqZqjOecDX8fuWVRgr-w00URdq9G0BDVgxN15i_QN7nRmXp0A_YBRMuE_iMPl-DRudYnYPSkj6DLrvYX9EHa3osPEv2HEDDSdYeHnvCj69S1SwfB3sfPf0f5VmhV5Zyhh7T_Rt6KFFKWit_EAFX0m1MflIjrB0y6zHDt8Ix03fJPKEBT3Ao-UURD7rxG7DoGq71iU40xaXy_FMRN0Iu63rzBrztEEs1lPtf46SOPcLBxEhUVhUiKSVrHAn-dS3bu9i2mEz4NWrMRMLHAksZap-JzOzYj3v9B5EWibeBPS2Fat1fQlNI30_XkdxyQLQpBeNFMp7vKUSyFb_4FsXX07vpbBrH48ntbDYSG5FMx9fzSXwbRZP5TRzHk7vdSPzeh4yuZ_F0frpGAgvF8_bYDfh-znd_ALZFMvo?type=png)](https://mermaid.live/edit#pako:eNqFU01v2zAM_SuETh2QFW6S1omBFVi87pQOwTpgwOCLatOOUEv09FEsC_LfR8dxnCHppoMgiY-PfBS5FTkVKBLh8GdAk-MnJSsrdWaAVyOtV7lqpPGQgnSQknFBoz03L1rzwtLLJeOyNS6pgidPVlaYmQ7zhTwCvaKFNDlyg_Ps6iA0HSh9f3-_SOCBn59r5dbwLV21YIO5V3Rg6vaaqGlNXplAwcGK6lqZqjOecDX8fuWVRgr-w00URdq9G0BDVgxN15i_QN7nRmXp0A_YBRMuE_iMPl-DRudYnYPSkj6DLrvYX9EHa3osPEv2HEDDSdYeHnvCj69S1SwfB3sfPf0f5VmhV5Zyhh7T_Rt6KFFKWit_EAFX0m1MflIjrB0y6zHDt8Ix03fJPKEBT3Ao-UURD7rxG7DoGq71iU40xaXy_FMRN0Iu63rzBrztEEs1lPtf46SOPcLBxEhUVhUiKSVrHAn-dS3bu9i2mEz4NWrMRMLHAksZap-JzOzYj3v9B5EWibeBPS2Fat1fQlNI30_XkdxyQLQpBeNFMp7vKUSyFb_4FsXX07vpbBrH48ntbDYSG5FMx9fzSXwbRZP5TRzHk7vdSPzeh4yuZ_F0frpGAgvF8_bYDfh-znd_ALZFMvo)
 
 Kafka handles massive data streams—logs, events, metrics—flowing at extremely high rates. The pull-based model offers several advantages:
 
@@ -278,32 +120,6 @@ for (ConsumerRecord<String, String> record : records) {
 
 **State Management Comparison:**
 
-```mermaid
-graph LR
-    subgraph "Push-Based System"
-        PB[Broker] --> PS1[Consumer State 1]
-        PB --> PS2[Consumer State 2]
-        PB --> PS3[Consumer State N]
-        PB --> PM[Memory Pressure]
-        PS1 --> PC1[Consumer 1]
-        PS2 --> PC2[Consumer 2]
-        PS3 --> PC3[Consumer N]
-    end
-    
-    subgraph "Pull-Based System (Kafka)"
-        KB[Stateless Broker]
-        KC1[Consumer 1] --> KS1[Own State]
-        KC2[Consumer 2] --> KS2[Own State]
-        KC3[Consumer N] --> KS3[Own State]
-        KC1 -.->|Pull Request| KB
-        KC2 -.->|Pull Request| KB
-        KC3 -.->|Pull Request| KB
-    end
-    
-    style PM fill:#ffcccc
-    style KB fill:#ccffcc
-```
-
 **Independent Scaling**: Brokers serve whoever requests data without managing individual consumer needs. Consumers can scale independently by adding instances to handle load, and brokers remain unaware of these changes.
 
 ### Long-Lived Connections in Kafka
@@ -312,26 +128,7 @@ Kafka clients maintain persistent TCP connections to brokers, similar to WebSock
 
 **Kafka Connection Lifecycle:**
 
-```mermaid
-stateDiagram-v2
-    [*] --> Connecting
-    Connecting --> Authenticating: TCP Established
-    Authenticating --> JoiningGroup: Auth Success
-    JoiningGroup --> Polling: Group Coordinator Assigned
-    Polling --> Processing: Messages Received
-    Processing --> Polling: Continue Processing
-    Polling --> Rebalancing: Group Membership Change
-    Rebalancing --> Polling: Rebalance Complete
-    Polling --> Disconnecting: Shutdown Signal
-    Processing --> Disconnecting: Error/Shutdown
-    Disconnecting --> [*]
-    
-    note right of Polling
-        - Fetch messages
-        - Commit offsets
-        - Send heartbeats
-    end note
-```
+[![](https://mermaid.ink/img/pako:eNptU8tu2zAQ_BVij4XsupYdOTwUCJy0QAEDQdxTqx5ocS0SEEmDj_Rh-N9LkZEjNeWBIHdmdnb5OENjOAIF55nHe8lay9TseVlrEsf3dz_IbPaRbI3W2Hip2xx_3Sf4LniB2suG9SFKvm4fyUNMeOikE8izZkpKui9G6rj-bE040UQg-9A06FyWjPEkeDRdlxxyaGuM5VIzbyy5c062ejB7IWaRNX3KpNvFBWvRkSdsUD5f6VfK1Cb2GYsNOCK8zf-EB9Yx3YwK26E6oHVCxhoF0y1m1Yg59RkAjI7q1KHHtzb30jXXY6dkL4Ln5qcm-9g26_7bxz-SB2uNfT8Is2JCSaJ45xnKszYeiZWt8MQch4Iy1I8Z-YS-EUS9HOwYib0o2cuODv0E2aPmRCCz_oBsgPpY7wYFtFZyoEfWOSxAoVWs38O5J9YQ35HCGmhccjyy0Pkaan2JuhPT34xRQL0NURnvohXDJpz46wu_JrfRFe3WBO2BlmVKAfQMv4AuF9V8dbParKpqWa43mwJ-A10t57dltV4sytsPVVWVN5cC_iTLxXxTrQtALuNz3OVPlf7W5S9bkxqC?type=png)](https://mermaid.live/edit#pako:eNptU8tu2zAQ_BVij4XsupYdOTwUCJy0QAEDQdxTqx5ocS0SEEmDj_Rh-N9LkZEjNeWBIHdmdnb5OENjOAIF55nHe8lay9TseVlrEsf3dz_IbPaRbI3W2Hip2xx_3Sf4LniB2suG9SFKvm4fyUNMeOikE8izZkpKui9G6rj-bE040UQg-9A06FyWjPEkeDRdlxxyaGuM5VIzbyy5c062ejB7IWaRNX3KpNvFBWvRkSdsUD5f6VfK1Cb2GYsNOCK8zf-EB9Yx3YwK26E6oHVCxhoF0y1m1Yg59RkAjI7q1KHHtzb30jXXY6dkL4Ln5qcm-9g26_7bxz-SB2uNfT8Is2JCSaJ45xnKszYeiZWt8MQch4Iy1I8Z-YS-EUS9HOwYib0o2cuODv0E2aPmRCCz_oBsgPpY7wYFtFZyoEfWOSxAoVWs38O5J9YQ35HCGmhccjyy0Pkaan2JuhPT34xRQL0NURnvohXDJpz46wu_JrfRFe3WBO2BlmVKAfQMv4AuF9V8dbParKpqWa43mwJ-A10t57dltV4sytsPVVWVN5cC_iTLxXxTrQtALuNz3OVPlf7W5S9bkxqC)
 
 When a consumer calls `poll()`, it sends a request over the existing TCP connection, asking for new messages since its last offset. The broker responds with available data (up to configured limits), and the connection remains open for subsequent polls.
 
@@ -351,34 +148,7 @@ WebSockets could theoretically work for Kafka, but they'd be a poor fit. Let's c
 
 **Push vs Pull Architecture Comparison:**
 
-```mermaid
-graph TB
-    subgraph "WebSocket Push Model"
-        WS[WebSocket Server]
-        WS -->|Push| WC1[Client 1]
-        WS -->|Push| WC2[Client 2]
-        WS -->|Push| WC3[Client N]
-        WS --> WSM[Server State Management]
-        WSM --> WSC[Connection Tracking]
-        WSM --> WSB[Backpressure Handling]
-        WSM --> WSF[Flow Control]
-    end
-    
-    subgraph "Kafka Pull Model"
-        KB[Kafka Broker]
-        KC1[Consumer 1] -->|Pull| KB
-        KC2[Consumer 2] -->|Pull| KB
-        KC3[Consumer N] -->|Pull| KB
-        KC1 --> KS1[Self-managed State]
-        KC2 --> KS2[Self-managed State]
-        KC3 --> KS3[Self-managed State]
-    end
-    
-    style WSM fill:#ffcccc
-    style KS1 fill:#ccffcc
-    style KS2 fill:#ccffcc
-    style KS3 fill:#ccffcc
-```
+[![](https://mermaid.ink/img/pako:eNqFk02PmzAQhv-KNb2SKNjJkuXQA1SrShGrSlkpUmEPXjAJirEjY9puk_z3Dh9pQlNaX7B5nxlmXjNHSHUmwIet4YcdeQkSRXBV9Vv3IoGNeFvrdC8s-VJXOxIhLhPosGZt1vEVWQvzTZjXW5VMJh9PTeiJbEI3DmUhlCXuOEMvDB1n2IV5vmPwEcVdHWRtuRUk4opvRYn4AI56OoxDrZRIbaEVeTE83Rdq-1cyiANUD0ZUVW0E-cxVJsfYp_hJ6u8EU1ujZY8IlXWbO5dXPN9zdFjKe4dXQdzJgdH7gburxlCtqrrEZt3X3iIpTxhzS9ErRccpdqWexym3bXC1dtFkmU_K1tyss3pQGu1B-j-Q9SAbB_80zr5L0ZqdF1L6H_I8xXWrYX29lqaNOtToPzQ20MDBySgy8HMuK-EAmlPy5gzHJiwBu8M_KwEft5nIeS1tc3VnjDtw9VXrEnxraow0ut7uLof6kGFznwqO91_-Tm6wTWFCXSsLPvPaFOAf4Qf4dOZN5w_z5dzzKFsslw68gz-n00fmLWYz9uh6nscezg78bD85my69hQMiK6w2UTfh7aCffwFA6S2C?type=png)](https://mermaid.live/edit#pako:eNqFk02PmzAQhv-KNb2SKNjJkuXQA1SrShGrSlkpUmEPXjAJirEjY9puk_z3Dh9pQlNaX7B5nxlmXjNHSHUmwIet4YcdeQkSRXBV9Vv3IoGNeFvrdC8s-VJXOxIhLhPosGZt1vEVWQvzTZjXW5VMJh9PTeiJbEI3DmUhlCXuOEMvDB1n2IV5vmPwEcVdHWRtuRUk4opvRYn4AI56OoxDrZRIbaEVeTE83Rdq-1cyiANUD0ZUVW0E-cxVJsfYp_hJ6u8EU1ujZY8IlXWbO5dXPN9zdFjKe4dXQdzJgdH7gburxlCtqrrEZt3X3iIpTxhzS9ErRccpdqWexym3bXC1dtFkmU_K1tyss3pQGu1B-j-Q9SAbB_80zr5L0ZqdF1L6H_I8xXWrYX29lqaNOtToPzQ20MDBySgy8HMuK-EAmlPy5gzHJiwBu8M_KwEft5nIeS1tc3VnjDtw9VXrEnxraow0ut7uLof6kGFznwqO91_-Tm6wTWFCXSsLPvPaFOAf4Qf4dOZN5w_z5dzzKFsslw68gz-n00fmLWYz9uh6nscezg78bD85my69hQMiK6w2UTfh7aCffwFA6S2C)
 
 WebSockets excel at low-latency, bidirectional applications where both sides send small, frequent updates. Kafka deals with high-throughput, ordered message streams, often handling millions of messages per second.
 
@@ -400,26 +170,6 @@ Different communication patterns excel in different scenarios:
 | Long Polling | Real-time web apps | Medium | Low-Medium | Low | High (HTTP headers) |
 | WebSockets | Interactive applications | Low | Medium | Medium | Low (after handshake) |
 | Kafka Pull | High-throughput streaming | Medium | Very High | High | Low (persistent TCP) |
-
-**Throughput Comparison Visualization:**
-
-```mermaid
-graph LR
-    subgraph "Message Throughput (msgs/sec)"
-        LP[Long Polling: 100-1K]
-        WS[WebSockets: 1K-10K]
-        KF[Kafka: 100K-1M+]
-    end
-    
-    subgraph "Connection Efficiency"
-        LPE[Long Polling: New HTTP per msg]
-        WSE[WebSockets: Persistent frames]
-        KFE[Kafka: Batch requests]
-    end
-    
-    style KF fill:#ccffcc
-    style KFE fill:#ccffcc
-```
 
 ### Long Polling Performance
 
@@ -488,25 +238,6 @@ while (true) {
 
 ## Use Case Analysis
 
-**Decision Matrix:**
-
-```mermaid
-graph TD
-    A[Choose Communication Pattern] --> B{Latency Requirements?}
-    B -->|Low < 10ms| C[WebSockets]
-    B -->|Medium < 100ms| D{Throughput Requirements?}
-    D -->|Low < 1K msg/s| E[Long Polling]
-    D -->|High > 10K msg/s| F[Kafka Pull]
-    
-    C --> C1[Gaming, Chat, Real-time Collaboration]
-    E --> E1[Notifications, Status Updates]
-    F --> F1[Log Processing, Event Streaming, Analytics]
-    
-    style C fill:#e3f2fd
-    style E fill:#fff3e0
-    style F fill:#e8f5e8
-```
-
 ### When to Use Long Polling
 
 - **Web applications** requiring real-time updates
@@ -558,26 +289,6 @@ session.mount("https://", adapter)
 ```
 
 ### Error Handling and Resilience
-
-**Error Handling Flow:**
-
-```mermaid
-flowchart TD
-    A[Connection Error] --> B{Error Type?}
-    B -->|Network| C[Exponential Backoff]
-    B -->|Authentication| D[Refresh Credentials]
-    B -->|Rate Limit| E[Backoff with Jitter]
-    B -->|Server Error| F[Circuit Breaker]
-    
-    C --> G[Retry Connection]
-    D --> G
-    E --> G
-    F --> H[Fallback Strategy]
-    
-    G --> I{Success?}
-    I -->|Yes| J[Resume Normal Operation]
-    I -->|No| K[Escalate/Alert]
-```
 
 ```java
 // Kafka consumer with error handling
