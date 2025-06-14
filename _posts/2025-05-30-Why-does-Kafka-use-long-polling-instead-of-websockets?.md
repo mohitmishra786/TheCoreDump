@@ -8,8 +8,6 @@ description: "Exploring the technical differences between long polling and WebSo
 toc: true
 ---
 
-# Why Kafka Uses Long Polling Instead of WebSockets
-
 Real-time communication over the internet involves more than just sending data quickly. The choice between different communication patterns—long polling, WebSockets, or pull-based systems like Kafka—depends on specific requirements like scalability, latency, and state management. Let's examine why these patterns exist and when each makes sense.
 
 ## Long Polling vs. WebSockets: Understanding the Fundamentals
