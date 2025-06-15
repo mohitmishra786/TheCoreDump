@@ -1,6 +1,14 @@
 ---
 layout: post
+title: "Unique Pointers in C"
+date: 2024-10-12 12:00:00 -0400
+categories: [C Programming]
+tags: [C Programming, Smart Pointers, Memory Management, Systems Programming, Unique Pointers]
+author: mohitmishra786
+description: "Comprehensive guide to implementing unique pointers in C, covering exclusive ownership, automatic deletion, and move semantics with assembly analysis."
+toc: true
 ---
+
 In our previous blog post, we explored shared pointers in C. Now, let's dive into another crucial smart pointer concept: unique pointers. We'll implement a robust unique pointer in C, analyze its behavior, and examine the resulting assembly code to understand how it works at the machine level.
 
 ## Understanding Unique Pointers

@@ -1,25 +1,13 @@
 ---
 layout: post
+title: "Everything You Know About Isolation Levels Is Wrong: RCSI vs Read Committed"
+date: 2024-12-15 12:00:00 -0400
+categories: [Database Systems]
+tags: [Database Isolation, RCSI, Read Committed, SQL Server, MVCC, Database Performance]
+author: mohitmishra786
+description: "Deep dive into database isolation levels, comparing Read Committed and RCSI, dispelling common myths about optimistic isolation levels in SQL Server."
+toc: true
 ---
-
-## Table of Contents
-
-* Introduction
-* Historical Context
-* Understanding Isolation Levels
-* MVCC (Multi-Version Concurrency Control)
-* PostgreSQL vs SQL Server Implementation
-* Read Committed vs RCSI
-* Practical Implementation
-* Code Examples
-* Performance Implications
-* Best Practices
-* Common Misconceptions
-* Understanding the Flow
-* References
-* Further Reading
-* Conclusion
-
 
 ## 1. Introduction
 

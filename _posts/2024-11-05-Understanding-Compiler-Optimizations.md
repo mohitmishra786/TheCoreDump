@@ -1,18 +1,13 @@
 ---
 layout: post
+title: "Understanding Compiler Optimizations"
+date: 2024-11-05 12:00:00 -0400
+categories: [Compiler Technology]
+tags: [Compiler Optimizations, Constant Folding, Assembly Language, Performance Optimization, GCC]
+author: mohitmishra786
+description: "Deep dive into compiler optimization techniques, focusing on constant folding, bit shifts vs multiplication, and how compilers make optimization decisions."
+toc: true
 ---
-
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Understanding Compiler Basics](#understanding-compiler-basics)
-3. [Constant Folding: The Art of Compile-Time Computation](#constant-folding)
-4. [Case Study: Bit Shifts vs. Multiplication](#case-study)
-5. [How Compilers Make Optimization Decisions](#optimization-decisions)
-6. [Advanced Optimization Techniques](#advanced-techniques)
-7. [Optimization Levels and Their Impact](#optimization-levels)
-8. [Best Practices for Optimization-Friendly Code](#best-practices)
-9. [Further Reading](#further-reading)
-10. [Conclusion](#conclusion)
 
 ## Introduction
 
@@ -64,7 +59,7 @@ Program
             └── Right: Literal(2)
 ```
 
-## Constant Folding: The Art of Compile-Time Computation <a name="constant-folding"></a>
+## Constant Folding: The Art of Compile-Time Computation
 
 Constant folding is an optimization technique where the compiler evaluates constant expressions at compile time rather than generating code to compute them at runtime. This optimization isn't limited to simple arithmetic; it can handle complex expressions as long as all operands are known at compile time.
 

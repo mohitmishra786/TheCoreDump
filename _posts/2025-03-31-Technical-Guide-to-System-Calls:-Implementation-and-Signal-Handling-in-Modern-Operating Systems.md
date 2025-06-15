@@ -1,79 +1,13 @@
 ---
 layout: post
+title: "Technical Guide to System Calls: Implementation and Signal Handling in Modern Operating Systems"
+date: 2025-03-31 12:00:00 -0400
+categories: [Operating Systems]
+tags: [System Calls, Signal Handling, Operating Systems, Kernel Programming, Systems Programming]
+author: mohitmishra786
+description: "Comprehensive technical guide to system calls implementation and signal handling, covering fast vs slow system calls, kernel mechanisms, and practical examples."
+toc: true
 ---
-
-# Table of Contents
-
-- [Introduction](#introduction)
-  - [Overview of System Calls](#overview-of-system-calls)
-  - [Importance of Distinguishing Fast vs. Slow System Calls](#importance-of-distinguishing-fast-vs-slow-system-calls)
-
-- [Core Definitions: Fast vs. Slow System Calls](#core-definitions-fast-vs-slow-system-calls)
-  - [Fast System Calls](#fast-system-calls)
-  - [Slow System Calls](#slow-system-calls)
-
-- [The Signal Interaction Mechanism](#the-signal-interaction-mechanism)
-  - [How Signals Work with Blocked System Calls](#how-signals-work-with-blocked-system-calls)
-  - [Example Scenario](#example-scenario)
-
-- [Code Demonstration](#code-demonstration)
-  - [Practical Example: read() with Signal Handling](#practical-example-read-with-signal-handling)
-  - [How to Compile and Run the Code](#how-to-compile-and-run-the-code)
-  - [Expected Output and Explanation](#expected-output-and-explanation)
-
-- [Gray Areas: The Case of Disk I/O](#gray-areas-the-case-of-disk-io)
-  - [Disk I/O as a Gray Area](#disk-io-as-a-gray-area)
-  - [Practical Example: Disk Read with Signal Handling](#practical-example-disk-read-with-signal-handling)
-  - [How to Compile and Run the Disk I/O Example](#how-to-compile-and-run-the-disk-io-example)
-  - [Expected Output and Explanation](#expected-output-and-explanation)
-
-- [System Call Categories in Detail](#system-call-categories-in-detail)
-  - [Non-blocking System Calls (Fast)](#non-blocking-system-calls-fast)
-  - [Potentially Blocking System Calls (Medium)](#potentially-blocking-system-calls-medium)
-  - [Indefinitely Blocking System Calls (Slow)](#indefinitely-blocking-system-calls-slow)
-
-- [Kernel Implementation Details](#kernel-implementation-details)
-  - [Fast System Call Implementation](#fast-system-call-implementation)
-  - [Slow System Call Implementation](#slow-system-call-implementation)
-
-- [Signal Handling in the Kernel](#signal-handling-in-the-kernel)
-  - [Signal Processing Workflow](#signal-processing-workflow)
-  - [Automatic System Call Restart](#automatic-system-call-restart)
-  - [Practical Example: SA_RESTART Demonstration](#practical-example-sa_restart-demonstration)
-  - [How to Compile and Run the SA_RESTART Example](#how-to-compile-and-run-the-sa_restart-example)
-  - [Expected Output and Explanation](#expected-output-and-explanation)
-
-- [Practical Applications and Best Practices](#practical-applications-and-best-practices)
-  - [Signal Handler Design](#signal-handler-design)
-  - [Handling EINTR](#handling-eintr)
-  - [Using Non-blocking I/O](#using-non-blocking-io)
-  - [Using Asynchronous I/O](#using-asynchronous-io)
-
-- [Understanding System Call Implementation at a Lower Level](#understanding-system-call-implementation-at-a-lower-level)
-  - [Fast System Call: getpid()](#fast-system-call-getpid)
-  - [Slow System Call: read()](#slow-system-call-read)
-
-- [System Call Classification in Modern Operating Systems](#system-call-classification-in-modern-operating-systems)
-  - [Fully Synchronous (Fast) System Calls](#fully-synchronous-fast-system-calls)
-  - [Asynchronous System Calls](#asynchronous-system-calls)
-  - [Blocking with Timeout System Calls](#blocking-with-timeout-system-calls)
-  - [Indefinitely Blocking System Calls](#indefinitely-blocking-system-calls)
-  - [Restartable System Calls](#restartable-system-calls)
-
-- [The Evolution of System Call Handling](#the-evolution-of-system-call-handling)
-  - [Traditional Blocking I/O](#traditional-blocking-io)
-  - [Non-blocking I/O with Polling](#non-blocking-io-with-polling)
-  - [I/O Multiplexing](#io-multiplexing)
-  - [Signal-Driven I/O](#signal-driven-io)
-  - [Asynchronous I/O](#asynchronous-io)
-  - [I/O Uring (Linux)](#io-uring-linux)
-
-- [Summary and Practical Advice](#summary-and-practical-advice)
-  - [Key Differences Recap](#key-differences-recap)
-  - [Best Practices for System Call Handling](#best-practices-for-system-call-handling)
-
-- [Conclusion](#conclusion)
-  - [Importance of Understanding System Call Dynamics](#importance-of-understanding-system-call-dynamics)
 
 ## Introduction
 System calls are fundamental interfaces between user applications and the operating system kernel. They allow programs to request services from the operating system, such as file operations, process control, and network access. One important distinction in system calls is between "fast" and "slow" system calls, which affects how they interact with signal handling, process scheduling, and overall system performance.
@@ -511,7 +445,6 @@ Let's explore the three gradations of system calls mentioned in the reference an
 ### 1. Non-blocking System Calls (Fast)
 
 These system calls return immediately, only requiring CPU time. They include:
-
 - Information retrieval: `getpid()`, `getuid()`, `gettimeofday()`
 - Simple state changes: `setuid()`, `umask()`
 - Memory operations: `brk()`, `sbrk()`

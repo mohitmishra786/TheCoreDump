@@ -1,14 +1,13 @@
 ---
 layout: post
+title: "Deep Dive into Virtual File Systems: Architecture, Implementation, and Practice"
+date: 2024-11-03 12:00:00 -0400
+categories: [Operating Systems]
+tags: [Virtual File Systems, VFS, Kernel Programming, File Systems, Operating Systems, System Programming]
+author: mohitmishra786
+description: "Comprehensive exploration of Virtual File System architecture, implementation details, and practical applications in modern operating systems."
+toc: true
 ---
-## Table of Contents
-1. [Introduction](#introduction)
-2. [VFS Architecture](#vfs-architecture)
-3. [Core Components](#core-components)
-4. [Implementation Details](#implementation-details)
-5. [Practical Examples](#practical-examples)
-6. [Advanced Concepts](#advanced-concepts)
-7. [System Architecture](#system-architecture)
 
 ## Introduction
 

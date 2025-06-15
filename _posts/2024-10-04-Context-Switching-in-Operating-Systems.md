@@ -9,17 +9,6 @@ description: "Comprehensive exploration of context switching mechanisms in opera
 toc: true
 ---
 
-## Table of Contents
-1. Introduction
-2. What is a Process Context?
-3. Anatomy of a Context Switch
-4. Hardware Support for Context Switching
-5. Implementation Details
-6. Performance Implications
-7. Real-World Examples
-8. Advanced Topics
-9. Conclusion
-
 ## 1. Introduction
 
 Context switching is one of the most fundamental operations in modern operating systems, enabling multitasking by allowing multiple processes to share a single CPU. While it might seem magical from the user perspective, under the hood it's a complex dance of hardware and software working in perfect harmony. In this article, we'll peel back the layers and examine exactly what happens when your OS performs a context switch, right down to the register level.

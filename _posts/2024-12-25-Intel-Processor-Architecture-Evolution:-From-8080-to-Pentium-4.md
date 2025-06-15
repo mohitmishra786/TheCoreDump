@@ -1,18 +1,13 @@
 ---
 layout: post
+title: "Intel Processor Architecture Evolution: From 8080 to Pentium 4"
+date: 2024-12-25 12:00:00 -0400
+categories: [Computer Architecture]
+tags: [Intel Processors, CPU Architecture, Microprocessor Evolution, Computer History, Hardware Design]
+author: mohitmishra786
+description: "Comprehensive journey through Intel processor architecture evolution from the 8080 to Pentium 4, exploring design innovations and technological advances."
+toc: true
 ---
-
-**Table of Contents**
-
-* [Intel 8080 Architecture](#intel-8080-architecture)
-* [Intel 8086 Architecture](#intel-8086-architecture)
-* [Intel 80286 Architecture](#intel-80286-architecture)
-* [Intel 80386 Architecture](#intel-80386-architecture)
-* [Intel 80486 Architecture](#intel-80486-architecture)
-* [Intel Pentium Processor Architecture](#intel-pentium-processor-architecture)
-* [P6 (Intel Pentium Pro) Processor Architecture](#p6-intel-pentium-pro-processor-architecture)
-* [Intel Pentium III Processor Architecture](#intel-pentium-iii-processor-architecture)
-* [Intel Pentium 4 Processor Architecture](#intel-pentium-4-processor-architecture)
 
 
 ## Intel 8080 Architecture <a name="intel-8080-architecture"></a>

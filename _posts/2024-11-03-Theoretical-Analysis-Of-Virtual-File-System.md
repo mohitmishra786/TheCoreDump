@@ -1,6 +1,14 @@
 ---
 layout: post
+title: "Theoretical Analysis Of Virtual File System"
+date: 2024-11-03 12:00:00 -0400
+categories: [Operating Systems]
+tags: [Virtual File Systems, VFS Theory, Operating Systems, File System Architecture, Kernel Design]
+author: mohitmishra786
+description: "Theoretical analysis of Virtual File System architecture, exploring historical context, evolution, and core components of modern VFS implementations."
+toc: true
 ---
+
 ## Introduction
 
 The Virtual File System (VFS) represents one of the most significant architectural components in modern operating systems, serving as the critical bridge between user processes and the underlying storage systems. This article explores the theoretical foundations, evolution, and architectural complexities of VFS, examining both its historical context and modern implementations.

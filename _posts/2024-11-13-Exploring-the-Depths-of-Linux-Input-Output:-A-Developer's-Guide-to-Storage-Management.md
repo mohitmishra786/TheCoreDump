@@ -1,28 +1,13 @@
 ---
 layout: post
+title: "Exploring the Depths of Linux Input-Output: A Developer's Guide to Storage Management"
+date: 2024-11-13 12:00:00 -0400
+categories: [Linux Systems]
+tags: [Linux I/O, Storage Management, Kernel Development, File Systems, Block Layer, Device Drivers]
+author: mohitmishra786
+description: "Comprehensive guide to Linux I/O stack architecture, covering VFS, block layer, I/O schedulers, and device drivers with practical implementation details."
+toc: true
 ---
-
-## Table of Contents
-1. [Introduction](#introduction)
-2. [System Architecture Overview](#system-architecture-overview)
-3. [Application Layer](#application-layer)
-4. [Virtual File System (VFS)](#virtual-file-system)
-   - [Block-based File Systems](#block-based-file-systems)
-   - [Network File Systems](#network-file-systems)
-   - [Pseudo File Systems](#pseudo-file-systems)
-   - [Special Purpose File Systems](#special-purpose-file-systems)
-5. [Block I/O Layer](#block-io-layer)
-6. [I/O Scheduler](#io-scheduler)
-7. [Device Driver Interface](#device-driver-interface)
-8. [SCSI Stack](#scsi-stack)
-   - [SCSI Upper Layer](#scsi-upper-layer)
-   - [SCSI Mid Layer](#scsi-mid-layer)
-   - [SCSI Low Layer](#scsi-low-layer)
-9. [Physical Devices](#physical-devices)
-10. [Direct I/O and Page Cache](#direct-io-and-page-cache)
-11. [Code Examples](#code-examples)
-12. [Further Reading](#further-reading)
-13. [Conclusion](#conclusion)
 
 ## Introduction
 

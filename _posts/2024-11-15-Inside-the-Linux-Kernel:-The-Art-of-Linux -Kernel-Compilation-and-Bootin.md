@@ -1,20 +1,14 @@
 ---
 layout: post
+title: "Inside the Linux Kernel: The Art of Linux Kernel Compilation and Booting"
+date: 2024-11-15 12:00:00 -0400
+categories: [Linux Kernel]
+tags: [Linux Kernel, Kernel Compilation, System Programming, Operating Systems, Kernel Development]
+author: mohitmishra786
+description: "Comprehensive guide to Linux kernel compilation and booting, covering source code acquisition, configuration, compilation, and boot loader integration."
+toc: true
 ---
 
-## Table of Contents
-- 1.[Introduction](#introduction)
-- 2.[Obtaining the Kernel Source Code](#obtaining-the-kernel-source-code)
-- 3.[Kernel Configuration](#kernel-configuration)
-- 4.[Compiling the Kernel](#compiling-the-kernel)
-- 5.[Integrating the New Kernel with the Boot Loader](#integrating-the-new-kernel-with-the-boot-loader)
-- 6.[C Code Implementations](#c-code-implementations)
-  -  [Kernel Module Example](#kernel-module-example)
-  -  [Kernel Booting Process](#kernel-booting-process)
-- 7.[Visualizing the Kernel Development Process](#visualizing-the-kernel-development-process)
-- 8.[Conclusion](#conclusion)
-
----
 ## Introduction
 
 Diving into the heart of the Linux operating system - the kernel - is an exciting journey for any aspiring system programmer or developer. The Linux kernel, maintained by a global community of contributors, is the foundation upon which modern Linux distributions are built. Understanding its inner workings, how to configure it, and how to extend its capabilities is a valuable skillset for any Linux enthusiast.

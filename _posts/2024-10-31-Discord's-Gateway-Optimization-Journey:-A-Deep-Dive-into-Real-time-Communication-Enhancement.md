@@ -1,5 +1,12 @@
 ---
 layout: post
+title: "Discord's Gateway Optimization Journey: A Deep Dive into Real-time Communication Enhancement"
+date: 2024-10-31 12:00:00 -0400
+categories: [System Optimization]
+tags: [Discord, Real-time Communication, Performance Optimization, Compression, Zstandard, System Architecture]
+author: mohitmishra786
+description: "Deep dive into Discord's Gateway optimization journey, achieving 40% bandwidth reduction through Zstandard compression and streaming optimization techniques."
+toc: true
 ---
 
 In the world of real-time communication platforms, efficiency isn't just about user experience—it's about sustainability and cost-effectiveness. Discord, one of the leading communication platforms, recently tackled a significant challenge: their real-time communication service was consuming an ever-increasing amount of bandwidth, leading to costs estimated in the hundreds of thousands of dollars. This is the story of how they achieved a remarkable 40% reduction in Gateway bandwidth through careful analysis, testing, and implementation of modern compression techniques.

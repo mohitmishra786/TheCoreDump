@@ -1,17 +1,13 @@
 ---
 layout: post
+title: "Memory Security and Kernel Protections: A Deep Dive into Modern Defense Mechanisms"
+date: 2024-11-01 12:00:00 -0400
+categories: [Security]
+tags: [Memory Security, Kernel Protection, Buffer Overflow, Stack Canaries, Memory Management, System Security]
+author: mohitmishra786
+description: "Comprehensive analysis of modern memory protection mechanisms, covering stack canaries, NX protection, memory sealing, and advanced kernel security features."
+toc: true
 ---
-
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Understanding Memory Corruption](#understanding-memory-corruption)
-3. [Traditional Memory Protection Mechanisms](#traditional-memory-protection-mechanisms)
-4. [Advanced Memory Protection](#advanced-memory-protection)
-5. [Memory Sealing: A New Approach](#memory-sealing-a-new-approach)
-6. [Practical Implementations](#practical-implementations)
-7. [Looking to the Future](#looking-to-the-future)
-8. [References](#references)
-9. [Conclusion](#conclusion)
 
 ## Introduction
 

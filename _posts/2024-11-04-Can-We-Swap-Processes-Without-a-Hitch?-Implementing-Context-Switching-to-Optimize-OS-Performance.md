@@ -1,30 +1,13 @@
 ---
 layout: post
+title: "Can We Swap Processes Without a Hitch? Implementing Context Switching to Optimize OS Performance"
+date: 2024-11-04 12:00:00 -0400
+categories: [Operating Systems]
+tags: [Context Switching, Process Management, Operating Systems, CPU Scheduling, System Programming]
+author: mohitmishra786
+description: "Deep dive into context switching mechanisms in operating systems, exploring implementation details, performance optimization, and hardware support."
+toc: true
 ---
-## Table of Contents
-
-* [1. Introduction](#1-introduction)
-* [2. What is Context Switching?](#2-what-is-context-switching)
-    * [Flow of Context Switch](#flow-of-context-switch)
-* [3. Anatomy of a Context Switch](#3-anatomy-of-a-context-switch)
-* [4. Process Control Block (PCB)](#4-process-control-block-pcb)
-* [5. Hardware Context vs. Software Context](#5-hardware-context-vs-software-context)
-    * [Types of Contexts](#types-of-contexts)
-* [6. Hardware Support for Context Switching](#6-hardware-support-for-context-switching)
-* [7. Context Switch Triggers](#7-context-switch-triggers)
-* [8. The Context Switch Mechanism](#8-the-context-switch-mechanism)
-* [9. Context Switching Costs](#9-context-switching-costs)
-* [10. Implementation of Context Switch Handler](#10-implementation-of-context-switch-handler)
-* [11. Real-world Examples](#11-real-world-examples)
-* [12. Performance Considerations](#12-performance-considerations)
-* [13. Conclusion](#13-conclusion)
-
-
-## About Me
-- [My Github](https://github.com/mohitmishra786)
-- [Personal Tech Blogs](https://mohitmishra786.github.io/chessman)
-- [Medium](https://medium.com/@mohitmishra786687)
-- [Book Repo](https://github.com/mohitmishra786/myJourneyOfBuildingOS)
 
 ## 1. Introduction
 
@@ -60,7 +43,7 @@ struct process_context {
 };
 ```
 
-This structure represents the minimal context that must be saved and restored during a context switch. Let’s examine each component:
+This structure represents the minimal context that must be saved and restored during a context switch. Let's examine each component:
 1. **General Purpose Registers:** Store intermediate computational results
 2. **Stack Pointers:** Track the current execution stack
 3. **Instruction Pointer:** Points to the next instruction to execute
@@ -78,7 +61,7 @@ A context switch can occur for several reasons:
 3. I/O request
 4. Inter-process communication
 
-Here’s a simplified view of the context switch handler:
+Here's a simplified view of the context switch handler:
 
 ```c
 void context_switch(struct process_context* old_context,
