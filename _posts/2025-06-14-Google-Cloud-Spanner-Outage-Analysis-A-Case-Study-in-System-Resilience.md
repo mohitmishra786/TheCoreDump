@@ -9,8 +9,6 @@ description: "A detailed analysis of a critical Google Cloud Spanner outage, exa
 toc: true
 ---
 
-# Google Cloud Spanner Outage Analysis: A Case Study in System Resilience
-
 ## Incident Overview
 
 The root cause was a null pointer exception in a new, unflagged code path deployed to a critical binary that interacted with Cloud Spanner. The exception occurred when the binary attempted to read uninitialized or misconfigured fields from Spanner, causing it to crash.
