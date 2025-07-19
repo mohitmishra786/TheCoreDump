@@ -89,3 +89,7 @@ The execution model described represents Lambda's strength rather than a limitat
 The key insight is recognizing that serverless function execution differs fundamentally from persistent server processes. Functions should complete all necessary work before returning, use appropriate async patterns when extended processing is required, or delegate long-running operations to more suitable architectural components like SQS-triggered processors or Step Functions for orchestration.
 
 This understanding transforms the perceived "silent crash" from a mysterious runtime bug into a predictable behavior that can be designed around effectively, resulting in more robust and maintainable serverless applications that align with AWS Lambda's architectural philosophy and execution model.
+
+### References
+- [Does AWS Lambda have a silent crash in the runtime?](https://aaronstuyvenberg.com/posts/does-lambda-have-a-silent-crash)
+- [AWS Lambda Silent Crash – A Platform Failure, Not an Application Bug](https://web.archive.org/web/20250716025408/https://lyons-den.com/whitepapers/aws-lambda-silent-crash.pdf)
