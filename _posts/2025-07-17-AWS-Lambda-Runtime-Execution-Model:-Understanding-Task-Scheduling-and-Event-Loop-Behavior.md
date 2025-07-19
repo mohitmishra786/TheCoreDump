@@ -2,10 +2,10 @@
 layout: post
 title: "AWS Lambda Runtime Execution Model: Understanding Task Scheduling and Event Loop Behavior"
 date: 2025-07-17 12:00:00 -0400
-categories: [Technical Deep Dive]
+categories: [Technical Report]
 tags: [AWS Lambda, Serverless, Node.js, Event Loop, Runtime API, Task Scheduling]
 author: mohitmishra786
-description: "A comprehensive analysis of AWS Lambda's execution model, exploring the Runtime API, Node.js event loop integration, and why perceived 'silent crashes' are actually intended behavior in Lambda's optimized execution environment."
+description: "A detailed analysis of AWS Lambda's execution model, exploring the Runtime API, Node.js event loop integration, and why perceived 'silent crashes' are actually intended behavior in Lambda's optimized execution environment."
 toc: true
 ---
 
