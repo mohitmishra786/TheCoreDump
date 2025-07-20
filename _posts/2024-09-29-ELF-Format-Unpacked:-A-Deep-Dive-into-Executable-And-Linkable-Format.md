@@ -49,9 +49,9 @@ This unified approach simplifies the toolchain for compilers, linkers, and debug
 An ELF file consists of several key components, each serving a specific purpose in the overall structure. Let's break down these components and examine their roles:
 ![image](https://github.com/user-attachments/assets/c2f093a2-e81a-4167-9e91-798a268662bd)
 
-### 1. ELF Header
+### 1. ELF Header {#elf-header}
 
-The ELF header is the starting point of any ELF file. It contains crucial metadata about the file, including:
+The ELF header is the first part of any ELF file and contains essential information about the file's characteristics and layout. It begins with a 16-byte identification sequence (ELF magic number) followed by various fields that describe the file's properties.
 
 - Magic number: A sequence that identifies the file as an ELF file
 - File class: 32-bit or 64-bit
@@ -85,9 +85,9 @@ typedef struct {
 } Elf64_Ehdr;
 ```
 
-### 2. Program Header Table
+### 2. Program Header Table {#program-header-table}
 
-The program header table is crucial for executable and shared object files. It contains information that the system needs to prepare the program for execution. Each entry in this table describes a segment or other information the system needs to prepare the program for execution.
+The program header table is an array of structures that describes segments in the file. Segments are runtime entities, representing how the file should be loaded into memory for execution. Each entry in the table describes a segment's location in the file, its virtual address, size, and permissions.
 
 A simplified C structure for a 64-bit program header entry might look like this:
 
@@ -104,9 +104,9 @@ typedef struct {
 } Elf64_Phdr;
 ```
 
-### 3. Section Header Table
+### 3. Section Header Table {#section-header-table}
 
-The section header table provides a detailed view of the sections within the ELF file. While not necessary for program execution, this table is crucial for linking and debugging. Each entry in the section header table describes a single section in the file.
+The section header table is an array of section header entries, each describing a section in the file. Sections are compile-time entities that group related data together, such as code, data, symbols, or relocation information.
 
 Here's a simplified C structure for a 64-bit section header entry:
 
@@ -125,22 +125,15 @@ typedef struct {
 } Elf64_Shdr;
 ```
 
-### 4. Data
+### 4. Data {#data}
 
-The actual contents of the file, including code and data, are stored in various sections. Some common sections include:
-
-- .text: Contains executable code
-- .data: Contains initialized data
-- .bss: Contains uninitialized data
-- .rodata: Contains read-only data
-- .symtab: Symbol table
-- .strtab: String table
+The actual content of the ELF file is stored in the data area, which comes after the header tables. This includes the actual machine code, initialized data, symbol information, string tables, and other file contents organized into sections and segments.
 
 ## ELF in Action: From Compilation to Execution
 
 To better understand how ELF files are created and used, let's walk through the process of compiling a simple C program and examining its ELF structure.
 
-### Step 1: Writing a Simple C Program
+### Step 1: Writing a Simple C Program {#writing-a-simple-c-program}
 
 Let's start with a basic "Hello, World!" program:
 
@@ -153,7 +146,7 @@ int main() {
 }
 ```
 
-### Step 2: Compilation
+### Step 2: Compilation {#compilation}
 
 We'll compile this program using GCC:
 
@@ -163,7 +156,7 @@ gcc -o hello hello.c
 
 This command creates an executable ELF file named "hello".
 
-### Step 3: Examining the ELF File
+### Step 3: Examining the ELF File {#examining-the-elf-file}
 
 Now, let's use some tools to examine the structure of our ELF file:
 
@@ -191,7 +184,7 @@ readelf -S hello
 
 This command displays information about the various sections in the ELF file.
 
-### Step 4: Disassembly
+### Step 4: Disassembly {#disassembly}
 
 To see the actual machine code generated from our C program, we can use objdump:
 
