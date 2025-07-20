@@ -584,6 +584,36 @@ void insert_file(struct htree_directory* dir, const char* name, uint32_t inode) 
     block->header.entry_count++;
     block->header.free_space -= sizeof(struct dir_entry);
 }
+
+struct htree_block* find_entry_block(struct htree_directory* dir, uint32_t hash) {
+    for (uint32_t i = 0; i < dir->num_entry_blocks; i++) {
+        struct htree_block* block = dir->entry_blocks[i];
+        if (block->header.entry_count < MAX_ENTRIES_PER_BLOCK) {
+            return block;
+        }
+    }
+    return add_entry_block(dir);
+}
+
+struct htree_block* add_entry_block(struct htree_directory* dir) {
+    dir->num_entry_blocks++;
+    dir->entry_blocks = realloc(dir->entry_blocks,
+                               dir->num_entry_blocks * sizeof(struct htree_block*));
+    if (!dir->entry_blocks) return NULL;
+
+    struct htree_block* block = malloc(sizeof(struct htree_block));
+    if (!block) {
+        dir->num_entry_blocks--;
+        return NULL;
+    }
+
+    block->header.block_type = 3;
+    block->header.entry_count = 0;
+    block->header.free_space = BLOCK_SIZE - sizeof(struct block_header);
+
+    dir->entry_blocks[dir->num_entry_blocks - 1] = block;
+    return block;
+}
 ```
 
 The insertion process involves:
@@ -844,9 +874,7 @@ hash_filename:
 
 ## Performance Analysis {#performance-analysis}
 
-H-trees provide significant performance improvements over traditional directory storage methods. Let's analyze the performance characteristics in detail and examine the benchmarking results.
-
-The benchmark results clearly demonstrate the efficiency of H-trees:
+H-trees provide significant performance improvements over traditional directory storage methods. The benchmark results clearly demonstrate the efficiency of H-trees:
 
 ### Time Complexity Analysis
 
@@ -860,7 +888,7 @@ The benchmark results clearly demonstrate the efficiency of H-trees:
 
 ### Performance Metrics
 
-From our benchmark with 10,000 files:
+From benchmarks with 10,000 files:
 
 - **Insertion Performance**: 0.014 seconds total (0.001382 ms per file)
 - **Search Performance**: 0.000041 seconds average per lookup
@@ -881,8 +909,6 @@ H-trees excel particularly in:
 - **Cache efficiency** due to sequential block access
 - **Backward compatibility** with existing file systems
 - **Balanced performance** between search and insertion
-
-The assembly-level optimizations shown in our hash function further enhance performance by leveraging CPU-specific instructions for efficient hash computation.
 
 ## Conclusion {#conclusion}
 
