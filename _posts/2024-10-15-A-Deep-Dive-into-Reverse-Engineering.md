@@ -8,15 +8,6 @@ author: mohitmishra786
 description: "A comprehensive exploration of reverse engineering techniques, covering binary analysis, disassembly, debugging, and security research methodologies for understanding complex software systems."
 toc: true
 ---
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Understanding Assembly Basics](#understanding-assembly-basics)
-3. [Variable Types and Memory Layout](#variable-types-and-memory-layout)
-4. [Control Flow Structures](#control-flow-structures)
-5. [Function Calls and Parameter Passing](#function-calls-and-parameter-passing)
-6. [Practical Applications](#practical-applications)
-7. [Tools and Techniques](#tools-and-techniques)
-8. [Conclusion](#conclusion)
 
 ## Introduction
 

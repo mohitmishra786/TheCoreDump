@@ -9,22 +9,7 @@ description: "A comprehensive guide to memory organization and variable manageme
 toc: true
 ---
 
-## Table of Contents
-
-1. [Introduction](#introduction)
-2. [The Illusion of Variables](#the-illusion-of-variables)
-3. [The Reality: Memory as a Blackboard](#the-reality-memory-as-a-blackboard)
-4. [Memory Layout and Compiler Differences](#memory-layout-and-compiler-differences)
-5. [The Dangers of Overflow](#the-dangers-of-overflow)
-6. [Pointer Arithmetic and Memory Layout](#pointer-arithmetic-and-memory-layout)
-7. [Diving Deeper: Assembly Code](#diving-deeper-assembly-code)
-8. [Implications for Programming Practice](#implications-for-programming-practice)
-9. [Conclusion](#conclusion)
-
-
----
-
-### Introduction
+## Introduction
 
 In the world of programming, particularly when working with languages like C and C++, understanding how memory and variables work is crucial. This knowledge not only helps in writing more efficient code but also in debugging complex issues. In this post, we'll explore the reality behind variables, how they're stored in memory, and the implications this has for our programs.
 

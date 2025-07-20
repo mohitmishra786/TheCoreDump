@@ -9,20 +9,6 @@ description: "A deep dive into Unix file system management, exploring file descr
 toc: true
 ---
 
-## Table of Contents
-1. [Introduction](#introduction)
-2. [The File Descriptor Table](#the-file-descriptor-table)
-3. [The Open File Table](#the-open-file-table)
-4. [The V-node Table](#the-v-node-table)
-5. [File Operations and System Calls](#file-operations-and-system-calls)
-   - [Opening a File](#opening-a-file)
-   - [Reading from a File](#reading-from-a-file)
-   - [File Descriptor Duplication](#file-descriptor-duplication)
-6. [Pipes and Inter-Process Communication](#pipes-and-inter-process-communication)
-7. [Putting It All Together: Implementing a Simple Shell](#putting-it-all-together-implementing-a-simple-shell)
-8. [Conclusion](#conclusion)
-9. [Flow Diagram](#flow-diagram)
-
 ## Introduction
 In the world of operating systems, particularly Unix-like systems such as Linux, file management is a crucial aspect that underlies much of the functionality we take for granted. This blog post delves into the intricacies of how these systems keep track of files, manage file descriptors, and implement features like pipes for inter-process communication. We'll explore the underlying data structures, system calls, and provide C code examples to illustrate these concepts.
 

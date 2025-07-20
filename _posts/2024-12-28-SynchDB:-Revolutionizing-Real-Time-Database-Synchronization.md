@@ -8,54 +8,8 @@ author: mohitmishra786
 description: "An exploration of SynchDB's approach to real-time database synchronization, covering innovative techniques for maintaining data consistency across distributed database systems."
 toc: true
 ---
----
 
-**Table of Contents**
-
-1. **Introduction to SynchDB**
-   - The Challenge of Heterogeneous Database Synchronization
-   - What is SynchDB?
-
-2. **Understanding the Architecture of SynchDB**
-   - Debezium Runner (Java App)
-   - SynchDB PostgreSQL Extension
-   - Change Data Capture from Source Databases
-   - Data Transformation and Integration
-   - Role of JVM and JNI
-
-3. **Setting Up SynchDB**
-   - Prerequisites and System Requirements
-   - Installing Debezium and SynchDB
-   - Configuring Source Database Connectors
-
-4. **Step-by-Step Guide to Synchronize Data**
-   - Example: Synchronizing MySQL to PostgreSQL
-   - Code Examples and Configuration Files
-
-5. **Performance Tuning and Best Practices**
-   - Optimizing SynchDB Performance
-   - Monitoring and Logging
-   - Troubleshooting Common Issues
-
-6. **Case Studies and Real-World Applications**
-   - SynchDB in E-commerce Platforms
-   - Use in Financial Services
-
-7. **The Future of SynchDB and Database Synchronization**
-   - Upcoming Features and Enhancements
-   - Trends in Data Integration Technologies
-
-8. **Conclusion**
-   - Recap of SynchDB's Capabilities
-   - Final Thoughts on Its Impact
-
-9. **Resources and References**
-   - Official Documentation
-   - Community Support and Forums
-
----
-
-**1. Introduction to SynchDB**
+## Introduction to SynchDB
 
 In today's data-driven world, organizations often deal with multiple databases from different vendors, each serving distinct purposes. Ensuring data consistency across these systems is crucial, especially in environments requiring real-time data integration. Traditional ETL processes and middleware solutions can introduce latency and complexity. SynchDB offers a native, efficient solution for real-time database synchronization directly within PostgreSQL.
 

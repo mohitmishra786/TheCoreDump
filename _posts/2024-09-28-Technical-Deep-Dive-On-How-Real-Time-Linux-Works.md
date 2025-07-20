@@ -11,22 +11,6 @@ toc: true
 
 Real-time operating systems (RTOS) are crucial for applications that require deterministic behavior and guaranteed response times. Linux, with its PREEMPT_RT patch, has become a viable option for real-time computing. This blog post provides a comprehensive technical overview of how real-time support is implemented in Linux, focusing on the key components and mechanisms that enable deterministic behavior.
 
-## Table of Contents
-
-1. [Introduction to Real-Time Systems](#introduction-to-real-time-systems)
-2. [The PREEMPT_RT Patch](#the-preempt_rt-patch)
-3. [Kernel Preemption](#kernel-preemption)
-4. [High-Resolution Timers](#high-resolution-timers)
-5. [Threaded Interrupt Handlers](#threaded-interrupt-handlers)
-6. [Real-Time Mutexes (rt_mutex)](#real-time-mutexes-rt_mutex)
-7. [Priority Inheritance](#priority-inheritance)
-8. [Sleeping Spinlocks](#sleeping-spinlocks)
-9. [RCU (Read-Copy-Update)](#rcu-read-copy-update)
-10. [local_lock Mechanism](#local_lock-mechanism)
-11. [Scheduling Latency and Testing](#scheduling-latency-and-testing)
-12. [Recent Developments and Mainline Integration](#recent-developments-and-mainline-integration)
-13. [Conclusion](#conclusion)
-
 ## Introduction to Real-Time Systems
 
 Real-time systems are characterized by their ability to respond to events within strict time constraints. These systems are essential in various domains, including industrial automation, robotics, automotive systems, and aerospace applications. The key requirements for a real-time operating system include:

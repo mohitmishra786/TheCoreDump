@@ -8,16 +8,6 @@ description: "A complete guide to converting data between JavaScript objects and
 toc: true
 ---
 
-
-## Table of Contents
-
-1. [What is JSON.stringify()](#1-what-is-jsonstringify)
-2. [What is JSON.parse()](#2-what-is-jsonparse)
-3. [Real-World Use Cases](#3-real-world-use-cases)
-   - [Storing & Retrieving Data in localStorage](#storing--retrieving-data-in-localstorage)
-   - [Sending & Receiving Data from API](#sending--receiving-data-from-api)
-   - [Deep Copying an Object](#deep-copying-an-object)
-
 ## 1. What is JSON.stringify()
 
 `JSON.stringify()` converts a JavaScript object into a JSON-formatted string.

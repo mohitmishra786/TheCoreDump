@@ -10,19 +10,6 @@ toc: true
 ---
 In the world of C programming, sorting algorithms and pointer manipulation are fundamental concepts that every developer should master. This comprehensive guide will delve into the intricacies of using built-in sorting functions in C, with a special focus on the often misunderstood topic of double pointers. We'll explore how to effectively use these powerful tools, provide practical examples, and even peek into the low-level assembly code to gain a deeper understanding of what's happening under the hood.
 
-## Table of Contents
-
-1. [Introduction to C Sorting Functions](#introduction-to-c-sorting-functions)
-2. [Understanding the qsort Function](#understanding-the-qsort-function)
-3. [Implementing a Basic Integer Sort](#implementing-a-basic-integer-sort)
-4. [Diving into Double Pointers](#diving-into-double-pointers)
-5. [Sorting Structs with qsort](#sorting-structs-with-qsort)
-6. [Optimizing Sort Performance](#optimizing-sort-performance)
-7. [Exploring Other Sorting Algorithms](#exploring-other-sorting-algorithms)
-8. [Low-Level Analysis: Assembly Code Insights](#low-level-analysis-assembly-code-insights)
-9. [Best Practices and Common Pitfalls](#best-practices-and-common-pitfalls)
-10. [Conclusion](#conclusion)
-
 ## Introduction to C Sorting Functions
 
 The C standard library provides several built-in sorting functions that offer efficient and flexible ways to sort arrays of various data types. These functions are designed to be generic, allowing developers to sort not just simple data types like integers or floats, but also complex structures and custom data types.

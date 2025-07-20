@@ -9,18 +9,6 @@ description: "A comprehensive exploration of multi-level page tables and virtual
 toc: true
 ---
 
-## Table of Contents
-1. Introduction
-2. The Challenge of Memory Management
-3. Multi-Level Page Tables: A Practical Solution
-4. Implementation Details
-5. Practical Examples with C
-6. Memory Sharing and Segmentation
-7. Performance Considerations
-8. Visual Representation
-9. Further Reading
-10. Conclusion
-
 ## Introduction
 
 Modern operating systems face a significant challenge in managing memory efficiently while providing isolation between processes. This blog post explores the elegant solution of multi-level page tables, getting into their implementation, practical applications, and performance implications.

@@ -8,42 +8,6 @@ description: "A comprehensive guide to Linux memory management, exploring OOM Ki
 toc: true
 ---
 
-# Table of Contents
-- [Core Concepts of Linux Memory Management](#core-concepts-of-linux-memory-management)
-  - [Memory Exhaustion Definition and Context](#memory-exhaustion-definition-and-context)
-    - [Simple Memory Exhaustion Example](#simple-memory-exhaustion-example)
-  - [Memory Allocation Strategies](#memory-allocation-strategies)
-    - [Demonstrating Overcommit Policies](#demonstrating-overcommit-policies)
-  - [The OOM Killer: Last Line of Defense](#the-oom-killer-last-line-of-defense)
-    - [Examining OOM Scores](#examining-oom-scores)
-- [Architectural Overview of Memory Management Under Pressure](#architectural-overview-of-memory-management-under-pressure)
-  - [Memory Allocation Request Flow](#memory-allocation-request-flow)
-    - [Tracking Memory Allocations](#tracking-memory-allocations)
-  - [Page Fault Handling During Memory Scarcity](#page-fault-handling-during-memory-scarcity)
-    - [Demonstrating Page Fault Handling](#demonstrating-page-fault-handling)
-  - [Interactions Between Memory Subsystems](#interactions-between-memory-subsystems)
-- [Memory Reclamation and Swapping Mechanisms](#memory-reclamation-and-swapping-mechanisms)
-  - [Page Cache Reclamation](#page-cache-reclamation)
-    - [Testing Page Cache Behavior](#testing-page-cache-behavior)
-  - [Transparent Huge Pages Reclamation](#transparent-huge-pages-reclamation)
-    - [Demonstrating THP Impact](#demonstrating-thp-impact)
-  - [Anonymous Memory and Swapping](#anonymous-memory-and-swapping)
-    - [Examining Swap Behavior](#examining-swap-behavior)
-  - [The kswapd Daemon and Direct Reclaim](#the-kswapd-daemon-and-direct-reclaim)
-- [OOM Killer Mechanics](#oom-killer-mechanics)
-  - [Scoring Algorithm and Process Selection](#scoring-algorithm-and-process-selection)
-    - [OOM Killer Simulation](#oom-killer-simulation)
-  - [Badness Function Implementation](#badness-function-implementation)
-  - [Process Termination Sequence](#process-termination-sequence)
-  - [OOM Control via Cgroups](#oom-control-via-cgroups)
-    - [Demonstrating Cgroup Memory Limits](#demonstrating-cgroup-memory-limits)
-- [Future Directions in Linux Memory Management](#future-directions-in-linux-memory-management)
-  - [Advanced Swap Technologies](#advanced-swap-technologies)
-  - [Persistent Memory Integration](#persistent-memory-integration)
-  - [Machine Learning for Memory Management](#machine-learning-for-memory-management)
-  - [Enhanced Memory Pressure Signaling](#enhanced-memory-pressure-signaling)
-- [Conclusion](#conclusion)
-
 ## Core Concepts of Linux Memory Management
 
 ### Memory Exhaustion Definition and Context

@@ -9,28 +9,6 @@ description: "A developer's comprehensive guide to Linux I/O subsystem and stora
 toc: true
 ---
 
-## Table of Contents
-1. [Introduction](#introduction)
-2. [System Architecture Overview](#system-architecture-overview)
-3. [Application Layer](#application-layer)
-4. [Virtual File System (VFS)](#virtual-file-system)
-   - [Block-based File Systems](#block-based-file-systems)
-   - [Network File Systems](#network-file-systems)
-   - [Pseudo File Systems](#pseudo-file-systems)
-   - [Special Purpose File Systems](#special-purpose-file-systems)
-5. [Block I/O Layer](#block-io-layer)
-6. [I/O Scheduler](#io-scheduler)
-7. [Device Driver Interface](#device-driver-interface)
-8. [SCSI Stack](#scsi-stack)
-   - [SCSI Upper Layer](#scsi-upper-layer)
-   - [SCSI Mid Layer](#scsi-mid-layer)
-   - [SCSI Low Layer](#scsi-low-layer)
-9. [Physical Devices](#physical-devices)
-10. [Direct I/O and Page Cache](#direct-io-and-page-cache)
-11. [Code Examples](#code-examples)
-12. [Further Reading](#further-reading)
-13. [Conclusion](#conclusion)
-
 ## Introduction
 
 The Linux I/O stack is a sophisticated hierarchical structure that manages how data flows between applications and physical hardware devices in a Linux system. This comprehensive analysis examines version 3.3 of the Linux kernel's I/O stack, detailing each layer's functionality, interactions, and implementation details.

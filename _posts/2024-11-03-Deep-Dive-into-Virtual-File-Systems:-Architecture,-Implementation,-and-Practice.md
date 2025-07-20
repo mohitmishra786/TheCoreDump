@@ -8,14 +8,6 @@ author: mohitmishra786
 description: "A comprehensive exploration of Virtual File System (VFS) architecture and implementation, covering design principles, kernel integration, and practical file system development."
 toc: true
 ---
-## Table of Contents
-1. [Introduction](#introduction)
-2. [VFS Architecture](#vfs-architecture)
-3. [Core Components](#core-components)
-4. [Implementation Details](#implementation-details)
-5. [Practical Examples](#practical-examples)
-6. [Advanced Concepts](#advanced-concepts)
-7. [System Architecture](#system-architecture)
 
 ## Introduction
 
@@ -23,51 +15,7 @@ The Virtual File System (VFS) serves as a crucial abstraction layer in modern op
 
 ## VFS Architecture
 
-```mermaid
-flowchart TB
-    subgraph User Space
-        Process-->LibC
-        LibC-->SystemCalls
-    end
-    
-    subgraph Kernel Space
-        SystemCalls-->VFS
-        
-        subgraph VFS Layer
-            VFS-->DCache
-            VFS-->InodeCache
-            VFS-->FSRegistry
-            
-            DCache-->CacheManager
-            InodeCache-->CacheManager
-        end
-        
-        subgraph File Systems
-            VFS-->EXT4
-            VFS-->NTFS
-            VFS-->BTRFS
-        end
-        
-        subgraph Storage Layer
-            EXT4-->BlockLayer
-            NTFS-->BlockLayer
-            BTRFS-->BlockLayer
-            BlockLayer-->DeviceDrivers
-        end
-    end
-    
-    subgraph Hardware
-        DeviceDrivers-->Storage
-    end
-
-    classDef userSpace fill:#e1f5fe,stroke:#01579b
-    classDef kernelSpace fill:#f3e5f5,stroke:#4a148c
-    classDef hardware fill:#fbe9e7,stroke:#bf360c
-    
-    class Process,LibC,SystemCalls userSpace
-    class VFS,DCache,InodeCache,FSRegistry,CacheManager,EXT4,NTFS,BTRFS,BlockLayer,DeviceDrivers kernelSpace
-    class Storage hardware
-```
+[![](https://mermaid.ink/img/pako:eNqFVF1vmzAU_SvIfXUiPhPCQx-aLNq0dpqabJqmvBi4BBQHIhvaZVH-e6-hBAeR1i_Y99xzfT-OOZGoiIEEJOHFa5QyURrrh01u4JJVuBXskBq_JAhjdWARNIBaP0URgZSj0f1jFs47uzqhcXWUJeznjHPZYJDHzaYX-zuIHHg_ukbHYL-Xqw7qdpcYiBuP7Aiiw9RCM5IXcxalMIR8y7Hym-hy9QzbTJbieI1en5ro6F5_n1jOtv00umtuul2ac6PAZcbhvSdyKNcvf9bukP3HWu9cZ39YP-vAZ9evykJgwkM9VjergLyIdgOwSuADuM7jI_xiV4OElyyChcheQMiB5G8p7CsT8SsT2pCvIimxNvVpYZptxJmUC0iMCh9ArVAjyTgP7sBKvAQoiqPYQXBnWt50FvY4u1rYOitxwEu8C8tllutHPVb6nmxLCWEG0wslTJyJGelV1sT2MVL1-Kj2drrEdW_UAG10Sztt0k7vVBcpVROmao60nhbtZkKv-qgXrN_WiqetjFCyFVlMglJUQMkexJ6pIzkp1oaUKexhQwLcxpCwipcbssnPSDuw_G9R7FumKKpt2h6qQ8xKWGQMZ44eCeNSueAwQcyLKi9JYFt1CBKcyD88mZOx7drm1Pe9qWv5PiVHEowm44nn2q5j2p6JO985U_K_vtQc-5bj25OpM0OO6XkuJRBnWN1T8wOt_6PnNzQujqs?type=png)](https://mermaid.live/edit#pako:eNqFVF1vmzAU_SvIfXUiPhPCQx-aLNq0dpqabJqmvBi4BBQHIhvaZVH-e6-hBAeR1i_Y99xzfT-OOZGoiIEEJOHFa5QyURrrh01u4JJVuBXskBq_JAhjdWARNIBaP0URgZSj0f1jFs47uzqhcXWUJeznjHPZYJDHzaYX-zuIHHg_ukbHYL-Xqw7qdpcYiBuP7Aiiw9RCM5IXcxalMIR8y7Hym-hy9QzbTJbieI1en5ro6F5_n1jOtv00umtuul2ac6PAZcbhvSdyKNcvf9bukP3HWu9cZ39YP-vAZ9evykJgwkM9VjergLyIdgOwSuADuM7jI_xiV4OElyyChcheQMiB5G8p7CsT8SsT2pCvIimxNvVpYZptxJmUC0iMCh9ArVAjyTgP7sBKvAQoiqPYQXBnWt50FvY4u1rYOitxwEu8C8tllutHPVb6nmxLCWEG0wslTJyJGelV1sT2MVL1-Kj2drrEdW_UAG10Sztt0k7vVBcpVROmao60nhbtZkKv-qgXrN_WiqetjFCyFVlMglJUQMkexJ6pIzkp1oaUKexhQwLcxpCwipcbssnPSDuw_G9R7FumKKpt2h6qQ8xKWGQMZ44eCeNSueAwQcyLKi9JYFt1CBKcyD88mZOx7drm1Pe9qWv5PiVHEowm44nn2q5j2p6JO985U_K_vtQc-5bj25OpM0OO6XkuJRBnWN1T8wOt_6PnNzQujqs)
 
 ### The Abstract Layer
 

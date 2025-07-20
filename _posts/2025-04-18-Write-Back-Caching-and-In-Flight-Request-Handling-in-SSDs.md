@@ -8,33 +8,6 @@ description: "An in-depth exploration of write-back caching mechanisms in modern
 toc: true
 ---
 
-## Table of Contents
-1. [Introduction and Core Concepts](#1-introduction-and-core-concepts)
-   - [Caching Strategies in SSDs](#11-caching-strategies-in-ssds)
-   - [In-Flight Requests: Definition and Implications](#12-in-flight-requests-definition-and-implications)
-2. [Architectural Overview of SSD Write-Back Caching](#2-architectural-overview-of-ssd-write-back-caching)
-   - [End-to-End Request Flow](#21-end-to-end-request-flow)
-   - [Role of the SSD Controller](#22-role-of-the-ssd-controller)
-3. [Power-Loss Protection Mechanisms](#3-power-loss-protection-mechanisms)
-   - [The Power-Loss Vulnerability Window](#31-the-power-loss-vulnerability-window)
-   - [Supercapacitor-Based Protection](#32-supercapacitor-based-protection)
-   - [Flush Procedures During Power Loss](#33-flush-procedures-during-power-loss)
-4. [Cache Management and Optimization](#4-cache-management-and-optimization)
-   - [Write Coalescing and Command Merging](#41-write-coalescing-and-command-merging)
-   - [Cache Partitioning Strategies](#42-cache-partitioning-strategies)
-   - [Eviction Algorithms](#43-eviction-algorithms)
-5. [Hardware Integration](#5-hardware-integration)
-   - [DRAM Subsystem Design](#51-dram-subsystem-design)
-   - [Controller Architecture and Firmware Design](#52-controller-architecture-and-firmware-design)
-   - [Power-Loss Protection Circuits](#53-power-loss-protection-circuits)
-6. [State-of-the-Art Systems](#6-state-of-the-art-systems)
-   - [Enterprise SSD Implementations](#61-enterprise-ssd-implementations)
-   - [Performance and Reliability Tradeoffs](#62-performance-and-reliability-tradeoffs)
-7. [Future Directions](#7-future-directions)
-   - [Emerging Technologies and Approaches](#71-emerging-technologies-and-approaches)
-   - [Research Challenges](#72-research-challenges)
-8. [Conclusion](#8-conclusion)
-
 ## 1. Introduction and Core Concepts
 
 Solid-State Drives (SSDs) have transformed digital storage by delivering exceptional speed through parallel architectures and the elimination of moving parts. At the heart of their design is a smart caching system that bridges the gap between fast host interfaces and the relatively slower NAND flash storage.

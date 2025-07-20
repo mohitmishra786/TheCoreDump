@@ -9,26 +9,7 @@ description: "A detailed exploration of database isolation levels, comparing Rea
 toc: true
 ---
 
-## Table of Contents
-
-* Introduction
-* Historical Context
-* Understanding Isolation Levels
-* MVCC (Multi-Version Concurrency Control)
-* PostgreSQL vs SQL Server Implementation
-* Read Committed vs RCSI
-* Practical Implementation
-* Code Examples
-* Performance Implications
-* Best Practices
-* Common Misconceptions
-* Understanding the Flow
-* References
-* Further Reading
-* Conclusion
-
-
-## 1. Introduction
+## Introduction
 
 Database isolation levels are fundamental to understanding how concurrent transactions interact in modern database systems. This article focuses on dispelling common myths about optimistic isolation levels, particularly comparing Read Committed (RC) and Read Committed Snapshot Isolation (RCSI) in SQL Server.
 

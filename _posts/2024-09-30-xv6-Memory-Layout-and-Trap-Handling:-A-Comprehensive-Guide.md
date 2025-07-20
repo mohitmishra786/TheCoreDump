@@ -8,22 +8,6 @@ author: mohitmishra786
 description: "A comprehensive guide to xv6 operating system's memory layout and trap handling mechanisms, exploring kernel design principles and low-level system implementation."
 toc: true
 ---
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Memory Organization in xv6](#memory-organization-in-xv6)
-   - [Physical Memory Layout](#physical-memory-layout)
-   - [Virtual Memory Layout](#virtual-memory-layout)
-3. [Trap Handling in xv6](#trap-handling-in-xv6)
-   - [The Trap Sequence](#the-trap-sequence)
-   - [The Trampoline Page](#the-trampoline-page)
-   - [The Trap Frame](#the-trap-frame)
-4. [Page Tables and Address Translation](#page-tables-and-address-translation)
-   - [Page Table Structure](#page-table-structure)
-   - [Address Translation Process](#address-translation-process)
-5. [Memory Allocation in xv6](#memory-allocation-in-xv6)
-   - [The Kernel Allocator](#the-kernel-allocator)
-6. [Putting It All Together: A Complete Trap Handling Example](#putting-it-all-together-a-complete-trap-handling-example)
-7. [Conclusion](#conclusion)
 
 ## Introduction
 

@@ -9,19 +9,6 @@ description: "A practical guide to building UDP client-server applications in C,
 toc: true
 ---
 
-## Table of Contents
-1. [Introduction to UDP and Its Use Cases](#introduction-to-udp-and-its-use-cases)
-2. [Understanding Socket Programming](#understanding-socket-programming)
-3. [Server Setup and Operation](#server-setup-and-operation)
-4. [Client Mechanics](#client-mechanics)
-5. [Memory Management and Error Handling](#memory-management-and-error-handling)
-6. [Steps to Run](#steps-to-run)
-   - [Compile Both Programs](#compile-both-programs)
-   - [Run the Server](#run-the-server)
-   - [Run the Client](#run-the-client)
-7. [Compilation and Execution Tips](#compilation-and-execution-tips)
-8. [Conclusion](#conclusion)
-
 ## Introduction to UDP and Its Use Cases
 
 UDP, or User Datagram Protocol, is one of the core members of the Internet protocol suite. Unlike its counterpart TCP, UDP does not guarantee delivery, order of delivery, or protect against duplication. However, this lack of overhead makes UDP faster and more efficient for applications that can tolerate some data loss, like video streaming or online gaming. Here, we'll explore how to set up a basic UDP server and client in C, focusing on the mechanics behind the scenes.

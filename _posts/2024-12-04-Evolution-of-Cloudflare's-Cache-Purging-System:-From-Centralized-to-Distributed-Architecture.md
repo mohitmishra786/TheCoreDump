@@ -9,19 +9,6 @@ description: "An analysis of Cloudflare's cache purging system evolution, explor
 toc: true
 ---
 
-## Table of Contents
-- [Introduction](#introduction)
-- [Background](#background)
-- [The Old System: Centralized Architecture](#the-old-system-centralized-architecture)
-- [Challenges with the Old System](#challenges-with-the-old-system)
-- [The New System: Distributed Architecture](#the-new-system-distributed-architecture)
-- [Technical Implementation](#technical-implementation)
-- [Performance Analysis](#performance-analysis)
-- [Code Examples](#code-examples)
-- [Future Improvements](#future-improvements)
-- [Conclusion](#conclusion)
-- [References & Further Reading](#references--further-reading)
-
 ## Introduction
 
 Cloudflare, originally starting as a Content Delivery Network (CDN), has evolved into a comprehensive platform offering security, performance, and reliability services. One of their critical features is the ability to purge cached content globally in near real-time. This article explores how Cloudflare transformed their cache purging system from a centralized architecture taking 1.5 seconds to a distributed system completing purges in 150 milliseconds.

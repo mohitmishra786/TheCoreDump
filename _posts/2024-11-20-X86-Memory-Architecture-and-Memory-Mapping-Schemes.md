@@ -9,24 +9,6 @@ description: "A comprehensive exploration of x86 memory architecture and mapping
 toc: true
 ---
 
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Memory Architecture Overview](#memory-architecture-overview)
-3. [32-bit Memory Mapping](#32-bit-memory-mapping)
-   - [Memory Segments in 32-bit Systems](#memory-segments-in-32-bit-systems)
-   - [Address Space Layout](#address-space-layout-32)
-   - [Memory Management Units](#memory-management-units-32)
-4. [64-bit Memory Mapping](#64-bit-memory-mapping)
-   - [Enhanced Memory Segments](#enhanced-memory-segments)
-   - [Address Space Layout](#address-space-layout-64)
-   - [Memory Management Capabilities](#memory-management-capabilities)
-5. [Memory Mapping Implementation](#memory-mapping-implementation)
-6. [Kernel Mode Address Space](#kernel-mode-address-space)
-7. [Practical Applications and Examples](#practical-applications-and-examples)
-8. [Performance Considerations](#performance-considerations)
-9. [Further Reading](#further-reading)
-10. [Conclusion](#conclusion)
-
 ## Introduction
 
 The x86 architecture represents a fundamental paradigm in computer architecture, implementing sophisticated memory management schemes that have evolved from 32-bit to 64-bit systems. This documentation provides an in-depth analysis of the memory mapping mechanisms, kernel mode address spaces, and the architectural differences between 32-bit and 64-bit implementations.

@@ -9,35 +9,6 @@ description: "A hands-on guide to threading for developers and system designers,
 toc: true
 ---
 
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Fundamentals of Concurrency](#fundamentals-of-concurrency)
-   - [The Concept of Concurrency](#the-concept-of-concurrency)
-   - [CPU Scheduling and Resource Utilization](#cpu-scheduling-and-resource-utilization)
-3. [The Process Model Limitation](#the-process-model-limitation)
-   - [Single Program Counter Problem](#single-program-counter-problem)
-   - [Why We Need Intra-Process Concurrency](#why-we-need-intra-process-concurrency)
-4. [Understanding the Blocking Problem](#understanding-the-blocking-problem)
-   - [The Server Example](#the-server-example)
-   - [The Multi-Process Solution and Its Drawbacks](#the-multi-process-solution-and-its-drawbacks)
-5. [Threads: The Solution](#threads-the-solution)
-   - [What Exactly Is a Thread?](#what-exactly-is-a-thread)
-   - [Thread Components and Structure](#thread-components-and-structure)
-   - [Thread vs. Process Memory Model](#thread-vs-process-memory-model)
-6. [Thread Implementation in Operating Systems](#thread-implementation-in-operating-systems)
-   - [Task Structure in Linux](#task-structure-in-linux)
-   - [Main Thread and Dynamic Thread Creation](#main-thread-and-dynamic-thread-creation)
-7. [Practical Implications and Considerations](#practical-implications-and-considerations)
-   - [Thread Safety and Shared Resources](#thread-safety-and-shared-resources)
-   - [Stack vs. Heap for Thread Communication](#stack-vs-heap-for-thread-communication)
-8. [Implementing Multi-threading in C](#implementing-multi-threading-in-c)
-   - [Creating and Managing Threads](#creating-and-managing-threads)
-   - [Synchronization Mechanisms](#synchronization-mechanisms)
-9. [Real-world Example: A Multi-threaded Server](#real-world-example-a-multi-threaded-server)
-   - [Implementation Details](#implementation-details)
-   - [Performance Analysis](#performance-analysis)
-10. [Conclusion](#conclusion)
-
 ## Introduction
 Have you ever wondered how your computer manages to juggle so many tasks at once—like keeping your browser open, streaming a playlist, and downloading a file, all without breaking a sweat? Or how a single app can handle multiple things, like rendering graphics and responding to your clicks, without tripping over itself? The answer lies in threads, those behind-the-scenes workhorses that make modern software tick. Threads are absolutely everywhere in today’s tech, but let’s face it—they can be a bit of a puzzle, even for seasoned programmers and system designers.
 

@@ -8,17 +8,6 @@ description: "An exploration of how PostgreSQL's 4KB page architecture optimizes
 toc: true
 ---
 
-# Table of Contents
-- [Introduction](#introduction)
-- [Understanding PostgreSQL's Storage Model](#understanding-postgresqls-storage-model)
-- [SSD Architecture Fundamentals](#ssd-architecture-fundamentals)
-- [The Perfect Alignment: PostgreSQL and SSDs](#the-perfect-alignment-postgresql-and-ssds)
-- [PostgreSQL Configuration for Optimal SSD Performance](#postgresql-configuration-for-optimal-ssd-performance)
-- [Real-World Implementation Strategies](#real-world-implementation-strategies)
-- [Advanced Optimization Techniques](#advanced-optimization-techniques)
-- [Beyond Alignment: Future Trends](#beyond-alignment-future-trends)
-- [Conclusion](#conclusion)
-
 ## Introduction
 Database performance optimization remains one of the most critical aspects of modern application architecture. As data volumes grow exponentially, the efficiency of database operations becomes increasingly important. 
 

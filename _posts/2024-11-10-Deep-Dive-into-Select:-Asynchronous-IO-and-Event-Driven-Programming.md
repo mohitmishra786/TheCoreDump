@@ -8,22 +8,6 @@ author: mohitmishra786
 description: "An in-depth exploration of the select() system call and event-driven programming patterns, covering asynchronous I/O handling, multiplexing techniques, and high-performance network programming."
 toc: true
 ---
-## Table of Contents
-
-1. [Understanding the Basics: Blocking vs. Non-Blocking I/O](#understanding-the-basics-blocking-vs-non-blocking-io)
-    * [Blocking I/O](#blocking-io)
-    * [Non-Blocking I/O](#non-blocking-io)
-2. [Enter Select: A Bridge Between Worlds](#enter-select-a-bridge-between-worlds)
-    * [The Anatomy of Select](#the-anatomy-of-select)
-    * [Implementing a Simple Server with Select](#implementing-a-simple-server-with-select)
-3. [The Power and Limitations of Select](#the-power-and-limitations-of-select)
-    * [Advantages](#advantages)
-    * [Limitations](#limitations)
-4. [Beyond Select: The Future of Asynchronous I/O](#beyond-select-the-future-of-asynchronous-io)
-5. [Client Implementation and Testing](#client-implementation-and-testing)
-6. [Conclusion](#conclusion)
-
----
 
 ## Understanding the Basics: Blocking vs. Non-Blocking I/O {#understanding-the-basics-blocking-vs-non-blocking-io}
 

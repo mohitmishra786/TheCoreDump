@@ -9,37 +9,6 @@ description: "An exploration of address space manipulation and NULL pointer expl
 toc: true
 ---
 
-### Table of Contents
-
-1. **Introduction**
-   - Overview of memory management and address space layout
-   - Focus on null pointer behavior and low memory regions
-2. **Memory Layout Fundamentals**
-   - **Virtual Memory Address Space**
-     - Isolation of process address spaces
-     - Avoidance of low memory addresses
-     - Purposes: Null pointer detection, security, and ASLR
-   - **Memory Mapping and Protection**
-     - Page tables and protection flags
-     - Role of the Memory Management Unit (MMU)
-3. **Practical Implementation: Memory Mapping Experiments**
-   - **Basic Memory Mapping Example**
-     - Code example: Mapping and accessing memory
-     - Expected output and analysis
-   - **Advanced Memory Access Patterns**
-     - Code example: Memory protection and signal handling
-     - Expected output and analysis
-4. **Memory Layout Analysis**
-   - **Using objdump**
-     - Code example: Visualizing memory layout
-     - Analysis of memory segments (text, data, stack, heap)
-5. **Memory Safety and Null Pointer Protection**
-   - Mechanisms to prevent null pointer dereferences
-   - Page protection, MMU traps, and compiler optimizations
-6. **Practical Implications and Best Practices**
-7. **Conclusion**
-
----
 ## Introduction
 
 Memory management and address space layout are fundamental concepts in operating systems and low-level programming. This comprehensive guide explores how modern operating systems handle memory addressing, with a particular focus on null pointer behavior and the lowest regions of virtual memory. We'll understand memory mapping, segmentation faults, and practical experiments with memory allocation.

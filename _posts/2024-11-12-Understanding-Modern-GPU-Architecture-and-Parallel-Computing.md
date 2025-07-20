@@ -9,18 +9,6 @@ description: "A comprehensive exploration of modern GPU architecture and paralle
 toc: true
 ---
 
-## Table of Contents
-1. [Introduction](#introduction)
-2. [GPU vs CPU Architecture](#gpu-vs-cpu-architecture)
-3. [Physical Architecture of Modern GPUs](#physical-architecture)
-4. [Computational Architecture and SIMD/SIMT](#computational-architecture)
-5. [Memory Hierarchy and Data Transfer](#memory-hierarchy)
-6. [Practical Implementation in C](#practical-implementation)
-7. [Advanced Topics](#advanced-topics)
-8. [Visualization of Architecture](#visualization)
-9. [Further Reading](#further-reading)
-10. [Conclusion](#conclusion)
-
 ## Introduction
 
 Modern graphics processing units (GPUs) represent one of the most fascinating achievements in computer architecture. These devices can perform upwards of 36 trillion calculations per second - a scale so massive that it would require the population of 4,400 Earths working continuously to match this computational power. This article provides a deep technical analysis of GPU architecture, parallel computing paradigms, and practical implementations for leveraging this incredible processing power.
@@ -714,93 +702,11 @@ int main() {
 
 To better understand GPU architecture, here's a visual representation of the key components:
 
-```mermaid
-graph TB
-    subgraph "GPU Die"
-        GPC1[Graphics Processing Cluster 1]
-        GPC2[Graphics Processing Cluster 2]
-        GPC3[Graphics Processing Cluster 3]
-        GPC4[Graphics Processing Cluster 4]
-        
-        subgraph "GPC1 Detail"
-            SM1[Streaming Multiprocessor 1]
-            SM2[Streaming Multiprocessor 2]
-            SM3[Streaming Multiprocessor 3]
-            SM4[Streaming Multiprocessor 4]
-        end
-        
-        subgraph "Memory Subsystem"
-            L2[L2 Cache]
-            MC[Memory Controllers]
-            HBM[HBM2/GDDR6 Memory]
-        end
-        
-        subgraph "Interconnect"
-            NOC[Network on Chip]
-        end
-    end
-    
-    GPC1 --> NOC
-    GPC2 --> NOC
-    GPC3 --> NOC
-    GPC4 --> NOC
-    NOC --> L2
-    L2 --> MC
-    MC --> HBM
-    
-    style GPC1 fill:#e1f5fe
-    style L2 fill:#f3e5f5
-    style NOC fill:#e8f5e8
-```
+[![](https://mermaid.ink/img/pako:eNqVlEuPmzAQgP-K5V5JCjYQlsMeFqS0UthGTXsp2QMLQ7AKGBmjNo3y39fg7C4kTapaAo1nvnn5dcApzwD7eCeSpkDfHrY1UqPtnrVii5fr7yhksMXa0o_lOrDiZW9naYvWgqfQtqzeoaDsWgkCWU8TmNyEyRSmN2E6he2bsD2C36VJb4GFQpAJK8f99WMTWfFGCkiqPmLUlZI1OgOf9qdhch0mFzC9DtML2L4Oj_uDOvtHsxFUXOzRpntu92p5qvOOVyReERQkaQFnRURBfHIOeC0FL0sQ7Rnz6SGK1Uc-LsPwq4s0_1_1fa7VnqW8riGV57U9fgniR5C_uPiJeI2CgjV_i_0m6P-wvbPZfe_-piEXGnqhsacaJQyKFdHzlY4RncyRtqrux8lbuS9Bl5CzsvQ_gJU7OYyNKo425RSc3Bmb-pQnNy93wMOGuqEsw74UHRi4AlEl_RQfeq8tlgVU6o76SswgT9Q56ZfwqNyapP7BefXqKXi3K14nXZMlEkKWqD14J9Qqggh4V0vs3w0BsH_Av7FPTHdObGIuPM9Z2JbnGXiP_Zk7dx2b2NQkjqkkjx4N_GdIac49i3rEXdA75WM6jm1gyJjkItKvzvD4HF8Ad5pMRw?type=png)](https://mermaid.live/edit#pako:eNqVlEuPmzAQgP-K5V5JCjYQlsMeFqS0UthGTXsp2QMLQ7AKGBmjNo3y39fg7C4kTapaAo1nvnn5dcApzwD7eCeSpkDfHrY1UqPtnrVii5fr7yhksMXa0o_lOrDiZW9naYvWgqfQtqzeoaDsWgkCWU8TmNyEyRSmN2E6he2bsD2C36VJb4GFQpAJK8f99WMTWfFGCkiqPmLUlZI1OgOf9qdhch0mFzC9DtML2L4Oj_uDOvtHsxFUXOzRpntu92p5qvOOVyReERQkaQFnRURBfHIOeC0FL0sQ7Rnz6SGK1Uc-LsPwq4s0_1_1fa7VnqW8riGV57U9fgniR5C_uPiJeI2CgjV_i_0m6P-wvbPZfe_-piEXGnqhsacaJQyKFdHzlY4RncyRtqrux8lbuS9Bl5CzsvQ_gJU7OYyNKo425RSc3Bmb-pQnNy93wMOGuqEsw74UHRi4AlEl_RQfeq8tlgVU6o76SswgT9Q56ZfwqNyapP7BefXqKXi3K14nXZMlEkKWqD14J9Qqggh4V0vs3w0BsH_Av7FPTHdObGIuPM9Z2JbnGXiP_Zk7dx2b2NQkjqkkjx4N_GdIac49i3rEXdA75WM6jm1gyJjkItKvzvD4HF8Ad5pMRw)
 
 ### SM (Streaming Multiprocessor) Internal Architecture
 
-```mermaid
-graph TB
-    subgraph "Streaming Multiprocessor"
-        subgraph "Warp Schedulers"
-            WS1[Warp Scheduler 1]
-            WS2[Warp Scheduler 2]
-            WS3[Warp Scheduler 3]
-            WS4[Warp Scheduler 4]
-        end
-        
-        subgraph "Execution Units"
-            CUDA1[CUDA Cores 1-32]
-            CUDA2[CUDA Cores 33-64]
-            CUDA3[CUDA Cores 65-96]
-            CUDA4[CUDA Cores 97-128]
-            SFU[Special Function Units]
-            LD[Load/Store Units]
-            TC[Tensor Cores]
-        end
-        
-        subgraph "Memory"
-            RF[Register File]
-            L1[L1 Cache]
-            SM[Shared Memory]
-            CT[Constant Cache]
-            TT[Texture Cache]
-        end
-    end
-    
-    WS1 --> CUDA1
-    WS2 --> CUDA2
-    WS3 --> CUDA3
-    WS4 --> CUDA4
-    
-    CUDA1 --> RF
-    CUDA2 --> RF
-    CUDA3 --> RF
-    CUDA4 --> RF
-    
-    LD --> L1
-    L1 --> SM
-    
-    style WS1 fill:#fff3e0
-    style CUDA1 fill:#e3f2fd
-    style RF fill:#f1f8e9
-```
+[![](https://mermaid.ink/img/pako:eNqVlMGOmzAQhl8FudeQgm0I4VCpJeVELiGrlUp6cGFIkAAjY6SkUd69BpaEdXKpD5b9zzfjGY_lK0p5BshHR8Gak7H_cagNNdruzygcUCwFsKqoj8a2K2XRCJ5C23JxQCOq4e9MNEacniDrShDtnOrHe2wnnxHD_q0jWEfwE0J0hDwhVEfoDIE6e2xeFvLzDGknC14bb3UhnwoJ3jbf7aSfjYALaA3bJHqavRXPGUJMl76AyBxyHXPtvoDoHFqvTBt7GhWHb0ncQFqw0gi7On1kr4HRJok4y77GUgV7SeyDZA-1avN43n_d3BYqLi76he3CZAfHopWqE2FRgp6SnUS2ETDVLb2qbRKfmIDMGAPrV7NPAl63ktXypft-ryo5y04VqpvvpdwX46weqWGa38YeTxK-S3iSyF0ik0TvEp1HHCINpl34UPCTQp4U-kkZ52gziNFHbtEYOd7OmVZeShgqyYuy9L_keU7AmtvGnEYrkBzn2dy6CydHO_dgjRbqhygy5EvRwQJVICrWb9G1dzogeYIKDshXywxypn6Kvv835daw-hfn1eQpeHc8TZuuyZiETcHU01FEzsq2R1Q7QAS8qyXybTKEQP4VnZGPLXeJKbZWnuesqO15C3RBvukuXYdiSizsWGrlkdsC_R0OtZaeTTzsrsha-ViOQxcIskK9--347w3f3-0ft6Zdrg?type=png)](https://mermaid.live/edit#pako:eNqVlMGOmzAQhl8FudeQgm0I4VCpJeVELiGrlUp6cGFIkAAjY6SkUd69BpaEdXKpD5b9zzfjGY_lK0p5BshHR8Gak7H_cagNNdruzygcUCwFsKqoj8a2K2XRCJ5C23JxQCOq4e9MNEacniDrShDtnOrHe2wnnxHD_q0jWEfwE0J0hDwhVEfoDIE6e2xeFvLzDGknC14bb3UhnwoJ3jbf7aSfjYALaA3bJHqavRXPGUJMl76AyBxyHXPtvoDoHFqvTBt7GhWHb0ncQFqw0gi7On1kr4HRJok4y77GUgV7SeyDZA-1avN43n_d3BYqLi76he3CZAfHopWqE2FRgp6SnUS2ETDVLb2qbRKfmIDMGAPrV7NPAl63ktXypft-ryo5y04VqpvvpdwX46weqWGa38YeTxK-S3iSyF0ik0TvEp1HHCINpl34UPCTQp4U-kkZ52gziNFHbtEYOd7OmVZeShgqyYuy9L_keU7AmtvGnEYrkBzn2dy6CydHO_dgjRbqhygy5EvRwQJVICrWb9G1dzogeYIKDshXywxypn6Kvv835daw-hfn1eQpeHc8TZuuyZiETcHU01FEzsq2R1Q7QAS8qyXybTKEQP4VnZGPLXeJKbZWnuesqO15C3RBvukuXYdiSizsWGrlkdsC_R0OtZaeTTzsrsha-ViOQxcIskK9--347w3f3-0ft6Zdrg)
 
 This visualization shows how the hierarchical organization enables massive parallelism while maintaining efficient data flow and resource utilization.
 
