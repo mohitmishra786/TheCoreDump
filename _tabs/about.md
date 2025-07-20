@@ -9,7 +9,7 @@ order: 4
 **Raw tech insights, unfiltered.**  
 We cut through the hype to deliver actionable technical knowledge.
 
-## 🔧 What We Do
+## 🔧 What I Do
 - Deep dives into system architecture
 - Performance optimization guides
 - Hard-earned lessons from production environments
@@ -22,12 +22,7 @@ background:
   - Software Engineer
   - Database Performance Specialist
   - Interested in Low-Level System/ Machine Learning/ Statistics/ Compilers
-philosophy: "Dissatisfaction gives birth to greater goals"
-name: Kartikey Gautam
-background: 
-  - Software Engineer
-  - Full Stack Developer
-philosophy: "If you can't measure it, you can't improve it"
+philosophy: "Dissatisfaction gives birth to greater goals", "If you can't measure it, you can't improve it"
 
 ## 🌐 Connect
 - Twitter: [@chessMan786](https://x.com/chessMan786)
@@ -38,6 +33,6 @@ philosophy: "If you can't measure it, you can't improve it"
 For consulting inquiries or technical questions:  
 📧 [dukechessman@gmail.com](mailto:dukechessman@gmail.com)
 
-*"The most profound technologies are those that disappear."*  
+"The most profound technologies are those that disappear."
 — Mark Weiser
 ```
