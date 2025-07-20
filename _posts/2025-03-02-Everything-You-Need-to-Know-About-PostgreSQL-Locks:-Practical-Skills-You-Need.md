@@ -414,7 +414,7 @@ WHERE relation = 'accounts'::regclass::oid
 ORDER BY l.granted DESC;
 ```
 
-## Row-Level Locks in PostgreSQL
+## Row-Level Locks in PostgreSQL {#row-level-locks-in-postgresql}
 
 Row-level locks in PostgreSQL are used to control access to individual rows. They come in four modes:
 
@@ -601,7 +601,7 @@ Page-level locks in PostgreSQL are used to control access to shared buffer pool 
 
 Unfortunately, page-level locks are not exposed through PostgreSQL's system views, so we can't directly observe them. However, they exist internally and play a crucial role in maintaining data consistency.
 
-## Advisory Locks
+## Advisory Locks {#advisory-locks}
 
 Advisory locks are a unique feature in PostgreSQL that allows applications to create locks that have application-defined meaning. They're not tied to any database object and must be managed correctly by the application.
 
