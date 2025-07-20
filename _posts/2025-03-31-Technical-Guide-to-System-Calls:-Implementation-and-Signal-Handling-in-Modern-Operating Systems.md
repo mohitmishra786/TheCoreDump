@@ -86,7 +86,11 @@ toc: true
 
 System calls are the fundamental interface between user-space applications and the operating system kernel. Understanding how they work, particularly their behavior when interrupted by signals, is crucial for writing robust systems software. One of the most important distinctions in system programming is between "fast" and "slow" system calls - a classification that affects how signals interact with your programs.
 
+## Core Definitions: Fast vs. Slow System Calls {#core-definitions-fast-vs-slow-system-calls}
+
 ### Overview of System Calls {#overview-of-system-calls}
+
+### Fast System Calls
 
 Fast system calls are operations that can be completed immediately without requiring the kernel to wait for external events. They typically:
 - Return quickly, usually within microseconds
@@ -99,6 +103,8 @@ Common examples include:
 - `gettimeofday()`: Gets the current time
 - `getuid()`, `setuid()`: Retrieves or sets user IDs
 - Simple memory operations like `brk()`
+
+### Slow System Calls
 
 ### Importance of Distinguishing Fast vs. Slow System Calls {#importance-of-distinguishing-fast-vs-slow-system-calls}
 

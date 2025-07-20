@@ -541,6 +541,7 @@ uint32_t hash_filename(const char* name) {
 
 The search operation in H-trees is highly optimized for performance:
 
+```c
 struct dir_entry* find_file(struct htree_directory* dir, const char* name) {
     uint32_t hash = hash_filename(name);
 
@@ -555,11 +556,19 @@ struct dir_entry* find_file(struct htree_directory* dir, const char* name) {
     }
     return NULL;
 }
+```
+
+The search process follows these steps:
+1. **Hash Calculation**: Compute hash value for the target filename
+2. **Block Traversal**: Navigate through H-tree index blocks using the hash
+3. **Binary Search**: Perform binary search within each block for efficiency
+4. **Entry Location**: Find the exact directory entry matching the filename
 
 ### Insertion Operations {#insertion-operations}
 
 The insertion operation efficiently places new entries in the appropriate blocks:
 
+```c
 void insert_file(struct htree_directory* dir, const char* name, uint32_t inode) {
     uint32_t hash = hash_filename(name);
     struct htree_block* block = find_entry_block(dir, hash);
@@ -575,6 +584,38 @@ void insert_file(struct htree_directory* dir, const char* name, uint32_t inode) 
     block->header.entry_count++;
     block->header.free_space -= sizeof(struct dir_entry);
 }
+```
+
+The insertion process involves:
+1. **Hash Generation**: Create hash value for the new filename
+2. **Block Selection**: Find appropriate entry block based on hash
+3. **Space Allocation**: Ensure sufficient space in the target block
+4. **Entry Creation**: Add new directory entry with proper metadata
+5. **Block Update**: Update block headers and free space counters
+
+### Advanced Search Optimization
+
+For high-performance scenarios, H-trees implement additional optimizations:
+
+```c
+// Optimized search with hash-based block selection
+struct dir_entry* optimized_search(struct htree_directory* dir, const char* name) {
+    uint32_t hash = hash_filename(name);
+    uint32_t block_index = hash % dir->num_entry_blocks;
+    
+    // Try direct hash-based lookup first
+    struct htree_block* primary_block = dir->entry_blocks[block_index];
+    for (uint32_t i = 0; i < primary_block->header.entry_count; i++) {
+        struct dir_entry* entry = &primary_block->data.entries[i];
+        if (strcmp(entry->name, name) == 0) {
+            return entry;
+        }
+    }
+    
+    // Fall back to full search if not found in primary block
+    return find_file(dir, name);
+}
+```
 
 struct htree_directory* init_htree_directory() {
     struct htree_directory* dir = malloc(sizeof(struct htree_directory));
