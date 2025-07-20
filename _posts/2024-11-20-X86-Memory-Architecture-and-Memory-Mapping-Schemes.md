@@ -58,6 +58,16 @@ The 32-bit memory mapping scheme implements a 4GB address space divided into dis
 
 ### Memory Segments in 32-bit Systems
 
+The 32-bit x86 architecture implements a segmented memory model where memory is divided into logical segments:
+
+#### Address Space Layout {#address-space-layout-32}
+
+In 32-bit systems, the virtual address space is limited to 4GB (2^32 bytes), which is divided between user space and kernel space.
+
+#### Memory Management Units {#memory-management-units-32}
+
+The 32-bit Memory Management Unit (MMU) handles virtual-to-physical address translation through page tables and segment descriptors.
+
 1. kseg3 (0.5 GBytes Mapped)
    - Address Range: 0xFFFF FFFF to 0xE000 0000
    - Purpose: Kernel mapped memory
@@ -93,6 +103,16 @@ The 32-bit memory mapping scheme implements a 4GB address space divided into dis
 The 64-bit architecture significantly expands the address space and introduces enhanced memory management capabilities.
 
 ### Enhanced Memory Segments
+
+The 64-bit x86 architecture provides significant improvements over the 32-bit model:
+
+#### Address Space Layout {#address-space-layout-64}
+
+64-bit systems provide a vastly expanded virtual address space of 18.4 million TB (2^64 bytes theoretically, though current implementations use only 48 bits).
+
+#### Memory Management Capabilities {#memory-management-capabilities}
+
+The 64-bit MMU provides enhanced capabilities for memory management, including support for larger page sizes and more sophisticated memory protection mechanisms.
 
 1. xkseg3 (0.5 TBytes Mapped)
    - Address Range: 0xFFFF FFFF FFFF FFFF to 0xFFFF FFFF E000 0000
@@ -224,6 +244,28 @@ Key aspects include:
    - Page table management
    - TLB management
    - Cache management
+
+## Practical Applications and Examples {#practical-applications-and-examples}
+
+Understanding x86 memory architecture has several practical applications in system programming and optimization:
+
+1. System Programming:
+   - Memory allocation and deallocation
+   - Dynamic memory management
+   - Memory protection mechanisms
+   - Address space layout
+
+2. Performance Optimization:
+   - Caching strategies
+   - TLB management
+   - Memory access patterns
+   - Stride access handling
+
+3. Security:
+   - Memory protection rings
+   - Segmentation
+   - Paging
+   - Virtual memory
 
 ## Performance Considerations
 

@@ -84,9 +84,9 @@ The application layer implements sophisticated buffer management strategies to o
 4. Direct I/O capabilities
 5. Asynchronous I/O operations
 
-## Virtual File System (VFS)
+## Virtual File System (VFS) {#virtual-file-system}
 
-The Virtual File System layer serves as an abstraction layer that provides a uniform interface to different file systems. It's one of the most complex and crucial components of the Linux I/O stack, implementing several key features:
+The Virtual File System (VFS) is an abstraction layer in the Linux kernel that provides a unified interface for different file systems.
 
 ### Block-based File Systems
 Block-based file systems represent traditional disk-based storage systems. The VFS layer manages:

@@ -147,6 +147,8 @@ Let's consider a typical scenario with a slow system call being interrupted by a
 
 Let's implement a practical example showing how a slow system call (`read()` from a pipe) interacts with signal handling. This will help clarify the mechanism.
 
+### Practical Example: read() with Signal Handling {#practical-example-read-with-signal-handling}
+
 ```c
 #include <stdio.h>
 #include <stdlib.h>
@@ -325,6 +327,8 @@ As mentioned in the reference answer, there are some gray areas between fast and
 - From the kernel's perspective, disk reads are slow system calls because the process must wait for the disk driver to complete the operation.
 
 Let's see how the kernel handles this with a practical example:
+
+### Practical Example: Disk Read with Signal Handling {#practical-example-disk-read-with-signal-handling}
 
 ```c
 #include <stdio.h>

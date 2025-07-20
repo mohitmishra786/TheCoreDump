@@ -36,13 +36,11 @@ toc: true
 8. [Further Reading](#further-reading)
 9. [Conclusion](#conclusion)
 
-## 1. Introduction
+## 1. Introduction {#introduction}
 
-The evolution of MySQL's B-tree implementation represents a fascinating journey in database engineering, particularly in how it handles concurrency and locking mechanisms. This article deep dives into the changes between MySQL 5.6 and MySQL 8.0, focusing on the B-tree indexing structure and its locking mechanisms.
+MySQL's evolution from version 5.6 to 8.0 represents one of the most significant improvements in database concurrency control. This journey showcases how subtle changes in locking mechanisms can dramatically improve performance and scalability.
 
-The story begins with MySQL 5.6's simpler but sometimes limiting approach and progresses to MySQL 8.0's more sophisticated implementation. Understanding these changes is crucial for database administrators and developers working with high-concurrency systems.
-
-## 2. Understanding B+ Trees
+## 2. Understanding B+ Trees {#understanding-b-trees}
 
 ### Basic Structure
 B+ trees are the fundamental data structure used in most modern database systems for indexing. Unlike regular B-trees, B+ trees store all actual data in the leaf nodes, with internal nodes serving purely as a navigation structure.
@@ -102,7 +100,7 @@ INSERT INTO example VALUES (1.5, 'Between A and B');
 CREATE INDEX idx_data ON example(data);
 ```
 
-## 3. Locking Mechanisms in Databases
+## 3. Locking Mechanisms in Databases {#locking-mechanisms-in-databases}
 
 ### Shared Locks (S-Locks)
 Shared locks are used for read operations and have the following characteristics:
@@ -142,7 +140,7 @@ The following matrix shows lock compatibility:
 | Exclusive (X) | No | No | No |
 | SX | Yes | No | No |
 
-## 4. MySQL 5.6 Implementation
+## 4. MySQL 5.6 Implementation {#mysql-56-implementation}
 
 ### Index-Level Locking
 
@@ -179,7 +177,7 @@ The main limitations of the 5.6 approach were:
 - Reader starvation during heavy write workloads
 - Limited concurrency during mixed workloads
 
-## 5. MySQL 8.0 Improvements
+## 5. MySQL 8.0 Improvements {#mysql-80-improvements}
 
 ### Introduction of SX Locks
 
@@ -213,7 +211,7 @@ Latch coupling in 8.0 works as follows:
 Below image can help visualize well
 [![](https://mermaid.ink/img/pako:eNq1VE1rAjEU_CuPnFpQ6aWl7EEQvRT8aLVQKbk8sk8NzSZrNmkr4n9vdtevdaW1B2-bmUlm5oXsmgkTE4tYRktPWlBP4txiwnWK1kkhU9QOukqSdlXsScf0XYXGxtREjqxGVUX7hDOuh8YRmE-y2-MbORzBYDV56cN96wHGhDGMUrLopNFcl7Jmu11YR9ARSy8twaTZN-KD6wIOdB4jgleL4eyM4GZoIBfccp0zxf4y1XnRjg3CMtGpT442A1vmiUJO562GHjqshxyTIswOm__o_di6-3fvPV8WP6Vrpetzu0bhjlLFRLOLOr9ZGRRf0i1gkirpfmk9vXbtncEhdMk_45zKdDASwttsO5lzJtO6STXm9Djm0WwHJpYzKYqrh65JUkWOLpgya7CEbIIyDo95zTUAZ25BCXEWhc-YZuiV44zrTZCid2ay0oJFznpqMGv8fMGiGaosrHwao9v9CfZoeLrvxuzWmx9-DXwW?type=png)](https://mermaid.live/edit#pako:eNq1VE1rAjEU_CuPnFpQ6aWl7EEQvRT8aLVQKbk8sk8NzSZrNmkr4n9vdtevdaW1B2-bmUlm5oXsmgkTE4tYRktPWlBP4txiwnWK1kkhU9QOukqSdlXsScf0XYXGxtREjqxGVUX7hDOuh8YRmE-y2-MbORzBYDV56cN96wHGhDGMUrLopNFcl7Jmu11YR9ARSy8twaTZN-KD6wIOdB4jgleL4eyM4GZoIBfccp0zxf4y1XnRjg3CMtGpT442A1vmiUJO562GHjqshxyTIswOm__o_di6-3fvPV8WP6Vrpetzu0bhjlLFRLOLOr9ZGRRf0i1gkirpfmk9vXbtncEhdMk_45zKdDASwttsO5lzJtO6STXm9Djm0WwHJpYzKYqrh65JUkWOLpgya7CEbIIyDo95zTUAZ25BCXEWhc-YZuiV44zrTZCid2ay0oJFznpqMGv8fMGiGaosrHwao9v9CfZoeLrvxuzWmx9-DXwW)
 
-## 6. Practical Examples
+## 6. Practical Examples {#practical-examples}
 
 ### Basic Operations
 
@@ -244,7 +242,7 @@ FROM generate_series(1, 1000) i;
 CREATE INDEX idx_large ON example(data);
 ```
 
-## 7. Performance Implications
+## 7. Performance Implications {#performance-implications}
 
 ### Read Operations
 Read performance characteristics:
@@ -264,19 +262,15 @@ Impact on different access patterns:
 - Point queries show improved concurrency
 - Bulk operations have better throughput
 
-## 8. Further Reading
+## 8. Further Reading {#further-reading}
 
-For deeper understanding, consider these resources:
+For those interested in diving deeper into MySQL's locking mechanisms and concurrency control:
+
 1. MySQL 8.0 Reference Manual - InnoDB Storage Engine
 2. "InnoDB B-tree Locking" by Biao's Blog
 3. "High Performance MySQL" by Baron Schwartz et al.
 4. "Database Internals" by Alex Petrov
 
-## 9. Conclusion
+## 9. Conclusion {#conclusion}
 
-The evolution from MySQL 5.6 to 8.0 represents a significant advancement in B-tree implementation. The introduction of SX locks and more granular locking mechanisms has improved concurrency while maintaining data consistency. While the implementation is more complex, the benefits in terms of scalability and performance make it a worthwhile trade-off.
-
-The key takeaways are:
-- More granular locking improves concurrency
-- Complexity is sometimes necessary for performance
-- Understanding these mechanisms helps in database design and optimization
+The evolution from S-Locks to SX-Locks in MySQL represents a perfect example of how subtle improvements in system design can yield significant performance benefits.

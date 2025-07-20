@@ -217,18 +217,61 @@ gcc -fsanitize=address -g asan_demo.c -o asan_demo
 
 ### ASan Runtime Options
 
-ASan provides various runtime options through environment variables:
+You can customize ASan behavior using environment variables:
 
 ```bash
-# Detect stack use after return
-export ASAN_OPTIONS=detect_stack_use_after_return=1
-
-# Custom error logging
-export ASAN_OPTIONS=log_path=asan.log:log_exe_name=1
-
-# Increase shadow memory mapping
-export ASAN_OPTIONS=quarantine_size_mb=2048
+export ASAN_OPTIONS="abort_on_error=1:fast_unwind_on_malloc=0"
 ```
+
+Common options include:
+- `abort_on_error`: Stop on first error
+- `check_initialization_order`: Check global constructor order
+- `detect_stack_use_after_return`: Enable stack-use-after-return detection
+
+## Practical Examples {#practical-examples}
+
+Let's look at some common memory issues and how to detect them with both tools.
+
+### Example 1: Buffer Overflow
+```c
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    char buffer[10];
+    strcpy(buffer, "This string is too long!");  // Buffer overflow
+    printf("%s\n", buffer);
+    return 0;
+}
+```
+
+### Example 2: Use After Free
+```c
+#include <stdlib.h>
+#include <stdio.h>
+
+int main() {
+    int *ptr = malloc(sizeof(int));
+    *ptr = 42;
+    free(ptr);
+    printf("%d\n", *ptr);  // Use after free
+    return 0;
+}
+```
+
+## Advanced Usage and Tips {#advanced-usage-and-tips}
+
+### Valgrind Advanced Tips
+1. Use suppressions for known false positives
+2. Combine with other tools like GDB
+3. Profile memory usage with Massif
+4. Use custom error handlers
+
+### ASan Advanced Tips  
+1. Combine with UBSan for comprehensive checking
+2. Use symbolizer for better stack traces
+3. Configure memory limits for large applications
+4. Use blacklists for problematic code sections
 
 ## Performance Considerations
 
