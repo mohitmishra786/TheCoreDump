@@ -48,64 +48,76 @@ For a deadlock to occur, four conditions must be simultaneously met:
 
 ## Demonstrating Deadlock with C Code
 
-Let's examine a simple C program that demonstrates a classic deadlock scenario:
+Let's create a simple C program that demonstrates a deadlock scenario:
 
 ```c
 #include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
 
-pthread_mutex_t mutex_x = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mutex_y = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 
-void *thread_python(void *arg) { 
-    while (1) {
-        pthread_mutex_lock(&mutex_x);
-        sleep(1);  // Simulate some work
-        pthread_mutex_lock(&mutex_y);
-        
-        printf("Python: I have both locks!\n");
-        
-        pthread_mutex_unlock(&mutex_y);
-        pthread_mutex_unlock(&mutex_x);
-    }
+void* thread1_func(void* arg) {
+    printf("Thread 1: Acquiring mutex1...\n");
+    pthread_mutex_lock(&mutex1);
+    printf("Thread 1: Acquired mutex1\n");
+    
+    sleep(1);  // Give thread2 a chance to acquire mutex2
+    
+    printf("Thread 1: Trying to acquire mutex2...\n");
+    pthread_mutex_lock(&mutex2);  // This will block
+    printf("Thread 1: Acquired both mutexes\n");
+    
+    pthread_mutex_unlock(&mutex2);
+    pthread_mutex_unlock(&mutex1);
+    
     return NULL;
 }
 
-void *thread_c(void *arg) { 
-    while (1) {
-        pthread_mutex_lock(&mutex_y);
-        sleep(1);  // Simulate some work
-        pthread_mutex_lock(&mutex_x);
-        
-        printf("C: I have both locks!\n");
-        
-        pthread_mutex_unlock(&mutex_x);
-        pthread_mutex_unlock(&mutex_y);
-    }
+void* thread2_func(void* arg) {
+    printf("Thread 2: Acquiring mutex2...\n");
+    pthread_mutex_lock(&mutex2);
+    printf("Thread 2: Acquired mutex2\n");
+    
+    sleep(1);  // Give thread1 a chance to acquire mutex1
+    
+    printf("Thread 2: Trying to acquire mutex1...\n");
+    pthread_mutex_lock(&mutex1);  // This will block
+    printf("Thread 2: Acquired both mutexes\n");
+    
+    pthread_mutex_unlock(&mutex1);
+    pthread_mutex_unlock(&mutex2);
+    
     return NULL;
 }
 
 int main() {
-    pthread_t python, c; 
+    pthread_t thread1, thread2;
     
-    pthread_create(&python, NULL, thread_python, NULL); 
-    pthread_create(&c, NULL, thread_c, NULL);      
+    printf("Creating threads...\n");
     
-    pthread_join(python, NULL); 
-    pthread_join(c, NULL);      
+    pthread_create(&thread1, NULL, thread1_func, NULL);
+    pthread_create(&thread2, NULL, thread2_func, NULL);
     
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+    
+    printf("Program completed\n");  // This will never be reached
     return 0;
 }
 ```
 
-**To compile and run this code:**
+### Compiling and Running the Code {#compiling-and-running-the-code}
 
-1. Save the code in a file named `deadlock.c`
-2. Compile it using: `gcc -o deadlock deadlock.c -pthread`
-3. Run the executable: `./deadlock`
+To compile and run this deadlock example:
 
-**Expected behavior:** The program will likely enter a deadlock state almost immediately. You may see a few prints from either Python or C, or none at all, before the program hangs indefinitely.
+```bash
+gcc -pthread -o deadlock deadlock.c
+./deadlock
+```
+
+You'll notice that the program hangs and never completes because both threads are waiting for each other.
 
 ## Analyzing the Assembly Code
 
@@ -149,75 +161,80 @@ This situation satisfies all four conditions for a deadlock:
 
 Several strategies can be employed to prevent deadlocks:
 
-1. **Lock Ordering:** Ensure that all threads always acquire locks in the same order. This breaks the circular wait condition.
-2. **Lock Timeout:** Implement a timeout mechanism when acquiring locks. If a lock can't be acquired within a certain time, release all held locks and try again.
-3. **Lock-Free Algorithms:** Use atomic operations and lock-free data structures to avoid the need for locks altogether in some scenarios.
-4. **Resource Allocation Graph:** In more complex systems, maintain a graph of resource allocations and requests to detect potential deadlock situations before they occur.
+### Implementing a Deadlock Prevention Strategy {#implementing-a-deadlock-prevention-strategy}
 
-**Implementing a Deadlock Prevention Strategy**
-
-Let's modify our previous example to implement a lock ordering strategy:
+Here's an improved version that prevents deadlocks by always acquiring locks in the same order:
 
 ```c
 #include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
 
-pthread_mutex_t mutex_x = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mutex_y = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 
-void *thread_python(void *arg) {
-    while (1) {
-        pthread_mutex_lock(&mutex_x); 
-        pthread_mutex_lock(&mutex_y); 
+void acquire_mutexes_in_order() {
+    pthread_mutex_lock(&mutex1);  // Always acquire mutex1 first
+    pthread_mutex_lock(&mutex2);  // Then acquire mutex2
+}
 
-        printf("Python: I have both locks!\n");
+void release_mutexes_in_reverse_order() {
+    pthread_mutex_unlock(&mutex2);  // Release in reverse order
+    pthread_mutex_unlock(&mutex1);
+}
 
-        pthread_mutex_unlock(&mutex_y); 
-        pthread_mutex_unlock(&mutex_x); 
-
-        sleep(1);  // Simulate some work
-    }
+void* thread1_func(void* arg) {
+    printf("Thread 1: Acquiring mutexes in order...\n");
+    acquire_mutexes_in_order();
+    printf("Thread 1: Acquired both mutexes\n");
+    
+    sleep(1);  // Simulate some work
+    
+    release_mutexes_in_reverse_order();
+    printf("Thread 1: Released both mutexes\n");
+    
     return NULL;
 }
 
-void *thread_c(void *arg) {
-    while (1) {
-        pthread_mutex_lock(&mutex_x); 
-        pthread_mutex_lock(&mutex_y); 
-
-        printf("C: I have both locks!\n");
-
-        pthread_mutex_unlock(&mutex_y); 
-        pthread_mutex_unlock(&mutex_x); 
-
-        sleep(1);  // Simulate some work
-    }
+void* thread2_func(void* arg) {
+    printf("Thread 2: Acquiring mutexes in order...\n");
+    acquire_mutexes_in_order();
+    printf("Thread 2: Acquired both mutexes\n");
+    
+    sleep(1);  // Simulate some work
+    
+    release_mutexes_in_reverse_order();
+    printf("Thread 2: Released both mutexes\n");
+    
     return NULL;
 }
 
 int main() {
-    pthread_t python, c;
-
-    pthread_create(&python, NULL, thread_python, NULL);
-    pthread_create(&c, NULL, thread_c, NULL);
-
-    pthread_join(python, NULL);
-    pthread_join(c, NULL);
-
+    pthread_t thread1, thread2;
+    
+    printf("Creating threads with deadlock prevention...\n");
+    
+    pthread_create(&thread1, NULL, thread1_func, NULL);
+    pthread_create(&thread2, NULL, thread2_func, NULL);
+    
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+    
+    printf("Program completed successfully!\n");
     return 0;
 }
 ```
 
-In this modified version, both threads acquire the locks in the same order (`mutex_x` then `mutex_y`). This eliminates the possibility of a circular wait, thus preventing deadlock.
+#### Compiling and Running the Prevention Code {#compiling-and-running-the-prevention-code}
 
-**To compile and run:**
+To compile and run this improved version:
 
-1. Save as `deadlock_prevention.c`.
-2. Compile: `gcc -o deadlock_prevention deadlock_prevention.c -pthread`
-3. Run: `./deadlock_prevention`
+```bash
+gcc -pthread -o deadlock_prevention deadlock_prevention.c
+./deadlock_prevention
+```
 
-**Expected output:** The program will run indefinitely, alternating between "Python: I have both locks!" and "C: I have both locks!" prints.
+This version will complete successfully without any deadlocks.
 
 ## Deadlocks in Distributed Systems
 

@@ -427,7 +427,9 @@ Row-level locks in PostgreSQL are used to control access to individual rows. The
 
 Let's test each one:
 
-### FOR UPDATE Lock
+### FOR UPDATE Lock {#1-for-update-lock}
+
+This is the most restrictive row-level lock. It locks rows for update or delete operations.
 
 **Terminal 1:**
 ```sql
@@ -457,7 +459,9 @@ WHERE relation = 'accounts'::regclass::oid
 ORDER BY l.granted DESC;
 ```
 
-### FOR NO KEY UPDATE Lock
+### FOR NO KEY UPDATE Lock {#2-for-no-key-update-lock}
+
+This lock mode is similar to FOR UPDATE but allows other transactions to acquire FOR KEY SHARE locks.
 
 **Terminal 1:**
 ```sql
@@ -480,7 +484,9 @@ UPDATE accounts SET balance = balance + 400 WHERE account_id = 2;
 -- This will wait
 ```
 
-### FOR SHARE Lock
+### FOR SHARE Lock {#3-for-share-lock}
+
+This lock mode allows multiple transactions to hold the same lock on the same row.
 
 **Terminal 1:**
 ```sql
@@ -503,7 +509,9 @@ UPDATE accounts SET balance = balance + 500 WHERE account_id = 3;
 -- This will wait
 ```
 
-### FOR KEY SHARE Lock
+### FOR KEY SHARE Lock {#4-for-key-share-lock}
+
+This is the least restrictive row-level lock. It blocks only FOR UPDATE locks.
 
 **Terminal 1:**
 ```sql
@@ -606,7 +614,9 @@ There are two types of advisory locks:
 
 Let's test both types:
 
-### Session-Level Advisory Lock
+### Session-Level Advisory Lock {#1-session-level-advisory-lock}
+
+Advisory locks are application-level locks that PostgreSQL makes available to applications.
 
 **Terminal 1:**
 ```sql
@@ -636,7 +646,9 @@ SELECT pg_advisory_unlock(1001);
 
 Terminal 2 should now acquire the lock.
 
-### Transaction-Level Advisory Lock
+### Transaction-Level Advisory Lock {#2-transaction-level-advisory-lock}
+
+These advisory locks are automatically released at the end of the current transaction.
 
 **Terminal 1:**
 ```sql

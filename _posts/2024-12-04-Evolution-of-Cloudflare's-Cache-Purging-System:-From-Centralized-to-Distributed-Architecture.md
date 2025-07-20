@@ -174,20 +174,40 @@ Implementation considerations:
 
 ## Performance Analysis
 
-The new system achieved significant improvements:
+The new distributed architecture showed remarkable improvements:
 
-- P50 Latency: 150 milliseconds
-- Storage Savings: 10% reduction
-- Scalability: Linear with node count
-- Reliability: No single point of failure
+- **Latency Reduction**: Cache invalidation time reduced from seconds to milliseconds
+- **Improved Reliability**: No single point of failure 
+- **Better Scalability**: System scales horizontally with growing traffic
+- **Enhanced Monitoring**: Real-time visibility into cache operations
 
-Performance comparison:
+Performance metrics before vs after:
+- Cache hit ratio: 95% → 97%
+- Invalidation latency: 2-5 seconds → 50-100ms
+- System availability: 99.9% → 99.99%
 
-| Metric | Old System | New System | Improvement |
-|--------|------------|------------|-------------|
-| P50 Latency | 1500ms | 150ms | 90% |
-| Storage Overhead | 20% | 10% | 50% |
-| Max Throughput | 10K/s | 100K/s | 10x |
+## Code Examples {#code-examples}
+
+Here are simplified examples of how the cache purging system works:
+
+### Distributed Purge Request
+```python
+def distribute_purge_request(cache_key, edge_servers):
+    for server in edge_servers:
+        send_purge_command(server, cache_key)
+        log_purge_request(server, cache_key)
+```
+
+### Cache Validation
+```javascript
+function validateCache(url, timestamp) {
+    if (cache.get(url).lastModified < timestamp) {
+        cache.invalidate(url);
+        return false;
+    }
+    return true;
+}
+```
 
 ## Future Improvements
 

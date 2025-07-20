@@ -169,34 +169,34 @@ Both programs exemplify basic error handling with `perror()` to print out error 
 
 ### Steps to Run:
 
-1. **Compile Both Programs:**
+#### Compile Both Programs {#compile-both-programs}
 
-   ```sh
-   g++ -fsanitize=address -g -o udp_server udp_server.c
-   g++ -fsanitize=address -g -o udp_client udp_client.c
-   ```
+```sh
+g++ -fsanitize=address -g -o udp_server udp_server.c
+g++ -fsanitize=address -g -o udp_client udp_client.c
+```
 
-   Note: `-fsanitize=address` is optional but recommended for debugging memory issues.
+Note: `-fsanitize=address` is optional but recommended for debugging memory issues.
 
-2. **Run the Server:**
-   
-   Open one terminal window and run:
-   
-   ```sh
-   ./udp_server
-   ```
+#### Run the Server {#run-the-server}
 
-   This will start the server, listening on port 9000.
+Open one terminal window and run:
 
-3. **Run the Client:**
+```sh
+./udp_server
+```
 
-   Open another terminal window. To send a message to the server (assuming the server is running on localhost or you know its IP), use:
-   
-   ```sh
-   ./udp_client 127.0.0.1 "Hello from UDP client"
-   ```
+This will start the server, listening on port 9000.
 
-   Replace `127.0.0.1` with the server's IP if it's not running on the same machine.
+#### Run the Client {#run-the-client}
+
+Open another terminal window. To send a message to the server (assuming the server is running on localhost or you know its IP), use:
+
+```sh
+./udp_client 127.0.0.1 "Hello from UDP client"
+```
+
+Replace `127.0.0.1` with the server's IP if it's not running on the same machine.
 
 ### Compilation and Execution Tips
 
