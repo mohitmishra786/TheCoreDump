@@ -82,18 +82,12 @@ toc: true
 - [Conclusion](#conclusion)
   - [Importance of Understanding System Call Dynamics](#importance-of-understanding-system-call-dynamics)
 
-## Introduction
-System calls are fundamental interfaces between user applications and the operating system kernel. They allow programs to request services from the operating system, such as file operations, process control, and network access. One important distinction in system calls is between "fast" and "slow" system calls, which affects how they interact with signal handling, process scheduling, and overall system performance.
+## Introduction {#introduction}
 
-In this article, we'll explore:
-- The core differences between fast and slow system calls
-- The mechanism behind how signals can wake up blocked system calls
-- Practical examples with code demonstrations
-- How the kernel handles these different types of system calls
+System calls are the fundamental interface between user-space applications and the operating system kernel. Understanding how they work, particularly their behavior when interrupted by signals, is crucial for writing robust systems software. One of the most important distinctions in system programming is between "fast" and "slow" system calls - a classification that affects how signals interact with your programs.
 
-## Core Definitions: Fast vs. Slow System Calls
+### Overview of System Calls {#overview-of-system-calls}
 
-### Fast System Calls
 Fast system calls are operations that can be completed immediately without requiring the kernel to wait for external events. They typically:
 - Return quickly, usually within microseconds
 - Don't require the calling process to block or sleep
@@ -106,7 +100,8 @@ Common examples include:
 - `getuid()`, `setuid()`: Retrieves or sets user IDs
 - Simple memory operations like `brk()`
 
-### Slow System Calls
+### Importance of Distinguishing Fast vs. Slow System Calls {#importance-of-distinguishing-fast-vs-slow-system-calls}
+
 Slow system calls are operations that may need to wait for external events or resources, potentially for an indefinite period. They typically:
 - May block the calling process for an unpredictable amount of time
 - Often involve waiting for I/O operations or other processes
@@ -322,7 +317,7 @@ Process ID: 12345
 4. In the second part, we demonstrate manually restarting the interrupted system call.
 5. Finally, we demonstrate a fast system call (getpid) that completes regardless of signal delivery.
 
-## Gray Areas: The Case of Disk I/O
+## Gray Areas: The Case of Disk I/O {#gray-areas-the-case-of-disk-io}
 
 As mentioned in the reference answer, there are some gray areas between fast and slow system calls. Reading from a disk file with `read()` is an interesting case:
 
@@ -511,11 +506,11 @@ This example shows a key point about disk reads:
 2. Modern operating systems implement sophisticated caching and I/O scheduling that make disk reads faster.
 3. Some systems may implement disk reads in a way that doesn't allow them to be interrupted by signals.
 
-## System Call Categories in Detail
+## System Call Categories in Detail {#system-call-categories-in-detail}
 
 Let's explore the three gradations of system calls mentioned in the reference answer:
 
-### 1. Non-blocking System Calls (Fast)
+### 1. Non-blocking System Calls (Fast) {#non-blocking-system-calls-fast}
 
 These system calls return immediately, only requiring CPU time. They include:
 
@@ -525,7 +520,7 @@ These system calls return immediately, only requiring CPU time. They include:
 - Simple file operations on already-cached data
 - Operations on already-available kernel data structures
 
-### 2. Potentially Blocking System Calls (Medium)
+### 2. Potentially Blocking System Calls (Medium) {#potentially-blocking-system-calls-medium}
 
 These can take a while to complete but have a maximum duration:
 
@@ -535,7 +530,7 @@ These can take a while to complete but have a maximum duration:
 - Simple network operations with timeouts
 - Disk I/O operations (as discussed in the gray area)
 
-### 3. Indefinitely Blocking System Calls (Slow)
+### 3. Indefinitely Blocking System Calls (Slow) {#indefinitely-blocking-system-calls-slow}
 
 These don't return until an external event occurs:
 
@@ -583,7 +578,7 @@ Slow system calls have a more complex implementation:
 
 [![](https://mermaid.ink/img/pako:eNp9U9lum1AQ_ZXRlfKGo8Txgnho5XiLm3ip7SpqcR5uYQzI-ILuksQ1_vcOiyMcqeUBAXPmnHPPDEfmJT4yh23j5M0LudSwHmwE0NVzfyiUsJBJIPn-pfx4764OSuMe-jyOYSI0yi33sKr23UeUAmNYoNxHSkWJgH6I3k5VgIoZGo0vmSqJPCLK4L6izyvQr4OvrmDElYYaHFKuw0qxoCoANWMZDNzhO3pGI8xTlFyTk8rCoJAYukvURgpYojKxrmrDotb7JL-iaP4rXwAu5EdH4k2M9BB6rzyK-e8Yv57KnlHR8xNVBuN_uhyXLutOyr5ZksGDu4gp9Hw0HioFlPIzjzR8N2jOo3goCCbulMvdB5ArOgxiGomggk0K2Dd35YXom5jsikSH5djzlou5PZJdGrjgMQxfUeiXwtFaRkGAMoMn95nvEEz6qfmp0JhS4g11lrlETAvE7LiKAiJXtD7CJ4_nxMr77OP84_oHCtIqF1GaVEcUdAbz83SHk9l6WYnMy-Eyi-1pO3nk09Yf89KG0Yn3uGEOPfq45bQQG7YRJ4Jyo5PVQXjM0dKgxWRigpA5W3JJbyb1ucZBxPM_5AxJufiVJPVX5hzZO3Ns-_qGrvZd66bd7dx2mxY7MKfZ7lzbdrdrd-xOu3nXap0s9qfov7VYIHOblTSFgrKfGKGZ0z79BcESKSY?type=png)](https://mermaid.live/edit#pako:eNp9U9lum1AQ_ZXRlfKGo8Txgnho5XiLm3ip7SpqcR5uYQzI-ILuksQ1_vcOiyMcqeUBAXPmnHPPDEfmJT4yh23j5M0LudSwHmwE0NVzfyiUsJBJIPn-pfx4764OSuMe-jyOYSI0yi33sKr23UeUAmNYoNxHSkWJgH6I3k5VgIoZGo0vmSqJPCLK4L6izyvQr4OvrmDElYYaHFKuw0qxoCoANWMZDNzhO3pGI8xTlFyTk8rCoJAYukvURgpYojKxrmrDotb7JL-iaP4rXwAu5EdH4k2M9BB6rzyK-e8Yv57KnlHR8xNVBuN_uhyXLutOyr5ZksGDu4gp9Hw0HioFlPIzjzR8N2jOo3goCCbulMvdB5ArOgxiGomggk0K2Dd35YXom5jsikSH5djzlou5PZJdGrjgMQxfUeiXwtFaRkGAMoMn95nvEEz6qfmp0JhS4g11lrlETAvE7LiKAiJXtD7CJ4_nxMr77OP84_oHCtIqF1GaVEcUdAbz83SHk9l6WYnMy-Eyi-1pO3nk09Yf89KG0Yn3uGEOPfq45bQQG7YRJ4Jyo5PVQXjM0dKgxWRigpA5W3JJbyb1ucZBxPM_5AxJufiVJPVX5hzZO3Ns-_qGrvZd66bd7dx2mxY7MKfZ7lzbdrdrd-xOu3nXap0s9qfov7VYIHOblTSFgrKfGKGZ0z79BcESKSY)
 
-## Signal Handling in the Kernel
+## Signal Handling in the Kernel {#signal-handling-in-the-kernel}
 
 Understanding how the kernel handles signals is crucial to understanding the interaction with slow system calls:
 
@@ -594,7 +589,7 @@ Understanding how the kernel handles signals is crucial to understanding the int
    b. Sets up the user stack to execute the signal handler
    c. When the handler completes, either restarts the system call or returns with `EINTR`
 
-### Automatic System Call Restart
+### Signal Processing Workflow {#signal-processing-workflow}
 
 Modern UNIX-like systems provide a mechanism to automatically restart certain system calls when interrupted by signals. This is controlled by the `SA_RESTART` flag when registering signal handlers with `sigaction()`.
 
@@ -735,18 +730,18 @@ Starting read at time: 1711805443
 
 Note that in the second test with SA_RESTART, the read operation doesn't return after the signal handler completes but continues blocking. In a real-world program, you'd need another mechanism to terminate the second read (such as a second alarm or another process writing to the pipe).
 
-## Practical Applications and Best Practices
+## Practical Applications and Best Practices {#practical-applications-and-best-practices}
 
 Understanding the distinction between fast and slow system calls has practical implications for software design:
 
-### 1. Signal Handler Design
+### 1. Signal Handler Design {#signal-handler-design}
 
 When designing signal handlers, consider:
 - Keep signal handlers minimal and async-signal-safe
 - Use volatile sig_atomic_t for flags modified in signal handlers
 - Decide carefully whether to use SA_RESTART based on your application needs
 
-### 2. Handling EINTR
+### 2. Handling EINTR {#handling-eintr}
 
 For robust code, always check for EINTR when using slow system calls:
 
@@ -798,7 +793,7 @@ pid_t safe_wait(int *wstatus) {
 
 ```
 
-### 3. Using Non-blocking I/O
+### 3. Using Non-blocking I/O {#using-non-blocking-io}
 
 For responsive applications, consider using non-blocking I/O with polling:
 
@@ -876,7 +871,7 @@ int main() {
 
 ```
 
-### 4. Using Asynchronous I/O
+### 4. Using Asynchronous I/O {#using-asynchronous-io}
 
 For highly concurrent applications, asynchronous I/O allows operations to complete without blocking:
 
@@ -1102,7 +1097,7 @@ This simplified implementation shows the key differences:
    - Check for signals that might have interrupted the wait
    - Finally, perform the read operation
 
-## System Call Classification in Modern Operating Systems
+## System Call Classification in Modern Operating Systems {#system-call-classification-in-modern-operating-systems}
 
 Modern operating systems have evolved to include more nuanced categories of system calls:
 
@@ -1139,37 +1134,37 @@ These may block indefinitely:
 These can be automatically restarted after signal handling:
 - Most blocking system calls with SA_RESTART flag
 
-## The Evolution of System Call Handling
+## The Evolution of System Call Handling {#the-evolution-of-system-call-handling}
 
 Over time, operating systems have evolved more sophisticated mechanisms for handling system calls:
 
-### 1. Traditional Blocking I/O
+### 1. Traditional Blocking I/O {#traditional-blocking-io}
 
 The oldest approach simply blocks threads until operations complete.
 
-### 2. Non-blocking I/O with Polling
+### 2. Non-blocking I/O with Polling {#non-blocking-io-with-polling}
 
 Allows a thread to check for readiness without blocking.
 
-### 3. I/O Multiplexing
+### 3. I/O Multiplexing {#io-multiplexing}
 
 Enables a single thread to monitor multiple file descriptors:
 - `select()`, `poll()`, `epoll()`
 - Efficient for handling many connections
 
-### 4. Signal-Driven I/O
+### 4. Signal-Driven I/O {#signal-driven-io}
 
 Uses signals to notify when I/O is possible:
 - `SIGIO` signal indicates I/O readiness
 - Can be used with `F_SETSIG` fcntl
 
-### 5. Asynchronous I/O
+### 5. Asynchronous I/O {#asynchronous-io}
 
 Allows operations to complete in the background:
 - POSIX AIO (`aio_*` functions)
 - Linux-specific AIO (`io_*` functions)
 
-### 6. I/O Uring (Linux)
+### 6. I/O Uring (Linux) {#io-uring-linux}
 
 The newest approach combining the best features:
 - Submission and completion queues
@@ -1208,7 +1203,7 @@ graph TB
 
 ```
 
-## Summary and Practical Advice
+## Summary and Practical Advice {#summary-and-practical-advice}
 
 To summarize the key differences between fast and slow system calls:
 

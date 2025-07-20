@@ -120,7 +120,7 @@ sub    eax, ebx               ; Subtract
 mov    DWORD PTR [rbp-4], 85   ; Direct result
 ```
 
-## Case Study: Bit Shifts vs. Multiplication
+## Case Study: Bit Shifts vs. Multiplication {#case-study}
 
 Let's analyze our original example in more detail:
 
@@ -163,7 +163,7 @@ The optimized version demonstrates several important concepts:
 3. **Constant Folding**: The multiplication is performed at compile time
 4. **Register Allocation**: The result is placed directly in a register
 
-## How Compilers Make Optimization Decisions
+## How Compilers Make Optimization Decisions {#optimization-decisions}
 
 Compilers use various algorithms and heuristics to decide when and how to apply optimizations. The decision-making process typically involves:
 
@@ -219,7 +219,7 @@ Node {
 }
 ```
 
-## Advanced Optimization Techniques
+## Advanced Optimization Techniques {#advanced-techniques}
 
 Beyond constant folding, modern compilers employ numerous optimization techniques:
 
@@ -264,7 +264,7 @@ int a = temp + d;
 int x = temp + y;
 ```
 
-## Optimization Levels and Their Impact
+## Optimization Levels and Their Impact {#optimization-levels}
 
 Different compilation flags affect how aggressively the compiler optimizes code:
 
@@ -313,7 +313,7 @@ main:
     ret
 ```
 
-## Best Practices for Optimization-Friendly Code
+## Best Practices for Optimization-Friendly Code {#best-practices}
 
 While compilers are intelligent, we can help them optimize better:
 
