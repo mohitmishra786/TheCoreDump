@@ -25,13 +25,13 @@ toc: true
 9. [Advanced ASLR Techniques](#advanced-aslr-techniques)
 10. [Conclusion](#conclusion)
 
-## 1. Introduction to ASLR
+## 1. Introduction to ASLR {#introduction-to-aslr}
 
 Address Space Layout Randomization (ASLR) is a crucial security feature implemented in modern operating systems to protect against various types of memory corruption attacks, such as buffer overflows and return-to-libc attacks. ASLR works by randomly arranging the address space positions of key data areas of a process, including the base of the executable, the stack, heap, and libraries.
 
 The primary goal of ASLR is to introduce unpredictability in the memory layout, making it significantly harder for attackers to reliably jump to specific memory addresses when exploiting vulnerabilities. This randomization occurs each time a program is executed, ensuring that the memory layout differs between runs of the same program.
 
-## 2. Virtual vs. Physical Addresses
+## 2. Virtual vs. Physical Addresses {#virtual-vs-physical-addresses}
 
 Before getting into ASLR, it's essential to understand the distinction between virtual and physical addresses:
 
@@ -41,7 +41,7 @@ Before getting into ASLR, it's essential to understand the distinction between v
 
 This abstraction allows multiple processes to run simultaneously, each thinking it has access to the entire memory space, while the operating system manages the actual physical memory allocation and access.
 
-## 3. How ASLR Works
+## 3. How ASLR Works {#how-aslr-works}
 
 ASLR operates by introducing randomness into the memory layout of a process. Here's a breakdown of how it works:
 
@@ -102,7 +102,7 @@ digraph ASLR {
 }
 ```
 
-## 4. ASLR Implementation in Different Operating Systems
+## 4. ASLR Implementation in Different Operating Systems {#aslr-implementation-in-different-operating-systems}
 
 ASLR has been implemented in various operating systems, each with its own approach:
 
@@ -116,11 +116,11 @@ ASLR has been implemented in various operating systems, each with its own approa
 
 Each operating system may have different levels of granularity in its randomization and different methods for enabling or configuring ASLR.
 
-## 5. Code Examples and Analysis
+## 5. Code Examples and Analysis {#code-examples-and-analysis}
 
 Let's explore ASLR through a series of code examples, each demonstrating a different aspect of address randomization.
 
-### 5.1 Basic Address Printing
+### 5.1 Basic Address Printing {#basic-address-printing}
 
 First, let's start with a simple C program that prints the addresses of various program elements:
 
@@ -172,7 +172,7 @@ objdump -d aslr_demo > aslr_demo_disassembly.txt
 
 This will disassemble the compiled binary and save the output to a text file.
 
-### 5.2 Stack Address Randomization
+### 5.2 Stack Address Randomization {#stack-address-randomization}
 
 Let's focus on stack randomization with a more detailed example:
 
@@ -203,7 +203,7 @@ gcc -o stack_demo stack_demo.c
 
 You'll observe that not only do the stack addresses change between executions, but the relative distances between stack frames remain consistent.
 
-### 5.3 Heap Address Randomization
+### 5.3 Heap Address Randomization {#heap-address-randomization}
 
 Now, let's examine heap randomization:
 
@@ -235,7 +235,7 @@ gcc -o heap_demo heap_demo.c
 
 You'll notice that heap addresses change between executions, and there's often a pattern to allocations within a single execution.
 
-### 5.4 Shared Library Address Randomization
+### 5.4 Shared Library Address Randomization {#shared-library-address-randomization}
 
 To demonstrate shared library randomization, we'll create a simple shared library and a program that uses it:
 
@@ -279,7 +279,7 @@ export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
 
 Run this multiple times to see how the shared library address changes.
 
-## 6. Assembly Code Analysis
+## 6. Assembly Code Analysis {#assembly-code-analysis}
 
 Let's analyze some key assembly code sections from our basic address printing example. We'll focus on x86-64 assembly:
 
@@ -330,7 +330,7 @@ Key points in this assembly code:
 
 The exact addresses used in these instructions will be adjusted by the loader when ASLR is in effect.
 
-## 7. ASLR Effectiveness and Limitations
+## 7. ASLR Effectiveness and Limitations {#aslr-effectiveness-and-limitations}
 
 ASLR significantly increases the difficulty of exploiting memory corruption vulnerabilities, but it's not a panacea:
 
@@ -344,7 +344,7 @@ ASLR significantly increases the difficulty of exploiting memory corruption vuln
 
 - **Repeated Attempts**: On some systems, especially servers, attackers may be able to make repeated attempts to guess the correct addresses.
 
-## 8. ASLR Bypass Techniques
+## 8. ASLR Bypass Techniques {#aslr-bypass-techniques}
 
 Despite its effectiveness, several techniques have been developed to bypass ASLR:
 
@@ -360,7 +360,7 @@ Despite its effectiveness, several techniques have been developed to bypass ASLR
 
 6. **Side-Channel Attacks**: Sophisticated attacks might use timing or other side channels to infer memory layout information.
 
-## 9. Advanced ASLR Techniques
+## 9. Advanced ASLR Techniques {#advanced-aslr-techniques}
 
 To counter bypass techniques, more advanced forms of ASLR have been developed:
 
@@ -374,7 +374,7 @@ To counter bypass techniques, more advanced forms of ASLR have been developed:
 
 5. **KASLR (Kernel Address Space Layout Randomization)**: Extends ASLR principles to the operating system kernel.
 
-## 10. Conclusion
+## 10. Conclusion {#conclusion}
 
 Address Space Layout Randomization is a powerful security technique that has significantly raised the bar for exploiting memory corruption vulnerabilities. By introducing unpredictability into the memory layout of processes, ASLR forces attackers to either expend significantly more effort in crafting reliable exploits or to find alternative attack vectors.
 

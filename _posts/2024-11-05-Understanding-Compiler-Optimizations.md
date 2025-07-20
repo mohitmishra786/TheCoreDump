@@ -71,7 +71,7 @@ Program
             └── Right: Literal(2)
 ```
 
-## Constant Folding: The Art of Compile-Time Computation <a name="constant-folding"></a>
+## Constant Folding: The Art of Compile-Time Computation {#constant-folding}
 
 Constant folding is an optimization technique where the compiler evaluates constant expressions at compile time rather than generating code to compute them at runtime. This optimization isn't limited to simple arithmetic; it can handle complex expressions as long as all operands are known at compile time.
 

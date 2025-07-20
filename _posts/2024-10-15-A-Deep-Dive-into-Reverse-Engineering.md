@@ -16,7 +16,7 @@ toc: true
 5. [Function Calls and Parameter Passing](#function-calls-and-parameter-passing)
 6. [Practical Applications](#practical-applications)
 7. [Tools and Techniques](#tools-and-techniques)
-8. [Architecture Overview](#architecture-overview)
+8. [Conclusion](#conclusion)
 
 ## Introduction
 
