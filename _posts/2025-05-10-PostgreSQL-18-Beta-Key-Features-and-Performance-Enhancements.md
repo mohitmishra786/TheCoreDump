@@ -1,10 +1,10 @@
 ---
 title: "PostgreSQL 18 Beta: Key Features and Performance Enhancements"
-date: 2025-05-10 12:00:00 +0530
-categories: [Database, PostgreSQL]
-tags: [postgresql, database-optimization, async-io, temporal-sql, oauth2]
+date: 2025-05-10 00:00:00 +0530
+categories: [Database Systems]
+tags: [PostgreSQL, Database Optimization, Async IO, Temporal SQL, OAuth2]
 author: mohitmishra786
-description: "A practical examination of PostgreSQL 18 Beta's new features including Asynchronous I/O, Skip Scan optimization, virtual columns, and OAuth integration."
+description: "A comprehensive overview of PostgreSQL 18 Beta's latest features, performance improvements, and new capabilities for modern database applications."
 toc: true
 ---
 

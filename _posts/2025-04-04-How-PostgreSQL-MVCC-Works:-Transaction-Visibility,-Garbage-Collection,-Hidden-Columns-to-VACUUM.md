@@ -1,10 +1,10 @@
 ---
 title: "How PostgreSQL MVCC Works: Transaction Visibility, Garbage Collection, Hidden Columns to VACUUM"
-date: 2025-04-04 12:00:00 +0530
-categories: [Database, PostgreSQL, Concurrency]
-tags: [postgresql, mvcc, database, ssd]
+date: 2025-04-04 00:00:00 +0530
+categories: [Database Systems]
+tags: [PostgreSQL, MVCC, Database, SSD]
 author: mohitmishra786
-description: "Exploration of the inner workings of MVCC, examining how PostgreSQL manages multiple versions of rows, the hidden columns that track these versions, and the garbage collection mechanisms that keep the system efficient."
+description: "A deep dive into PostgreSQL's Multi-Version Concurrency Control (MVCC), exploring transaction visibility, garbage collection, and vacuum operations."
 toc: true
 ---
 

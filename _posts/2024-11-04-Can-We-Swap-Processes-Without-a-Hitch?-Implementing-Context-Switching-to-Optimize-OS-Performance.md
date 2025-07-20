@@ -972,7 +972,7 @@ void update_context_switch_stats(struct process_control_block *prev,
    - [IEEE Xplore Link](https://ieeexplore.ieee.org/document/1087666)
 
 4. **"The Linux Scheduler: a Decade of Wasted Cores"** by Con Kolivas
-   - [PDF Link](http://ck.kolivas.org/patches/bfs/scheduler.pdf)
+   - [PDF Link](https://ck.kolivas.org/patches/bfs/scheduler.pdf)
 
 5. **"Scheduling Algorithms for Multiprogramming in a Hard-Real-Time Environment"** by Liu, Chung Laung, and James W. Layland
    - [Semantic Scholar Link](https://www.semanticscholar.org/paper/Scheduling-algorithms-for-multiprogramming-in-a-Liu-Layland/04234f0f306b632d99c2928b11d07ad65c15b257)

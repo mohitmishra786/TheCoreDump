@@ -1,10 +1,10 @@
 ---
-title: "PostgreSQL and SSDs: The Hidden Performance Advantage of 4KB Alignment"
-date: 2025-03-30 12:00:00 +0530
-categories: [Database, Performance]
-tags: [postgresql, ssd, database-optimization, storage]
+title: "How PostgreSQL's 4KB Pages Optimize SSD Storage Performance"
+date: 2025-03-30 00:00:00 +0530
+categories: [Database Systems]
+tags: [PostgreSQL, SSD, Database Optimization, Storage]
 author: mohitmishra786
-description: "Exploring how PostgreSQL's 4KB page alignment with modern SSDs creates significant performance advantages that many database administrators overlook."
+description: "An exploration of how PostgreSQL's 4KB page architecture optimizes SSD storage performance and data access patterns."
 toc: true
 ---
 

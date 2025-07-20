@@ -2,7 +2,7 @@
 title: "From Text to Numbers: How Computers Convert Strings to Integers Under the Hood"
 date: 2025-05-04 12:00:00 +0530
 categories: [Programming, Computer Science]
-tags: [string-conversion, algorithms, ascii, unicode, performance]
+tags: [String Conversion, Algorithms, ASCII, Unicode, Performance]
 author: mohitmishra786
 description: "An in-depth exploration of how computers transform textual representations of numbers into actual integers, with code examples in multiple languages and performance considerations."
 toc: true
