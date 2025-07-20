@@ -58,7 +58,7 @@ Think of a GPU as a massive cargo ship and a CPU as a jumbo jet:
   - Highly flexible routing (general-purpose computing)
   - Faster for individual operations
 
-## Physical Architecture of Modern GPUs
+## Physical Architecture of Modern GPUs {#physical-architecture}
 
 ### Hierarchical Organization
 
@@ -153,7 +153,7 @@ The assembly output for the critical section (using gcc -S):
     jl      .L3                     # Loop if not done
 ```
 
-## Computational Architecture and SIMD/SIMT
+## Computational Architecture and SIMD/SIMT {#computational-architecture}
 
 ### SIMD vs SIMT Architecture
 
@@ -246,7 +246,7 @@ int main() {
 }
 ```
 
-## Memory Hierarchy and Data Transfer
+## Memory Hierarchy and Data Transfer {#memory-hierarchy}
 
 ### Graphics Memory Architecture
 
@@ -366,6 +366,114 @@ int main() {
     free(l1_cache);
     free(l2_cache->lines);
     free(l2_cache);
+    
+    return 0;
+}
+```
+
+## Practical Implementation in C {#practical-implementation}
+
+Understanding GPU architecture is valuable, but let's also explore how to write code that effectively utilizes these architectural features:
+
+### CUDA Programming Example
+
+```c
+#include <cuda_runtime.h>
+#include <stdio.h>
+
+// CUDA kernel for vector addition
+__global__ void vectorAdd(float *a, float *b, float *c, int n) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < n) {
+        c[idx] = a[idx] + b[idx];
+    }
+}
+
+// Host function
+int main() {
+    int n = 1024;
+    size_t size = n * sizeof(float);
+    
+    // Allocate host memory
+    float *h_a = (float*)malloc(size);
+    float *h_b = (float*)malloc(size);
+    float *h_c = (float*)malloc(size);
+    
+    // Initialize input arrays
+    for (int i = 0; i < n; i++) {
+        h_a[i] = i;
+        h_b[i] = i * 2;
+    }
+    
+    // Allocate device memory
+    float *d_a, *d_b, *d_c;
+    cudaMalloc(&d_a, size);
+    cudaMalloc(&d_b, size);
+    cudaMalloc(&d_c, size);
+    
+    // Copy data to device
+    cudaMemcpy(d_a, h_a, size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_b, h_b, size, cudaMemcpyHostToDevice);
+    
+    // Launch kernel
+    int threadsPerBlock = 256;
+    int blocksPerGrid = (n + threadsPerBlock - 1) / threadsPerBlock;
+    vectorAdd<<<blocksPerGrid, threadsPerBlock>>>(d_a, d_b, d_c, n);
+    
+    // Copy result back to host
+    cudaMemcpy(h_c, d_c, size, cudaMemcpyDeviceToHost);
+    
+    // Verify result
+    for (int i = 0; i < 10; i++) {
+        printf("c[%d] = %.2f\n", i, h_c[i]);
+    }
+    
+    // Free memory
+    free(h_a); free(h_b); free(h_c);
+    cudaFree(d_a); cudaFree(d_b); cudaFree(d_c);
+    
+    return 0;
+}
+```
+
+### OpenCL Example
+
+```c
+#include <CL/cl.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+const char* kernelSource = 
+"__kernel void vectorAdd(__global float* a, __global float* b, __global float* c, int n) {\n"
+"    int idx = get_global_id(0);\n"
+"    if (idx < n) {\n"
+"        c[idx] = a[idx] + b[idx];\n"
+"    }\n"
+"}\n";
+
+int main() {
+    // Platform and device setup
+    cl_platform_id platform;
+    cl_device_id device;
+    cl_context context;
+    cl_command_queue queue;
+    cl_program program;
+    cl_kernel kernel;
+    
+    // Get platform and device
+    clGetPlatformIDs(1, &platform, NULL);
+    clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device, NULL);
+    
+    // Create context and command queue
+    context = clCreateContext(NULL, 1, &device, NULL, NULL, NULL);
+    queue = clCreateCommandQueue(context, device, 0, NULL);
+    
+    // Create program and kernel
+    program = clCreateProgramWithSource(context, 1, &kernelSource, NULL, NULL);
+    clBuildProgram(program, 1, &device, NULL, NULL, NULL);
+    kernel = clCreateKernel(program, "vectorAdd", NULL);
+    
+    // Buffer creation and kernel execution would follow...
     
     return 0;
 }
@@ -601,6 +709,100 @@ int main() {
     return 0;
 }
 ```
+
+## Visualization of Architecture {#visualization}
+
+To better understand GPU architecture, here's a visual representation of the key components:
+
+```mermaid
+graph TB
+    subgraph "GPU Die"
+        GPC1[Graphics Processing Cluster 1]
+        GPC2[Graphics Processing Cluster 2]
+        GPC3[Graphics Processing Cluster 3]
+        GPC4[Graphics Processing Cluster 4]
+        
+        subgraph "GPC1 Detail"
+            SM1[Streaming Multiprocessor 1]
+            SM2[Streaming Multiprocessor 2]
+            SM3[Streaming Multiprocessor 3]
+            SM4[Streaming Multiprocessor 4]
+        end
+        
+        subgraph "Memory Subsystem"
+            L2[L2 Cache]
+            MC[Memory Controllers]
+            HBM[HBM2/GDDR6 Memory]
+        end
+        
+        subgraph "Interconnect"
+            NOC[Network on Chip]
+        end
+    end
+    
+    GPC1 --> NOC
+    GPC2 --> NOC
+    GPC3 --> NOC
+    GPC4 --> NOC
+    NOC --> L2
+    L2 --> MC
+    MC --> HBM
+    
+    style GPC1 fill:#e1f5fe
+    style L2 fill:#f3e5f5
+    style NOC fill:#e8f5e8
+```
+
+### SM (Streaming Multiprocessor) Internal Architecture
+
+```mermaid
+graph TB
+    subgraph "Streaming Multiprocessor"
+        subgraph "Warp Schedulers"
+            WS1[Warp Scheduler 1]
+            WS2[Warp Scheduler 2]
+            WS3[Warp Scheduler 3]
+            WS4[Warp Scheduler 4]
+        end
+        
+        subgraph "Execution Units"
+            CUDA1[CUDA Cores 1-32]
+            CUDA2[CUDA Cores 33-64]
+            CUDA3[CUDA Cores 65-96]
+            CUDA4[CUDA Cores 97-128]
+            SFU[Special Function Units]
+            LD[Load/Store Units]
+            TC[Tensor Cores]
+        end
+        
+        subgraph "Memory"
+            RF[Register File]
+            L1[L1 Cache]
+            SM[Shared Memory]
+            CT[Constant Cache]
+            TT[Texture Cache]
+        end
+    end
+    
+    WS1 --> CUDA1
+    WS2 --> CUDA2
+    WS3 --> CUDA3
+    WS4 --> CUDA4
+    
+    CUDA1 --> RF
+    CUDA2 --> RF
+    CUDA3 --> RF
+    CUDA4 --> RF
+    
+    LD --> L1
+    L1 --> SM
+    
+    style WS1 fill:#fff3e0
+    style CUDA1 fill:#e3f2fd
+    style RF fill:#f1f8e9
+```
+
+This visualization shows how the hierarchical organization enables massive parallelism while maintaining efficient data flow and resource utilization.
 
 ## Further Reading
 
