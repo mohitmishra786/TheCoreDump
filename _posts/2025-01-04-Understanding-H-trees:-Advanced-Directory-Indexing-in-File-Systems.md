@@ -536,6 +536,7 @@ uint32_t hash_filename(const char* name) {
     }
     return hash;
 }
+```
 
 ### Search Operations {#search-operations}
 
