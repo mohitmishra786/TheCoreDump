@@ -569,20 +569,23 @@ This example demonstrates a simple HTTP server that responds to all requests wit
 
 ## Advanced Topics in Socket Programming
 
-### 1. IPv6 Support
+### 1. IPv6 Support {#ipv6-support}
 
-To make your socket programs compatible with both IPv4 and IPv6, you can use the `AI_V4MAPPED` and `AI_ALL` flags with `getaddrinfo()`:
+IPv6 is becoming increasingly important as IPv4 addresses become scarce. Here's how to write IPv6-compatible socket code:
 
 ```c
-hints.ai_family = AF_INET6;
-hints.ai_flags = AI_V4MAPPED | AI_ALL;
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
+int getaddrinfo(const char *node, const char *service,
+                const struct addrinfo *hints,
+                struct addrinfo **res);
 ```
 
-This allows your program to work with both IPv4 and IPv6 addresses.
+### 2. Asynchronous I/O {#asynchronous-io}
 
-### 2. Asynchronous I/O
-
-For high-performance applications, you might want to consider using asynchronous I/O. The `aio_read()` and `aio_write()` functions from the POSIX AIO library allow you to perform non-blocking I/O operations:
+For high-performance servers, asynchronous I/O can significantly improve scalability:
 
 ```c
 #include <aio.h>
@@ -612,9 +615,9 @@ if (bytes_read == -1) {
 }
 ```
 
-### 3. Unix Domain Sockets
+### 3. Unix Domain Sockets {#unix-domain-sockets}
 
-For inter-process communication on the same machine, Unix domain sockets can be more efficient than TCP/IP sockets:
+Unix domain sockets provide high-performance local communication:
 
 ```c
 #include <sys/un.h>
@@ -637,13 +640,15 @@ if (bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
 }
 ```
 
-### 4. Socket Options
+### 4. Socket Options {#socket-options}
 
-There are many socket options that can be set using `setsockopt()` to fine-tune socket behavior. Here are a few useful ones:
+Socket options allow fine-tuning of socket behavior:
 
-- `SO_RCVTIMEO` and `SO_SNDTIMEO`: Set receive and send timeouts
-- `TCP_NODELAY`: Disable Nagle's algorithm for TCP sockets
-- `SO_KEEPALIVE`: Enable TCP keepalive
+```c
+#include <sys/socket.h>
+
+int setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen);
+```
 
 Example of setting a receive timeout:
 

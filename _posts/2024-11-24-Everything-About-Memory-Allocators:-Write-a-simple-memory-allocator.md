@@ -110,21 +110,82 @@ The header structure serves several purposes:
 
 ### Memory Block Headers
 
-Every allocated block has an associated header that precedes the actual memory block:
+Each allocated block needs a header to store metadata:
 
-```
-+----------------+------------------+
-| Header         | Actual Memory    |
-+----------------+------------------+
-^                ^
-|                |
-Block Start      Returned Pointer
+```c
+typedef struct block_header {
+    size_t size;           // Size of the block (including header)
+    int is_free;          // 1 if free, 0 if allocated
+    struct block_header* next;    // Pointer to next block
+    struct block_header* prev;    // Pointer to previous block
+} block_header_t;
 ```
 
-The header is hidden from the user but crucial for our allocator's operation. When a user requests N bytes:
-1. We allocate N + sizeof(header_t) bytes
-2. Place the header at the start
-3. Return a pointer to the memory after the header
+The header contains:
+- **size**: Total size including the header
+- **is_free**: Flag indicating if the block is available
+- **next/prev**: Pointers for maintaining a doubly-linked list
+
+#### Implementation Details {#implementation-details}
+
+The memory allocator implementation involves several key design decisions and optimizations:
+
+### Block Alignment
+All memory blocks must be aligned to word boundaries for optimal performance:
+
+```c
+#define ALIGNMENT 8
+#define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~(ALIGNMENT-1))
+```
+
+### Block Splitting and Coalescing
+When allocating memory, we may need to split large blocks:
+
+```c
+static block_header_t* split_block(block_header_t* block, size_t size) {
+    if (block->size >= size + sizeof(block_header_t) + ALIGNMENT) {
+        block_header_t* new_block = (block_header_t*)((char*)block + size);
+        new_block->size = block->size - size;
+        new_block->is_free = 1;
+        new_block->next = block->next;
+        new_block->prev = block;
+        
+        if (block->next) {
+            block->next->prev = new_block;
+        }
+        block->next = new_block;
+        block->size = size;
+        
+        return new_block;
+    }
+    return NULL;
+}
+```
+
+### Memory Coalescing
+When freeing blocks, adjacent free blocks should be merged:
+
+```c
+static void coalesce_blocks(block_header_t* block) {
+    // Merge with next block if free
+    if (block->next && block->next->is_free) {
+        block->size += block->next->size;
+        block->next = block->next->next;
+        if (block->next) {
+            block->next->prev = block;
+        }
+    }
+    
+    // Merge with previous block if free
+    if (block->prev && block->prev->is_free) {
+        block->prev->size += block->size;
+        block->prev->next = block->next;
+        if (block->next) {
+            block->next->prev = block->prev;
+        }
+    }
+}
+```
 
 ## Core Functions Implementation
 
@@ -285,15 +346,105 @@ However, this approach has limitations:
 
 ## Testing and Usage
 
-To compile and use the allocator:
+Let's test our allocator with a comprehensive example:
 
-```bash
-# Compile as shared library
-gcc -o memalloc.so -fPIC -shared memalloc.c
-
-# Use with existing programs
-export LD_PRELOAD=$PWD/memalloc.so
+```c
+int main() {
+    printf("Testing custom memory allocator\n");
+    
+    // Test basic allocation
+    void* ptr1 = my_malloc(100);
+    printf("Allocated 100 bytes at %p\n", ptr1);
+    
+    void* ptr2 = my_malloc(200);
+    printf("Allocated 200 bytes at %p\n", ptr2);
+    
+    // Test freeing
+    my_free(ptr1);
+    printf("Freed first allocation\n");
+    
+    // Test allocation after free (should reuse space)
+    void* ptr3 = my_malloc(50);
+    printf("Allocated 50 bytes at %p\n", ptr3);
+    
+    // Test calloc
+    void* ptr4 = my_calloc(10, sizeof(int));
+    printf("Allocated zeroed array at %p\n", ptr4);
+    
+    // Test realloc
+    ptr4 = my_realloc(ptr4, 20 * sizeof(int));
+    printf("Reallocated array to %p\n", ptr4);
+    
+    // Cleanup
+    my_free(ptr2);
+    my_free(ptr3);
+    my_free(ptr4);
+    
+    printf("All tests completed successfully\n");
+    return 0;
+}
 ```
+
+## Sequence Diagrams {#sequence-diagrams}
+
+Understanding the flow of memory allocation operations is crucial. Here are sequence diagrams showing the interaction between different components:
+
+### malloc() Sequence
+```mermaid
+sequenceDiagram
+    participant App as Application
+    participant Malloc as my_malloc()
+    participant Heap as Heap Manager
+    participant OS as Operating System
+    
+    App->>Malloc: Request memory (size)
+    Malloc->>Heap: Find suitable block
+    alt Block found
+        Heap->>Malloc: Return existing block
+        Malloc->>Heap: Split block if needed
+    else No block found
+        Malloc->>OS: Request more memory (sbrk)
+        OS->>Malloc: Extend heap
+        Malloc->>Heap: Create new block
+    end
+    Malloc->>App: Return pointer to allocated memory
+```
+
+### free() Sequence
+```mermaid
+sequenceDiagram
+    participant App as Application
+    participant Free as my_free()
+    participant Heap as Heap Manager
+    
+    App->>Free: Free memory (pointer)
+    Free->>Heap: Mark block as free
+    Free->>Heap: Check adjacent blocks
+    alt Adjacent blocks are free
+        Heap->>Free: Coalesce blocks
+        Free->>Heap: Update block list
+    end
+    Free->>App: Return (void)
+```
+
+### Memory Layout Evolution
+```mermaid
+graph TD
+    A[Initial Heap] --> B[First malloc(100)]
+    B --> C[Second malloc(200)]
+    C --> D[free(first block)]
+    D --> E[malloc(50) - reuses space]
+    
+    subgraph "Heap States"
+        A1["|------ Free Block ------|"]
+        B1["|Used(100)|-- Free --|"]
+        C1["|Used(100)|Used(200)|Free|"]
+        D1["|Free(100)|Used(200)|Free|"]
+        E1["|Used(50)|Free|Used(200)|Free|"]
+    end
+```
+
+This visualization shows how the heap evolves as allocations and deallocations occur, demonstrating block splitting, coalescing, and reuse.
 
 ## Further Reading
 

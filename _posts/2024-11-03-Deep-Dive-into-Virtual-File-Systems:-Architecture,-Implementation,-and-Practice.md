@@ -409,6 +409,92 @@ void destroy_inode_cache(inode_cache_t *cache) {
 }
 ```
 
+## Implementation Details {#implementation-details}
+
+The VFS implementation in the Linux kernel involves several key data structures and mechanisms that work together to provide a seamless file system abstraction. Understanding these implementation details is crucial for kernel developers and system programmers working with file systems.
+
+### VFS Data Structures
+
+The core VFS implementation relies on several key data structures:
+
+1. **struct super_block**: Represents a mounted file system
+2. **struct inode**: Represents a file or directory
+3. **struct dentry**: Represents a directory entry
+4. **struct file**: Represents an open file
+
+### File Operation Tables
+
+VFS uses function pointers to delegate operations to specific file systems:
+
+```c
+struct file_operations {
+    loff_t (*llseek) (struct file *, loff_t, int);
+    ssize_t (*read) (struct file *, char __user *, size_t, loff_t *);
+    ssize_t (*write) (struct file *, const char __user *, size_t, loff_t *);
+    int (*open) (struct inode *, struct file *);
+    int (*release) (struct inode *, struct file *);
+    // ... more operations
+};
+```
+
+## Practical Examples {#practical-examples}
+
+Let's explore practical examples of VFS usage and implementation:
+
+### Example 1: Simple File System Implementation
+
+```c
+#include <linux/fs.h>
+#include <linux/module.h>
+
+static struct super_operations simple_super_ops = {
+    .drop_inode = generic_drop_inode,
+};
+
+static int simple_fill_super(struct super_block *sb, void *data, int silent) {
+    struct inode *root_inode;
+    
+    sb->s_blocksize = PAGE_SIZE;
+    sb->s_blocksize_bits = PAGE_SHIFT;
+    sb->s_magic = 0x73696d70; /* "simp" */
+    sb->s_op = &simple_super_ops;
+    
+    root_inode = new_inode(sb);
+    if (!root_inode)
+        return -ENOMEM;
+    
+    root_inode->i_ino = 1;
+    root_inode->i_mode = S_IFDIR | 0755;
+    root_inode->i_op = &simple_dir_inode_operations;
+    root_inode->i_fop = &simple_dir_operations;
+    
+    sb->s_root = d_make_root(root_inode);
+    if (!sb->s_root)
+        return -ENOMEM;
+    
+    return 0;
+}
+```
+
+### Example 2: VFS Integration Points
+
+```c
+// File system registration
+static struct file_system_type simple_fs_type = {
+    .owner = THIS_MODULE,
+    .name = "simplefs",
+    .mount = simple_mount,
+    .kill_sb = kill_block_super,
+};
+
+// Mount function
+static struct dentry *simple_mount(struct file_system_type *fs_type,
+                                   int flags, const char *dev_name,
+                                   void *data) {
+    return mount_bdev(fs_type, flags, dev_name, data, simple_fill_super);
+}
+```
+
 ## Advanced Concepts
 
 ### File System Registration
@@ -505,6 +591,54 @@ void destroy_fs_registry(filesystem_registry_t *registry) {
     free(registry);
 }
 ```
+
+## System Architecture {#system-architecture}
+
+The VFS system architecture provides a layered approach to file system management, with each layer serving a specific purpose in the overall design.
+
+### Architectural Layers
+
+1. **User Space Interface Layer**
+   - System call interface (open, read, write, close)
+   - Library functions (fopen, fread, fwrite, fclose)
+   - Application-level file operations
+
+2. **VFS Abstraction Layer**
+   - Unified file system interface
+   - Path resolution and namespace management
+   - Permission checking and security
+   - Caching and buffering
+
+3. **File System Implementation Layer**
+   - Specific file system drivers (ext4, XFS, Btrfs)
+   - Format-specific operations
+   - Metadata management
+   - Storage allocation
+
+4. **Block Device Layer**
+   - I/O scheduling and queuing
+   - Device drivers
+   - Hardware abstraction
+
+### Interaction Flow
+
+The typical flow of a file operation through the VFS architecture:
+
+```
+User Application
+       ↓
+System Call Interface
+       ↓
+VFS Layer (path resolution, permission checking)
+       ↓
+File System Specific Operations
+       ↓
+Block Device Layer
+       ↓
+Hardware Storage
+```
+
+This layered architecture ensures that applications can work with any file system through a consistent interface while allowing file systems to implement their specific optimizations and features.
 
 ## Conclusion
 Understanding VFS architecture is crucial for system programmers and anyone working with file systems at a low level. The abstractions provided by VFS enable the development of filesystem-agnostic applications while maintaining performance through sophisticated caching mechanisms.

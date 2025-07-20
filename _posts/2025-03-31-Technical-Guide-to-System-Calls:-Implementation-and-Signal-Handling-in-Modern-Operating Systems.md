@@ -1211,6 +1211,8 @@ graph TB
 
 To summarize the key differences between fast and slow system calls:
 
+### Key Differences Recap {#key-differences-recap}
+
 ### Fast System Calls:
 1. Return immediately with just CPU time
 2. Don't block the calling process
@@ -1223,21 +1225,16 @@ To summarize the key differences between fast and slow system calls:
 3. Can be interrupted by signals, returning `EINTR`
 4. Examples: `read()` from pipes/sockets, `accept()`, `wait()`
 
-### Best Practices:
+### Best Practices for System Call Handling {#best-practices-for-system-call-handling}
+
 1. **Handle EINTR properly**: Always check for and handle `EINTR` returns from slow system calls
 2. **Use SA_RESTART when appropriate**: For simplicity, consider using `SA_RESTART` when registering signal handlers
 3. **Consider non-blocking I/O**: For responsive applications, non-blocking I/O with `select()/poll()/epoll()` can be more efficient
-4. **Use the right tool for the job**: Match your I/O paradigm to your application's needs:
-   - Simple sequential operations: Blocking I/O
-   - Interactive applications: Non-blocking with polling
-   - High-performance servers: I/O multiplexing or asynchronous I/O
 
-By understanding the differences between fast and slow system calls and how they interact with signals, you can write more robust and efficient systems software.
+## Conclusion {#conclusion}
 
-## Conclusion
+The distinction between fast and slow system calls is fundamental to understanding how operating systems handle process scheduling, signal delivery, and I/O operations.
 
-The distinction between fast and slow system calls is fundamental to understanding how operating systems handle process scheduling, signal delivery, and I/O operations. While the terminology might vary (non-blocking vs. blocking, fast vs. slow), the underlying concepts remain consistent across UNIX-like operating systems.
-
-Modern operating systems have evolved sophisticated mechanisms for dealing with different types of system calls, from simple fast calls to complex asynchronous operations. Understanding these mechanisms is essential for developing robust, high-performance applications that interact with the operating system efficiently.
+### Importance of Understanding System Call Dynamics {#importance-of-understanding-system-call-dynamics}
 
 By properly handling signal interruptions, choosing appropriate I/O models, and understanding the implementation details of system calls, programmers can write more reliable and efficient code that gracefully handles the complex interactions between processes, signals, and the kernel.
