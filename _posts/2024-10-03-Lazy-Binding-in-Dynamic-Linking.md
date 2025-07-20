@@ -11,26 +11,6 @@ toc: true
 
 In the world of modern software development, dynamic linking plays a crucial role in creating efficient and flexible executable programs. One of the key optimizations in dynamic linking is lazy binding, a technique that defers the resolution of function addresses until they are actually needed during program execution. This blog post will explain the intricacies of lazy binding, exploring its implementation, benefits, and the low-level details that make it work.
 
-## Table of Contents
-
-1. [Introduction to Dynamic Linking](#introduction-to-dynamic-linking)
-2. [The Need for Lazy Binding](#the-need-for-lazy-binding)
-3. [Key Components of Lazy Binding](#key-components-of-lazy-binding)
-   - [Global Offset Table (GOT)](#global-offset-table-got)
-   - [Procedure Linkage Table (PLT)](#procedure-linkage-table-plt)
-   - [Dynamic Linker](#dynamic-linker)
-4. [The Lazy Binding Process: Step by Step](#the-lazy-binding-process-step-by-step)
-5. [Implementing Lazy Binding: A C Example](#implementing-lazy-binding-a-c-example)
-6. [Compiling and Analyzing the Assembly Code](#compiling-and-analyzing-the-assembly-code)
-7. [Performance Implications of Lazy Binding](#performance-implications-of-lazy-binding)
-8. [Security Considerations](#security-considerations)
-9. [Advanced Topics in Lazy Binding](#advanced-topics-in-lazy-binding)
-   - [Thread Safety](#thread-safety)
-   - [Preloading and Prelinking](#preloading-and-prelinking)
-10. [Conclusion](#conclusion)
-11. [References](#references)
-12. [Appendix: Lazy Binding Flow Diagram](#appendix-lazy-binding-flow-diagram)
-
 ## Introduction to Dynamic Linking
 
 Dynamic linking is a mechanism used in modern operating systems to load and link shared libraries (also known as dynamic-link libraries or DLLs) at runtime. This approach offers several advantages over static linking, including:
@@ -337,39 +317,7 @@ For further reading and deeper understanding of lazy binding and dynamic linking
 
 The following diagram illustrates the complete flow of lazy binding from initial call to resolution:
 
-```mermaid
-flowchart TD
-    A[Program calls function] --> B{First call to function?}
-    B -->|Yes| C[Jump to PLT entry]
-    B -->|No| D[Direct jump to cached address]
-    
-    C --> E[PLT pushes identifier]
-    E --> F[PLT jumps to dynamic linker]
-    F --> G[Dynamic linker resolves symbol]
-    G --> H[Updates GOT entry with real address]
-    H --> I[Jumps to actual function]
-    I --> J[Function executes]
-    J --> K[Returns to caller]
-    
-    D --> J
-    
-    subgraph "First Call Path"
-        C
-        E
-        F
-        G
-        H
-    end
-    
-    subgraph "Subsequent Calls"
-        D
-    end
-    
-    style A fill:#e1f5fe
-    style B fill:#fff3e0
-    style G fill:#f3e5f5
-    style H fill:#e8f5e8
-```
+[![](https://mermaid.ink/img/pako:eNp1k12T0jAUhv9KJt4CUwqF2gudhfKx-MXoeqFlL0J7QqNpg_lwF4H_bpoWqI72InOS9znvSU6aI05FBjjClIunNCdSo4d4UyL73SVrKXaSFCglnCtETZlqJspH1O2-QpPjnEmlnYa0uKqvz3X2pKJOX0Cd0DRZmWJfQeu3DwhKLQ-Pbei9OKE4iZmEVKNvDZqSNIcMkSyToFTD1-PUbWCWVG57o3JQiGXWllEGsiFnjpk7prJUlWd2KEnBUsRZ-f1Kzh25SOI_RGSrCv7TWqtDsRW8gRcOXiaf9xnRVlx8aA6EnpjObRLhf2156TLuXQvcJkiqjaWu3ayxe4etknmzjOAZUmNLNPrK6W-Sj6CNLFXdIc6vp6jHuHZpLymztXe4z9EG1xc2rS5sTXS-wTXhWnoLZ7dwfgsXt3BZh1Bm_6nzyWwV_DC2L66YaheK_52sDxzQHaKM8-gF9GlAoa1MGoVSOgCvrSwuygACGrSV5cUtpAGEuIN3kmU40tJABxcgC1JN8bHK2WCdQwEbHNkwA0oM19WuzzZtT8qvQhSXTCnMLr9MjPsNYkaqZ4IjSriqEHs6kFNhSo2j_thZ4OiIn3Hke6OeP_S9cRgG42E_DDv4gKPuqDcKhv5w4PmBZ6NwcO7gX66o1wv7g9AfjQcvbY4XBMMOhoxpId_V79Y93_Nv8CUkxQ?type=png)](https://mermaid.live/edit#pako:eNp1k12T0jAUhv9KJt4CUwqF2gudhfKx-MXoeqFlL0J7QqNpg_lwF4H_bpoWqI72InOS9znvSU6aI05FBjjClIunNCdSo4d4UyL73SVrKXaSFCglnCtETZlqJspH1O2-QpPjnEmlnYa0uKqvz3X2pKJOX0Cd0DRZmWJfQeu3DwhKLQ-Pbei9OKE4iZmEVKNvDZqSNIcMkSyToFTD1-PUbWCWVG57o3JQiGXWllEGsiFnjpk7prJUlWd2KEnBUsRZ-f1Kzh25SOI_RGSrCv7TWqtDsRW8gRcOXiaf9xnRVlx8aA6EnpjObRLhf2156TLuXQvcJkiqjaWu3ayxe4etknmzjOAZUmNLNPrK6W-Sj6CNLFXdIc6vp6jHuHZpLymztXe4z9EG1xc2rS5sTXS-wTXhWnoLZ7dwfgsXt3BZh1Bm_6nzyWwV_DC2L66YaheK_52sDxzQHaKM8-gF9GlAoa1MGoVSOgCvrSwuygACGrSV5cUtpAGEuIN3kmU40tJABxcgC1JN8bHK2WCdQwEbHNkwA0oM19WuzzZtT8qvQhSXTCnMLr9MjPsNYkaqZ4IjSriqEHs6kFNhSo2j_thZ4OiIn3Hke6OeP_S9cRgG42E_DDv4gKPuqDcKhv5w4PmBZ6NwcO7gX66o1wv7g9AfjQcvbY4XBMMOhoxpId_V79Y93_Nv8CUkxQ)
 
 ### Detailed Step-by-Step Process
 

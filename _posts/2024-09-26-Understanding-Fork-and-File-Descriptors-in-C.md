@@ -11,18 +11,6 @@ toc: true
 
 In the world of Unix-like operating systems, processes and file handling are fundamental concepts that every system programmer should understand. Today, we're going to explore an interesting intersection of these two concepts: what happens to open file descriptors when a process forks? This topic might seem niche, but it has important implications for how we design and implement multi-process applications.
 
-## Table of Contents
-
-1. [Introduction](#introduction)
-2. [The Basics: Processes and File Descriptors](#the-basics-processes-and-file-descriptors)
-3. [Forking and File Descriptors](#forking-and-file-descriptors)
-4. [Example 1: Writing to a File After Fork](#example-1-writing-to-a-file-after-fork)
-5. [The Issue of Buffering](#the-issue-of-buffering)
-6. [Example 2: Using Low-Level I/O Functions](#example-2-using-low-level-io-functions)
-7. [Example 3: Concurrent Reading After Fork](#example-3-concurrent-reading-after-fork)
-8. [Best Practices and Considerations](#best-practices-and-considerations)
-9. [Conclusion](#conclusion)
-
 ## Introduction
 
 When a process forks in a Unix-like system, it creates a child process that is an almost exact copy of the parent. But what happens to the open file descriptors? Are they shared between the parent and child? What happens if one process closes a file descriptor? These are the questions we'll be exploring in this post.

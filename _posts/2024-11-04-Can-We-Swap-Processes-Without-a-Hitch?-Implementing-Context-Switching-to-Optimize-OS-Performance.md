@@ -8,24 +8,6 @@ author: mohitmishra786
 description: "An exploration of context switching optimization techniques, examining how efficient process swapping can enhance operating system performance and minimize overhead."
 toc: true
 ---
-## Table of Contents
-
-* [1. Introduction](#1-introduction)
-* [2. What is Context Switching?](#2-what-is-context-switching)
-    * [Flow of Context Switch](#flow-of-context-switch)
-* [3. Anatomy of a Context Switch](#3-anatomy-of-a-context-switch)
-* [4. Process Control Block (PCB)](#4-process-control-block-pcb)
-* [5. Hardware Context vs. Software Context](#5-hardware-context-vs-software-context)
-    * [Types of Contexts](#types-of-contexts)
-* [6. Hardware Support for Context Switching](#6-hardware-support-for-context-switching)
-* [7. Context Switch Triggers](#7-context-switch-triggers)
-* [8. The Context Switch Mechanism](#8-the-context-switch-mechanism)
-* [9. Context Switching Costs](#9-context-switching-costs)
-* [10. Implementation of Context Switch Handler](#10-implementation-of-context-switch-handler)
-* [11. Real-world Examples](#11-real-world-examples)
-* [12. Performance Considerations](#12-performance-considerations)
-* [13. Conclusion](#13-conclusion)
-
 
 ## About Me
 - [My Github](https://github.com/mohitmishra786)

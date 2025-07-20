@@ -9,17 +9,6 @@ description: "A comprehensive examination of modern memory security and kernel p
 toc: true
 ---
 
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Understanding Memory Corruption](#understanding-memory-corruption)
-3. [Traditional Memory Protection Mechanisms](#traditional-memory-protection-mechanisms)
-4. [Advanced Memory Protection](#advanced-memory-protection)
-5. [Memory Sealing: A New Approach](#memory-sealing-a-new-approach)
-6. [Practical Implementations](#practical-implementations)
-7. [Looking to the Future](#looking-to-the-future)
-8. [References](#references)
-9. [Conclusion](#conclusion)
-
 ## Introduction
 
 Memory corruption vulnerabilities continue to be one of the most critical security challenges in modern computing systems. Despite decades of advancement in programming languages and security mechanisms, these vulnerabilities persist as a primary attack vector for system compromises. This comprehensive analysis explores the current state of memory protection mechanisms, focusing on recent developments in kernel-level security features.

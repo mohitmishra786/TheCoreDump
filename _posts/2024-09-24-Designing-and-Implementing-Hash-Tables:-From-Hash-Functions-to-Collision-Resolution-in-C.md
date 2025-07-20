@@ -11,18 +11,6 @@ toc: true
 
 Hash tables are a fundamental data structure in computer science, offering a powerful combination of fast lookups, insertions, and deletions. In this article, we'll explore the inner workings of hash tables, implement them in C, and analyze their performance characteristics. We'll also discuss various collision resolution strategies and provide optimized code examples for real-world applications.
 
-## Table of Contents
-
-1. [Introduction to Hash Tables](#introduction-to-hash-tables)
-2. [Hash Functions](#hash-functions)
-3. [Collision Resolution Strategies](#collision-resolution-strategies)
-- 3.1 [Open Addressing](#open-addressing)
-- 3.2 [External Chaining](#external-chaining)
-4. [Implementing a Hash Table in C](#implementing-a-hash-table-in-c)
-5. [Performance Analysis](#performance-analysis)
-6. [Advanced Techniques and Optimizations](#advanced-techniques-and-optimizations)
-7. [Conclusion](#conclusion)
-
 ## 1. Introduction to Hash Tables {#introduction-to-hash-tables}
 
 Hash tables, also known as hash maps, are data structures that implement an associative array abstract data type. They use a hash function to compute an index into an array of buckets or slots, from which the desired value can be found. The primary advantage of hash tables is their ability to achieve constant-time average complexity for insertions, deletions, and lookups, making them extremely efficient for large datasets.

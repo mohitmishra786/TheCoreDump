@@ -9,24 +9,7 @@ description: "A detailed guide to reader-writer locks, exploring how they improv
 toc: true
 ---
 
-### Table of Contents
-1. [Introduction](#introduction)
-2. [The Problem with Traditional Mutex Locks](#the-problem-with-traditional-mutex-locks)
-3. [Introducing Reader-Writer Locks](#introducing-reader-writer-locks)
-4. [Deep Dive into Reader-Writer Lock Behavior](#deep-dive-into-reader-writer-lock-behavior)
-   - [Read Preference vs. Write Preference](#read-preference-vs-write-preference)
-   - [Potential for Writer Starvation](#potential-for-writer-starvation)
-   - [Upgradeable Read Locks](#upgradeable-read-locks)
-5. [Performance Considerations](#performance-considerations)
-   - [Lock Acquisition Overhead](#lock-acquisition-overhead)
-   - [Scalability Under Contention](#scalability-under-contention)
-   - [Cache Effects](#cache-effects)
-6. [Implementation Details and Low-Level Analysis](#implementation-details-and-low-level-analysis)
-   - [Basic C Implementation](#basic-c-implementation)
-   - [Compiling to Assembly](#compiling-to-assembly)
-7. [Conclusion](#conclusion)
-
-### Introduction
+## Introduction
 In multithreaded programming, ensuring data integrity and maximizing performance hinges on efficient synchronization mechanisms. While mutex locks are a common solution for protecting shared resources, they can be restrictive, especially when multiple threads could safely read data concurrently. This is where **reader-writer locks** come in, offering a more flexible approach to managing access to shared resources.
 
 ### The Problem with Traditional Mutex Locks

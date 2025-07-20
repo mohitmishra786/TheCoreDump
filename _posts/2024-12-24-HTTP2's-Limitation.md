@@ -9,23 +9,6 @@ description: "An analysis of HTTP/2 protocol limitations, exploring performance 
 toc: true
 ---
 
-# Understanding HTTP/2's Limitations: A Deep Technical Analysis
-
-## Table of Contents
-1. Introduction
-2. Historical Context: From HTTP/1 to HTTP/2
-3. TCP Fundamentals and Their Impact
-4. HTTP/2 Architecture Deep Dive
-5. The Head-of-Line Blocking Problem
-6. TCP Segment Ordering and Its Implications
-7. How HTTP/3 and QUIC Address These Limitations
-8. Performance Implications in Different Environments
-9. Implementation Examples
-10. Technical Deep Dive: Request Multiplexing
-11. Future Considerations
-12. References and Further Reading
-13. Conclusion
-
 ## Introduction
 The evolution of HTTP protocols has been driven by the constant need to improve web performance and reliability. While HTTP/2 introduced significant improvements over its predecessor, it still faced fundamental limitations rooted in its underlying TCP transport layer. This article explores these limitations in detail, focusing particularly on the head-of-line blocking problem that led to the development of HTTP/3.
 

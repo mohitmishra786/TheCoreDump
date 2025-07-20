@@ -9,20 +9,6 @@ description: "A comprehensive guide to thread programming in C using pthreads, c
 toc: true
 ---
 
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Understanding Threads: The Basics](#understanding-threads-the-basics)
-   - [Threads vs. Processes: A Quick Comparison](#threads-vs-processes-a-quick-comparison)
-3. [The POSIX Threads (pthreads) API](#the-posix-threads-pthreads-api)
-   - [Key Functions in pthreads](#key-functions-in-pthreads)
-4. [Creating Your First Thread](#creating-your-first-thread)
-5. [Thread Synchronization: The Critical Section Problem](#thread-synchronization-the-critical-section-problem)
-6. [Solving the Race Condition: Mutexes](#solving-the-race-condition-mutexes)
-7. [The Cost of Synchronization](#the-cost-of-synchronization)
-8. [Beyond Basics: Condition Variables and Read-Write Locks](#beyond-basics-condition-variables-and-read-write-locks)
-9. [Potential Pitfalls: Deadlocks and Priority Inversion](#potential-pitfalls-deadlocks-and-priority-inversion)
-10. [Conclusion](#conclusion)
-
 ## Introduction
 In the world of modern computing, the ability to perform multiple tasks simultaneously is not just a luxury—it's a necessity. Enter threads: a powerful, fascinating, and sometimes daunting tool in a programmer's arsenal. Today, we're going to get on a journey into the world of concurrent programming, specifically focusing on `threads` in C.
 

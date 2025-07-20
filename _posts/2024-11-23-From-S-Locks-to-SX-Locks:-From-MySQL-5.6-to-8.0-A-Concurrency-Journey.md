@@ -8,33 +8,6 @@ author: mohitmishra786
 description: "A detailed analysis of MySQL's concurrency evolution from 5.6 to 8.0, exploring the transition from S-Locks to SX-Locks and their impact on database performance and scalability."
 toc: true
 ---
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Understanding B+ Trees](#understanding-b-trees)
-   - [Basic Structure](#basic-structure)
-   - [Node Types](#node-types)
-   - [Insertion and Search Operations](#insertion-and-search-operations)
-3. [Locking Mechanisms in Databases](#locking-mechanisms-in-databases)
-   - [Shared Locks (S-Locks)](#shared-locks-s-locks)
-   - [Exclusive Locks (X-Locks)](#exclusive-locks-x-locks)
-   - [Lock Compatibility Matrix](#lock-compatibility-matrix)
-4. [MySQL 5.6 Implementation](#mysql-56-implementation)
-   - [Index-Level Locking](#index-level-locking)
-   - [Page-Level Locking](#page-level-locking)
-   - [Limitations and Performance Impact](#limitations-and-performance-impact)
-5. [MySQL 8.0 Improvements](#mysql-80-improvements)
-   - [Introduction of SX Locks](#introduction-of-sx-locks)
-   - [Non-leaf Page Locking](#non-leaf-page-locking)
-   - [Latch Coupling](#latch-coupling)
-6. [Practical Examples](#practical-examples)
-   - [Basic Operations](#basic-operations)
-   - [Schema Modification Operations](#schema-modification-operations)
-7. [Performance Implications](#performance-implications)
-   - [Read Operations](#read-operations)
-   - [Write Operations](#write-operations)
-   - [Concurrent Access Patterns](#concurrent-access-patterns)
-8. [Further Reading](#further-reading)
-9. [Conclusion](#conclusion)
 
 ## 1. Introduction {#introduction}
 

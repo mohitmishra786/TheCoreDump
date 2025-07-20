@@ -9,23 +9,7 @@ description: "An in-depth examination of Address Space Layout Randomization (ASL
 toc: true
 ---
 
-## Table of Contents
-1. [Introduction to ASLR](#introduction-to-aslr)
-2. [Virtual vs. Physical Addresses](#virtual-vs-physical-addresses)
-3. [How ASLR Works](#how-aslr-works)
-4. [ASLR Implementation in Different Operating Systems](#aslr-implementation-in-different-operating-systems)
-5. [Code Examples and Analysis](#code-examples-and-analysis)
-   - [5.1 Basic Address Printing](#basic-address-printing)
-   - [5.2 Stack Address Randomization](#stack-address-randomization)
-   - [5.3 Heap Address Randomization](#heap-address-randomization)
-   - [5.4 Shared Library Address Randomization](#shared-library-address-randomization)
-6. [Assembly Code Analysis](#assembly-code-analysis)
-7. [ASLR Effectiveness and Limitations](#aslr-effectiveness-and-limitations)
-8. [ASLR Bypass Techniques](#aslr-bypass-techniques)
-9. [Advanced ASLR Techniques](#advanced-aslr-techniques)
-10. [Conclusion](#conclusion)
-
-## 1. Introduction to ASLR {#introduction-to-aslr}
+## Introduction to ASLR
 
 Address Space Layout Randomization (ASLR) is a crucial security feature implemented in modern operating systems to protect against various types of memory corruption attacks, such as buffer overflows and return-to-libc attacks. ASLR works by randomly arranging the address space positions of key data areas of a process, including the base of the executable, the stack, heap, and libraries.
 

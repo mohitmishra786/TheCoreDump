@@ -10,31 +10,7 @@ toc: true
 
 PostgreSQL's Multi-Version Concurrency Control (MVCC) is one of the database's most powerful features, enabling consistent views of data while maintaining high levels of concurrency. This blog post explores the inner workings of MVCC, examining how PostgreSQL manages multiple versions of rows, the hidden columns that track these versions, and the garbage collection mechanisms that keep the system efficient.
 
-## Table of Contents
-- [Introduction to MVCC](#introduction-to-mvcc)
-- [Hidden Columns in PostgreSQL](#hidden-columns-in-postgresql)
-- [Seeing MVCC in Action](#seeing-mvcc-in-action)
-  - [Updating a Row: Creating a New Version](#updating-a-row-creating-a-new-version)
-- [Examining PostgreSQL Page Structure](#examining-postgresql-page-structure)
-- [The Accumulation Problem and Garbage Collection](#the-accumulation-problem-and-garbage-collection)
-- [VACUUM: PostgreSQL's Garbage Collector](#vacuum-postgresqls-garbage-collector)
-- [How Transaction Visibility Works](#how-transaction-visibility-works)
-- [Autovacuum: Automated Garbage Collection](#autovacuum-automated-garbage-collection)
-- [The Impact of MVCC on Performance](#the-impact-of-mvcc-on-performance)
-- [Low-Level Implementation: Exploring the Assembly Code](#low-level-implementation-exploring-the-assembly-code)
-- [HOT Updates: An Optimization for MVCC](#hot-updates-an-optimization-for-mvcc)
-- [Advanced MVCC Features](#advanced-mvcc-features)
-  - [Tuple Freezing](#tuple-freezing)
-  - [Commit Timestamp Tracking](#commit-timestamp-tracking)
-  - [Visibility Map](#visibility-map)
-- [MVCC in Action: Practical Examples](#mvcc-in-action-practical-examples)
-  - [Example 1: Lost Update Prevention](#example-1-lost-update-prevention)
-  - [Example 2: Consistent Reporting](#example-2-consistent-reporting)
-- [Best Practices for Working with MVCC](#best-practices-for-working-with-mvcc)
-- [Conclusion](#conclusion)
-- [Further Reading](#further-reading)
-
-## Introduction to MVCC
+## Introduction
 
 Modern database systems must handle multiple concurrent transactions while maintaining data consistency. PostgreSQL solves this challenge through its MVCC implementation, which allows readers to see a consistent view of data without blocking writers, and vice versa.
 

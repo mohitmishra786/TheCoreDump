@@ -9,18 +9,6 @@ description: "A comprehensive guide to advanced memory debugging techniques in C
 toc: true
 ---
 
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Understanding Memory Issues](#understanding-memory-issues)
-3. [Valgrind Deep Dive](#valgrind-deep-dive)
-4. [AddressSanitizer In-Depth](#addresssanitizer-in-depth)
-5. [Practical Examples](#practical-examples)
-6. [Advanced Usage and Tips](#advanced-usage-and-tips)
-7. [Performance Considerations](#performance-considerations)
-8. [Tool Comparison](#tool-comparison)
-9. [Best Practices](#best-practices)
-10. [Architecture Overview](#architecture-overview)
-
 ## Introduction
 
 Memory-related bugs are among the most insidious issues in C programming. They can manifest in various ways - from subtle data corruption to catastrophic system crashes. What makes them particularly challenging is that they might not immediately cause visible problems, potentially lying dormant until specific conditions trigger them. This comprehensive guide explores two powerful tools for detecting such issues: Valgrind and AddressSanitizer (ASan).

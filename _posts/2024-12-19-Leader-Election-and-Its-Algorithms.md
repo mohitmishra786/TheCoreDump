@@ -9,23 +9,7 @@ description: "A comprehensive exploration of leader election algorithms in distr
 toc: true
 ---
 
-## Table of Contents
-1. **Introduction to Leader Election**
-2. **Why is Leader Election Important?**
-3. **Leader Election in Distributed Systems**
-4. **Leader Election in Single-Node Systems**
-5. **Leader Election Algorithms**
-   - 5.1 Bully Algorithm
-   - 5.2 Ring Algorithm
-   - 5.3 Paxos Algorithm
-   - 5.4 Raft Algorithm
-   - 5.5 ZooKeeper’s Leader Election
-6. **Implementation of Leader Election Using Threads in C**
-7. **Conclusion**
-
----
-
-## 1. Introduction to Leader Election
+## Introduction
 
 Leader election is a fundamental problem in computer science, particularly in distributed systems and parallel computing. The goal of leader election is to designate a single node or process as the "leader" that will coordinate actions among a group of nodes or processes. The leader is responsible for making decisions, managing resources, and ensuring consistency across the system.
 

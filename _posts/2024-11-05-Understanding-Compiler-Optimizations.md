@@ -9,18 +9,6 @@ description: "A comprehensive guide to compiler optimization techniques, explori
 toc: true
 ---
 
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Understanding Compiler Basics](#understanding-compiler-basics)
-3. [Constant Folding: The Art of Compile-Time Computation](#constant-folding)
-4. [Case Study: Bit Shifts vs. Multiplication](#case-study)
-5. [How Compilers Make Optimization Decisions](#optimization-decisions)
-6. [Advanced Optimization Techniques](#advanced-techniques)
-7. [Optimization Levels and Their Impact](#optimization-levels)
-8. [Best Practices for Optimization-Friendly Code](#best-practices)
-9. [Further Reading](#further-reading)
-10. [Conclusion](#conclusion)
-
 ## Introduction
 
 Modern compilers are marvels of software engineering, capable of transforming our high-level code into highly optimized machine instructions. One particularly fascinating aspect of compiler optimization is constant folding - a technique that seems almost magical when you first encounter it. In this article, we'll explore how compilers like GCC can transform seemingly straightforward operations like `x * 2` into optimized assembly code, and understand the intelligence behind these optimizations.

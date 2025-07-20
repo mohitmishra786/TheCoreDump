@@ -9,19 +9,6 @@ description: "A detailed analysis of NGINX's worker architecture, exploring even
 toc: true
 ---
 
-## **Table of Contents**
-1. [Introduction](#introduction)
-2. [Core Architecture Overview](#core-architecture-overview)
-3. [Process Management and Worker Lifecycle](#process-management-and-worker-lifecycle)
-4. [Memory Architecture and Resource Management](#memory-architecture-and-resource-management)
-5. [Connection Handling and Event Processing](#connection-handling-and-event-processing)
-6. [Performance Optimization and Scaling](#performance-optimization-and-scaling)
-7. [Practical Implementation](#practical-implementation)
-8. [Conclusion](#conclusion)
-9. [References and Further Reading](#references-and-further-reading)
-
-
-
 ## **Introduction**
 NGINX has revolutionized web server architecture since its inception in 2004. At its core, NGINX's success lies in its innovative approach to handling concurrent connections through an **event-driven, asynchronous architecture**. This deep dive explores the intricate details of NGINX's worker architecture, focusing on how it achieves remarkable performance and scalability.
 

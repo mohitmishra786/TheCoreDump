@@ -2,30 +2,14 @@
 layout: post
 title: "Understanding H-trees: Advanced Directory Indexing in File Systems"
 date: 2025-01-04 12:00:00 -0400
-categories: [System Programming & OS]
-tags: [File Systems, H-trees, Directory Indexing, ext4, B-trees, File System Performance, Data Structures]
+categories: [File Systems, Data Structures]
+tags: [H-trees, Directory Indexing, File Systems, Ext3, Ext4, B-trees, Performance]
 author: mohitmishra786
-description: "A comprehensive exploration of H-tree directory indexing in file systems, covering advanced data structures, performance optimization, and implementation details in modern file systems like ext4."
+description: "A comprehensive exploration of H-trees (Hash trees) and their role in optimizing directory indexing performance in modern file systems like ext3 and ext4."
 toc: true
 ---
 
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Background: Directory Storage Challenges](#background-directory-storage-challenges)
-3. [Traditional Directory Storage Methods](#traditional-directory-storage-methods)
-4. [Binary Trees in File Systems](#binary-trees-in-file-systems)
-5. [Understanding H-trees](#understanding-h-trees)
-   - [Structure and Components](#structure-and-components)
-   - [Working Mechanism](#working-mechanism)
-   - [Implementation Details](#implementation-details)
-6. [Practical Implementation](#practical-implementation)
-   - [Basic H-tree Structure](#basic-h-tree-structure)
-   - [Search Operations](#search-operations)
-   - [Insertion Operations](#insertion-operations)
-7. [Performance Analysis](#performance-analysis)
-8. [Conclusion](#conclusion)
-
-## Introduction {#introduction}
+## Introduction
 
 File systems are the backbone of data organization in modern computing, and their efficiency directly impacts system performance. One of the most critical aspects of file system design is **directory indexing** - how quickly and efficiently we can locate files within directories.
 

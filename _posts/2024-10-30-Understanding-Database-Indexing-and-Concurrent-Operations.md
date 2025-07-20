@@ -12,16 +12,6 @@ toc: true
 
 Database indexing is a fundamental concept that significantly impacts application performance. However, creating indexes on production databases presents unique challenges, especially when dealing with concurrent operations. In this comprehensive guide, we'll explore the intricacies of index creation, the challenges of concurrent modifications, and modern solutions to these challenges.
 
-## Table of Contents
-1. Understanding Basic Index Creation
-2. The Challenge of Concurrent Operations
-3. Standard CREATE INDEX vs. CREATE INDEX CONCURRENTLY
-4. Implementation Deep Dive
-5. Practical Examples with SQL
-6. Best Practices and Production Considerations
-7. Performance Implications
-8. Advanced Concepts and Edge Cases
-
 ## 1. Understanding Basic Index Creation
 
 ### What is an Index?

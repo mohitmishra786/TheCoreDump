@@ -8,24 +8,6 @@ author: mohitmishra786
 description: "A comprehensive guide to memory allocators, covering allocation strategies, heap management, and implementing a custom memory allocator from scratch with performance considerations."
 toc: true
 ---
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Memory Layout Fundamentals](#memory-layout-fundamentals)
-3. [Memory Management Basics](#memory-management-basics)
-4. [Building a Memory Allocator](#building-a-memory-allocator)
-   - [Core Data Structures](#core-data-structures)
-   - [Memory Block Headers](#memory-block-headers)
-   - [Implementation Details](#implementation-details)
-5. [Core Functions Implementation](#core-functions-implementation)
-   - [malloc()](#malloc)
-   - [free()](#free)
-   - [calloc()](#calloc)
-   - [realloc()](#realloc)
-6. [Thread Safety Considerations](#thread-safety-considerations)
-7. [Testing and Usage](#testing-and-usage)
-8. [Sequence Diagrams](#sequence-diagrams)
-9. [Further Reading](#further-reading)
-10. [Conclusion](#conclusion)
 
 ## Introduction
 

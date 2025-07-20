@@ -9,27 +9,6 @@ description: "A comprehensive exploration of the ELF (Executable and Linkable Fo
 toc: true
 ---
 
-## Table of Contents
-
-1. [Introduction](#introduction)
-2. [Understanding ELF: More Than Just Executables](#understanding-elf-more-than-just-executables)
-3. [The Anatomy of an ELF File](#the-anatomy-of-an-elf-file)
-   - [ELF Header](#elf-header)
-   - [Program Header Table](#program-header-table)
-   - [Section Header Table](#section-header-table)
-   - [Data](#data)
-4. [ELF in Action: From Compilation to Execution](#elf-in-action-from-compilation-to-execution)
-   - [Writing a Simple C Program](#writing-a-simple-c-program)
-   - [Compilation](#compilation)
-   - [Examining the ELF File](#examining-the-elf-file)
-   - [Disassembly](#disassembly)
-5. [Advanced Topics in ELF](#advanced-topics-in-elf)
-   - [Dynamic Linking](#dynamic-linking)
-   - [Relocations](#relocations)
-   - [Symbol Tables](#symbol-tables)
-6. [Security Implications of ELF](#security-implications-of-elf)
-7. [Conclusion](#conclusion)
-
 ## Introduction
 The Executable and Linkable Format (ELF) is a standard file format for executable files, object code, shared libraries, and core dumps. Originally developed by Unix System Laboratories (USL) as part of the Application Binary Interface (ABI), ELF has become the de facto standard binary format for Unix and Unix-like systems, including Linux. In this comprehensive guide, we'll explore the intricacies of the ELF format, its structure, and its significance in modern computing.
 
@@ -277,3 +256,4 @@ The ELF format is a cornerstone of modern Unix-like operating systems, providing
 Understanding ELF is crucial for systems programmers, security professionals, and anyone working on low-level software development for Unix-like systems. As we've seen, ELF is not just a file format—it's a complex ecosystem that ties together compilation, linking, loading, and execution in a cohesive and efficient manner.
 
 As computing continues to evolve, the principles embodied in ELF—modularity, flexibility, and efficiency—will undoubtedly continue to influence the design of binary formats and system software for years to come.
+

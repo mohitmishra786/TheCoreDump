@@ -8,31 +8,8 @@ author: mohitmishra786
 description: "An in-depth exploration of modern GPU architecture, covering parallel processing units, memory hierarchies, and the design principles that enable high-performance graphics and compute workloads."
 toc: true
 ---
-## Table of Contents
-1. Introduction
-2. GPU vs CPU: Architectural Differences
-3. Physical Architecture of Modern GPUs
-   - GA102 GPU Analysis
-   - Core Types and Functions
-   - Manufacturing and Binning Process
-4. Memory Architecture
-   - GDDR6X and Memory Controllers
-   - Bandwidth and Data Transfer
-   - Memory Encoding Schemes
-5. Computational Architecture
-   - SIMD vs SIMT
-   - Thread Management
-   - Warp Architecture
-6. Practical Applications
-   - Video Game Rendering
-   - Cryptocurrency Mining
-   - AI and Neural Networks
-7. Code Examples and Implementation
-8. Process Flow and Architecture
-9. Further Reading and Resources
-10. Conclusion
 
-## 1. Introduction
+## Introduction
 
 Modern graphics cards represent one of the most complex and powerful components in contemporary computing systems. To put their computational power into perspective, while the Nintendo 64 (1996) required about 100 million calculations per second, modern GPUs like those running Cyberpunk 2077 perform around 36 trillion calculations per second. To contextualize this astronomical number: if every person on Earth performed one calculation per second, we would need approximately 4,400 Earths to match a single modern GPU's computational power.
 
