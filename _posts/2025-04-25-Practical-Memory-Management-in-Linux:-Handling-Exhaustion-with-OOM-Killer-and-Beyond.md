@@ -1,10 +1,10 @@
 ---
 title: "Practical Memory Management in Linux: Handling Exhaustion with OOM Killer and Beyond"
 date: 2025-04-25 00:00:00 +0530
-categories: [Operating Systems, Linux, Memory Management]
-tags: [memory-management, linux-kernel, swapping, cgroups, os]
+categories: [System Programming & OS]
+tags: [Memory Management, Linux Kernel, Swapping, Cgroups, OS]
 author: mohitmishra786
-description: "When a Linux system runs out of memory, it triggers a complex series of events designed to maintain system stability while preserving critical functionality. This technical introduction explores the inner workings of Linux memory management during exhaustion scenarios, with particular focus on the Out-of-Memory (OOM) killer and related subsystems."
+description: "A comprehensive guide to Linux memory management, exploring OOM Killer behavior, swapping mechanisms, and practical strategies for handling memory exhaustion scenarios."
 toc: true
 ---
 

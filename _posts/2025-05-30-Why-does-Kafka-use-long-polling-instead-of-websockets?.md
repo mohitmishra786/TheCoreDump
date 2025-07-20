@@ -1,10 +1,10 @@
 ---
-title: "Why Kafka Uses Long Polling Instead of WebSockets: Understanding Real-Time Communication Patterns"
-date: 2025-05-30 12:00:00 +0530
-categories: [Distributed Systems, Messaging]
-tags: [kafka, websockets, long-polling, tcp, distributed-systems, real-time]
+title: "Why does Kafka use long polling instead of websockets?"
+date: 2025-05-30 00:00:00 +0530
+categories: [Distributed Systems & Networking]
+tags: [Kafka, WebSockets, Long Polling, TCP, Distributed Systems, Real Time]
 author: mohitmishra786
-description: "Exploring the technical differences between long polling and WebSockets, and why Kafka's pull-based architecture makes more sense for high-throughput distributed messaging systems."
+description: "An analysis of Kafka's design decisions, exploring why it uses long polling over WebSockets for real-time communication and the trade-offs involved."
 toc: true
 ---
 

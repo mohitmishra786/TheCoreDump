@@ -254,7 +254,7 @@ The memory architecture implements several performance optimization techniques:
    - [Volume 2: System Programming](https://developer.amd.com/resources/developer-guides-manuals/)
 
 3. Operating Systems: Three Easy Pieces
-   - [Memory Management](http://pages.cs.wisc.edu/~remzi/OSTEP/)
+   - [Memory Management](https://pages.cs.wisc.edu/~remzi/OSTEP/)
 
 4. Understanding the Linux Kernel
    - [Memory Management](https://www.oreilly.com/library/view/understanding-the-linux/0596005652/)
