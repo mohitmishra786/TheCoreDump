@@ -28,16 +28,16 @@ PostgreSQL is a powerful database system that uses special locking methods to ke
 - [Lock Conflicts Matrix](#lock-conflicts-matrix)
 - [Testing Lock Conflicts](#testing-lock-conflicts)
 - [Row-Level Locks in PostgreSQL](#row-level-locks-in-postgresql)
-  - [FOR UPDATE Lock](#1-for-update-lock)
-  - [FOR NO KEY UPDATE Lock](#2-for-no-key-update-lock)
-  - [FOR SHARE Lock](#3-for-share-lock)
-  - [FOR KEY SHARE Lock](#4-for-key-share-lock)
+  - [FOR UPDATE Lock](#for-update-lock)
+  - [FOR NO KEY UPDATE Lock](#for-no-key-update-lock)
+  - [FOR SHARE Lock](#for-share-lock)
+  - [FOR KEY SHARE Lock](#for-key-share-lock)
 - [Row Lock Conflict Matrix](#row-lock-conflict-matrix)
 - [Detecting and Resolving Deadlocks](#detecting-and-resolving-deadlocks)
 - [Page-Level Locks](#page-level-locks)
 - [Advisory Locks](#advisory-locks)
-  - [Session-Level Advisory Lock](#1-session-level-advisory-lock)
-  - [Transaction-Level Advisory Lock](#2-transaction-level-advisory-lock)
+  - [Session-Level Advisory Lock](#session-level-advisory-lock)
+  - [Transaction-Level Advisory Lock](#transaction-level-advisory-lock)
 - [PostgreSQL Lock Types Comparison](#postgresql-lock-types-comparison)
 - [Practical Applications of Locking Knowledge](#practical-applications-of-locking-knowledge)
   - [Optimizing VACUUM Operations](#1-optimizing-vacuum-operations)
@@ -427,7 +427,7 @@ Row-level locks in PostgreSQL are used to control access to individual rows. The
 
 Let's test each one:
 
-### FOR UPDATE Lock {#1-for-update-lock}
+### FOR UPDATE Lock {#for-update-lock}
 
 This is the most restrictive row-level lock. It locks rows for update or delete operations.
 
@@ -459,7 +459,7 @@ WHERE relation = 'accounts'::regclass::oid
 ORDER BY l.granted DESC;
 ```
 
-### FOR NO KEY UPDATE Lock {#2-for-no-key-update-lock}
+### FOR NO KEY UPDATE Lock {for-no-key-update-lock}
 
 This lock mode is similar to FOR UPDATE but allows other transactions to acquire FOR KEY SHARE locks.
 
@@ -484,7 +484,7 @@ UPDATE accounts SET balance = balance + 400 WHERE account_id = 2;
 -- This will wait
 ```
 
-### FOR SHARE Lock {#3-for-share-lock}
+### FOR SHARE Lock {for-share-lock}
 
 This lock mode allows multiple transactions to hold the same lock on the same row.
 
@@ -509,7 +509,7 @@ UPDATE accounts SET balance = balance + 500 WHERE account_id = 3;
 -- This will wait
 ```
 
-### FOR KEY SHARE Lock {#4-for-key-share-lock}
+### FOR KEY SHARE Lock {for-key-share-lock}
 
 This is the least restrictive row-level lock. It blocks only FOR UPDATE locks.
 
@@ -614,7 +614,7 @@ There are two types of advisory locks:
 
 Let's test both types:
 
-### Session-Level Advisory Lock {#1-session-level-advisory-lock}
+### Session-Level Advisory Lock {session-level-advisory-lock}
 
 Advisory locks are application-level locks that PostgreSQL makes available to applications.
 
@@ -646,7 +646,7 @@ SELECT pg_advisory_unlock(1001);
 
 Terminal 2 should now acquire the lock.
 
-### Transaction-Level Advisory Lock {#2-transaction-level-advisory-lock}
+### Transaction-Level Advisory Lock {transaction-level-advisory-lock}
 
 These advisory locks are automatically released at the end of the current transaction.
 
