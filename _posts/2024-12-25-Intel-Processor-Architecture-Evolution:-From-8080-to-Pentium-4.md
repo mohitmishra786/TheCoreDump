@@ -69,7 +69,7 @@ The register set includes:
 *   Program Counter: Keeps track of the next instruction to execute.
 
 ## Intel 8086 Architecture {#intel-8086-architecture}
-![Intel 8086 Architecture](/assets/images/posts/intel-processor-architecture/8086.jpg)
+![Intel 8086 Architecture](/assets/images/posts/intel-processor-architecture/8086.png)
 
 The Intel 8086 microprocessor splits its functionality into the Execution Unit (EU) and Bus Interface Unit (BIU):
 
@@ -283,7 +283,7 @@ The Intel Pentium processor introduces a dual pipeline design, enhancing perform
 
 
 ## P6 (Intel Pentium Pro) Processor Architecture {#p6-intel-pentium-pro-processor-architecture}
-![P6 Architecture](/assets/images/posts/intel-processor-architecture/p6.jpg)
+![P6 Architecture](/assets/images/posts/intel-processor-architecture/pentiumpro.png)
 
 The P6 architecture by Intel is notable for its complex pipeline design, enhancing processor performance through various innovative features.
 
@@ -321,7 +321,7 @@ The P6 architecture by Intel is notable for its complex pipeline design, enhanci
 *   Exception and Interrupt Handling: Manages any exceptions or interrupts, maintaining system integrity.
 
 ## Intel Pentium III Processor Architecture {#intel-pentium-iii-processor-architecture}
-![Pentium III Architecture](/assets/images/posts/intel-processor-architecture/pentium-iii.jpg)
+![Pentium III Architecture](/assets/images/posts/intel-processor-architecture/pentium3.jpeg)
 
 The Pentium III processor builds upon the P6 architecture with several key enhancements:
 
@@ -331,7 +331,7 @@ The Pentium III processor builds upon the P6 architecture with several key enhan
 * **Execution Units:**  AGUs (Address Generation Units), multiple execution units (IEU, FPU) for integer, floating-point, and multimedia instructions.
 
 ## Intel Pentium 4 Processor Architecture {#intel-pentium-4-processor-architecture}
-![Pentium 4 Architecture](/assets/images/posts/intel-processor-architecture/pentium-4.jpg)
+![Pentium 4 Architecture](/assets/images/posts/intel-processor-architecture/pentium4.png)
 
 The Pentium 4 processor introduces several advancements in instruction handling and execution efficiency.
 
