@@ -23,11 +23,11 @@ Hash tables are a fundamental data structure in computer science, offering a pow
 6. [Advanced Techniques and Optimizations](#advanced-techniques-and-optimizations)
 7. [Conclusion](#conclusion)
 
-## 1. Introduction to Hash Tables
+## 1. Introduction to Hash Tables {#introduction-to-hash-tables}
 
 Hash tables, also known as hash maps, are data structures that implement an associative array abstract data type. They use a hash function to compute an index into an array of buckets or slots, from which the desired value can be found. The primary advantage of hash tables is their ability to achieve constant-time average complexity for insertions, deletions, and lookups, making them extremely efficient for large datasets.
 
-## 2. Hash Functions
+## 2. Hash Functions {#hash-functions}
 
 The heart of a hash table is its hash function. A good hash function should have the following properties:
 
@@ -49,11 +49,11 @@ unsigned int hash(const char *key, int table_size) {
 
 This hash function uses the popular "31" multiplier and performs modulo arithmetic to ensure the result fits within the table size. While simple, it provides a good distribution for most use cases.
 
-## 3. Collision Resolution Strategies
+## 3. Collision Resolution Strategies {#collision-resolution-strategies}
 
 When two different keys hash to the same index, we have a collision. There are two main strategies for handling collisions: open addressing and external chaining.
 
-### 3.1 Open Addressing
+### 3.1 Open Addressing {#open-addressing}
 
 In open addressing, all elements are stored in the hash table itself. When a collision occurs, we probe for the next available slot in the table. There are several probing techniques:
 
@@ -95,7 +95,7 @@ bool insert(Person *p) {
 
 This implementation uses linear probing to find the next available slot. If we loop back to the original index, the table is full.
 
-### 3.2 External Chaining
+### 3.2 External Chaining {#external-chaining}
 
 In external chaining, each bucket in the hash table contains a linked list of elements that hash to the same index. This method allows the hash table to grow beyond its initial size.
 
@@ -131,7 +131,7 @@ void insert(const char *key, int value) {
 
 This implementation adds new nodes to the beginning of the linked list at each index, which is efficient for insertions.
 
-## 4. Implementing a Hash Table in C
+## 4. Implementing a Hash Table in C {#implementing-a-hash-table-in-c}
 
 Now that we've covered the basics, let's implement a complete hash table using external chaining:
 
@@ -257,7 +257,7 @@ int main() {
 
 This implementation provides a complete hash table with insert, search, and delete operations, as well as a function to print the contents of the table for debugging purposes.
 
-## 5. Performance Analysis
+## 5. Performance Analysis {#performance-analysis}
 
 The performance of hash tables depends on several factors:
 
@@ -269,7 +269,7 @@ In the best-case scenario, with a good hash function and low load factor, hash t
 
 To maintain good performance, it's crucial to resize the hash table when the load factor exceeds a certain threshold (typically 0.7 or 0.8). Resizing involves creating a new, larger table and rehashing all existing elements.
 
-## 6. Advanced Techniques and Optimizations
+## 6. Advanced Techniques and Optimizations {#advanced-techniques-and-optimizations}
 
 1. **Dynamic resizing**: Implement automatic resizing when the load factor exceeds a threshold.
 2. **Robin Hood hashing**: An open addressing technique that reduces variance in probe sequence length.
@@ -277,7 +277,7 @@ To maintain good performance, it's crucial to resize the hash table when the loa
 4. **Perfect hashing**: For static sets of keys, it's possible to achieve O(1) worst-case lookups.
 5. **Bloom filters**: A space-efficient probabilistic data structure for set membership queries.
 
-## 7. Conclusion
+## 7. Conclusion {#conclusion}
 
 Hash tables are a powerful and versatile data structure that offer excellent average-case performance for many common operations. By understanding the underlying principles and implementing them correctly, you can leverage hash tables to solve a wide range of problems efficiently.
 

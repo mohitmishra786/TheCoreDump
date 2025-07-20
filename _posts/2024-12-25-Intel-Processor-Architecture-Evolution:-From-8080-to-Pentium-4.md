@@ -22,7 +22,7 @@ toc: true
 * [Intel Pentium 4 Processor Architecture](#intel-pentium-4-processor-architecture)
 
 
-## Intel 8080 Architecture <a name="intel-8080-architecture"></a>
+## Intel 8080 Architecture {#intel-8080-architecture}
 ![Intel 8080 Architecture Diagram](/assets/images/posts/intel-processor-architecture/8080.jpg)
 
 The Intel 8080 is an 8-bit microprocessor with a core architecture featuring an 8-bit internal data bus. It connects to the external environment through a bidirectional data bus (D0-D7) managed by a Data Bus Buffer/Latch.
@@ -68,8 +68,8 @@ The register set includes:
 *   Stack Pointer: Manages the stack for function calls and local data storage.
 *   Program Counter: Keeps track of the next instruction to execute.
 
-## Intel 8086 Architecture <a name="intel-8086-architecture"></a>
-![Intel 8086 Architecture Diagram](/assets/images/posts/intel-processor-architecture/8086.png)
+## Intel 8086 Architecture {#intel-8086-architecture}
+![Intel 8086 Architecture](/assets/images/posts/intel-processor-architecture/8086.jpg)
 
 The Intel 8086 microprocessor splits its functionality into the Execution Unit (EU) and Bus Interface Unit (BIU):
 
@@ -107,8 +107,8 @@ The EU focuses on computation:
     *   Additional Registers: BP (Base Pointer), DI (Destination Index), and SI (Source Index) enhance addressing modes, making complex memory operations more efficient.
 
 
-## Intel 80286 Architecture <a name="intel-80286-architecture"></a>
-![Intel 80286 Architecture Diagram](/assets/images/posts/intel-processor-architecture/80286.jpg)
+## Intel 80286 Architecture {#intel-80286-architecture}
+![Intel 80286 Architecture](/assets/images/posts/intel-processor-architecture/80286.jpg)
 
 The Intel 80286 processor advances the design with three main units: the Address Unit, Execution Unit, and Instruction Unit, enhancing performance and introducing protected mode capabilities.
 
@@ -149,8 +149,8 @@ The Intel 80286 processor advances the design with three main units: the Address
 
 This architecture not only increased the addressable memory but also introduced protected mode, which was a significant leap forward in CPU design, allowing for better multitasking and system security.
 
-## Intel 80386 Architecture <a name="intel-80386-architecture"></a>
-![Intel 80386 Architecture Diagram](/assets/images/posts/intel-processor-architecture/80386.jpg)
+## Intel 80386 Architecture {#intel-80386-architecture}
+![Intel 80386 Architecture](/assets/images/posts/intel-processor-architecture/80386.jpg)
 
 The Intel 80386 marks a significant step forward as a 32-bit microprocessor, introducing features like paging and an enhanced protected mode.
 
@@ -192,8 +192,8 @@ The Intel 80386 marks a significant step forward as a 32-bit microprocessor, int
 *   Multiplexer/Transceiver: Manages the bidirectional data flow between the processor and external devices.
 
 
-## Intel 80486 Architecture <a name="intel-80486-architecture"></a>
-![Intel 80486 Architecture Diagram](/assets/images/posts/intel-processor-architecture/80486.jpg)
+## Intel 80486 Architecture {#intel-80486-architecture}
+![Intel 80486 Architecture](/assets/images/posts/intel-processor-architecture/80486.jpg)
 
 The Intel 80486 processor signifies a leap in integration by combining an on-chip Floating Point Unit (FPU) and cache memory, alongside multiple data buses.
 
@@ -238,8 +238,8 @@ The Intel 80486 processor signifies a leap in integration by combining an on-chi
     *   Cache Control: Manages cache operations.
     *   Parity Generation and Control: Ensures data integrity.
 
-## Intel Pentium Processor Architecture <a name="intel-pentium-processor-architecture"></a>
-![Intel Pentium Architecture Diagram](/assets/images/posts/intel-processor-architecture/pentium.jpg)
+## Intel Pentium Processor Architecture {#intel-pentium-processor-architecture}
+![Intel Pentium Architecture](/assets/images/posts/intel-processor-architecture/pentium.jpg)
 
 The Intel Pentium processor introduces a dual pipeline design, enhancing performance through superscalar architecture with both 32-bit and 64-bit data paths.
 
@@ -282,8 +282,8 @@ The Intel Pentium processor introduces a dual pipeline design, enhancing perform
 *   Control Unit: Coordinates the operations of the processor's internal components, ensuring smooth operation across all units.
 
 
-## P6 (Intel Pentium Pro) Processor Architecture <a name="p6-intel-pentium-pro-processor-architecture"></a>
-![P6 Architecture Diagram](/assets/images/posts/intel-processor-architecture/pentiumpro.png)
+## P6 (Intel Pentium Pro) Processor Architecture {#p6-intel-pentium-pro-processor-architecture}
+![P6 Architecture](/assets/images/posts/intel-processor-architecture/p6.jpg)
 
 The P6 architecture by Intel is notable for its complex pipeline design, enhancing processor performance through various innovative features.
 
@@ -320,8 +320,8 @@ The P6 architecture by Intel is notable for its complex pipeline design, enhanci
 *   Retirement Unit: Ensures that instructions are committed to the architectural state in order, despite being executed out-of-order.
 *   Exception and Interrupt Handling: Manages any exceptions or interrupts, maintaining system integrity.
 
-## Intel Pentium III Processor Architecture <a name="intel-pentium-iii-processor-architecture"></a>
-![Pentium III Architecture Diagram](/assets/images/posts/intel-processor-architecture/pentium3.jpeg)
+## Intel Pentium III Processor Architecture {#intel-pentium-iii-processor-architecture}
+![Pentium III Architecture](/assets/images/posts/intel-processor-architecture/pentium-iii.jpg)
 
 The Pentium III processor builds upon the P6 architecture with several key enhancements:
 
@@ -330,8 +330,8 @@ The Pentium III processor builds upon the P6 architecture with several key enhan
 * **Out-of-Order Execution:** Integer/floating-point register rename and allocator, 20-entry reservation station, and 40-entry reorder buffer.
 * **Execution Units:**  AGUs (Address Generation Units), multiple execution units (IEU, FPU) for integer, floating-point, and multimedia instructions.
 
-## Intel Pentium 4 Processor Architecture <a name="intel-pentium-4-processor-architecture"></a>
-![Pentium 4 Architecture Diagram](/assets/images/posts/intel-processor-architecture/pentium4.png)
+## Intel Pentium 4 Processor Architecture {#intel-pentium-4-processor-architecture}
+![Pentium 4 Architecture](/assets/images/posts/intel-processor-architecture/pentium-4.jpg)
 
 The Pentium 4 processor introduces several advancements in instruction handling and execution efficiency.
 
