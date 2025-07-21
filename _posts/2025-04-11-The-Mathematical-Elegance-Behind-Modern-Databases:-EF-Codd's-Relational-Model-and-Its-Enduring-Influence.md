@@ -1,7 +1,7 @@
 ---
 title: "The Mathematical Elegance Behind Modern Databases: E.F. Codd's Relational Model and Its Enduring Influence"
 date: 2025-04-11 00:00:00 +0530
-categories: [Database, Theory, Computer Science]
+categories: [Database Systems]
 tags: [relational-model, database-theory, sql, normalization, data-independence]
 author: mohitmishra786
 description: "An in-depth exploration of E.F. Codd’s relational model, its mathematical foundations in set theory and predicate logic, and its lasting impact on modern database systems, from normalization to cloud-native architectures."
