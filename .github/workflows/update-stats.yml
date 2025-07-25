@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.THE_CORE_DUMP }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
