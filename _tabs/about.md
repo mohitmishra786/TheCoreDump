@@ -339,7 +339,7 @@ For consulting inquiries or technical questions:
 
     try {
       // Try to fetch from GitHub Actions generated data
-      const response = await fetch('{{ "/assets/data/dashboard.json" | relative_url }}');
+      const response = await fetch('{{ "/_data/dashboard.json" | relative_url }}');
       
       if (response.ok) {
         const stats = await response.json();
