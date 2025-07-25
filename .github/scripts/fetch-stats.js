@@ -111,6 +111,7 @@ async function main() {
 
   // Write to Jekyll data file
   fs.writeFileSync("_data/dashboard.json", JSON.stringify(stats, null, 2));
+  fs.writeFileSync("assets/data/dashboard.json", JSON.stringify(stats, null, 2));
   console.log("Dashboard stats updated successfully!");
 }
 
