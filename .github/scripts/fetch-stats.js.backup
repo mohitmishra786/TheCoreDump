@@ -1,40 +1,40 @@
-const fs = require("fs");
-const https = require("https");
+const fs = require('fs');
+const https = require('https');
 
 const goatSites = [
   {
-    name: "chessman",
-    url: "https://chessman.goatcounter.com",
+    name: 'chessman',
+    url: 'https://chessman.goatcounter.com',
     token: process.env.CHESSMAN_TOKEN,
   },
   {
-    name: "executables",
-    url: "https://executables.goatcounter.com",
+    name: 'executables',
+    url: 'https://executables.goatcounter.com',
     token: process.env.EXECUTABLES_TOKEN,
   },
   {
-    name: "exploringos",
-    url: "https://exploringos.goatcounter.com",
+    name: 'exploringos',
+    url: 'https://exploringos.goatcounter.com',
     token: process.env.EXPLORINGOS_TOKEN,
   },
   {
-    name: "learningresource",
-    url: "https://learningresource.goatcounter.com",
+    name: 'learningresource',
+    url: 'https://learningresource.goatcounter.com',
     token: process.env.LEARNINGRESOURCE_TOKEN,
   },
   {
-    name: "legacy",
-    url: "https://legacy.goatcounter.com",
+    name: 'legacy',
+    url: 'https://legacy.goatcounter.com',
     token: process.env.LEGACY_TOKEN,
   },
   {
-    name: "osjourney",
-    url: "https://osjourney.goatcounter.com",
+    name: 'osjourney',
+    url: 'https://osjourney.goatcounter.com',
     token: process.env.OSJOURNEY_TOKEN,
   },
   {
-    name: "reversingbits",
-    url: "https://reversingbits.goatcounter.com",
+    name: 'reversingbits',
+    url: 'https://reversingbits.goatcounter.com',
     token: process.env.REVERSINGBITS_TOKEN,
   },
 ];
@@ -42,9 +42,9 @@ const goatSites = [
 async function fetchJSON(url, headers = {}) {
   return new Promise((resolve, reject) => {
     const req = https.get(url, { headers }, (res) => {
-      let data = "";
-      res.on("data", (chunk) => (data += chunk));
-      res.on("end", () => {
+      let data = '';
+      res.on('data', (chunk) => (data += chunk));
+      res.on('end', () => {
         try {
           resolve(JSON.parse(data));
         } catch (e) {
@@ -52,7 +52,7 @@ async function fetchJSON(url, headers = {}) {
         }
       });
     });
-    req.on("error", () => resolve(null));
+    req.on('error', () => resolve(null));
     req.setTimeout(10000, () => {
       req.destroy();
       resolve(null);
@@ -74,13 +74,13 @@ async function main() {
 
     const headers = {
       Authorization: `Bearer ${site.token}`,
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     };
 
     // Get total views
     const total = await fetchJSON(`${site.url}/api/v0/stats/total`, headers);
     if (total && total.total) {
-      const views = total.total;
+      const views = parseInt(total.total.replace(/,/g, ''));
       stats.siteViews[site.name] = views;
       stats.totalViews += views;
     }
@@ -99,19 +99,19 @@ async function main() {
   }
 
   // Fetch GitHub data
-  const github = await fetchJSON("https://api.github.com/users/mohitmishra786");
+  const github = await fetchJSON('https://api.github.com/users/mohitmishra786');
   if (github) {
     stats.githubFollowers = github.followers;
   }
 
   // Ensure _data directory exists
-  if (!fs.existsSync("_data")) {
-    fs.mkdirSync("_data");
+  if (!fs.existsSync('_data')) {
+    fs.mkdirSync('_data');
   }
 
   // Write to Jekyll data file
-  fs.writeFileSync("_data/dashboard.json", JSON.stringify(stats, null, 2));
-  console.log("Dashboard stats updated successfully!");
+  fs.writeFileSync('_data/dashboard.json', JSON.stringify(stats, null, 2));
+  console.log('Dashboard stats updated successfully!');
 }
 
 main().catch(console.error);
