@@ -178,7 +178,7 @@ For consulting inquiries or technical questions:
 
   // 5. Twitter followers (fallback: Nitter, else manual)
   fetch('https://nitter.net/chessMan786').then(r => r.text()).then(html => {
-    const match = html.match(/Followers<\/span>\\s*<span[^>]*>([\d,]+)/);
+    const match = html.match(/Followers<\/span>\s*<span[^>]*>([\d,]+)/);
     document.getElementById('twitter-followers').textContent = match ? match[1] : 'N/A';
   }).catch(() => {
     document.getElementById('twitter-followers').textContent = 'N/A';
