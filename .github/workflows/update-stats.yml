@@ -1,0 +1,39 @@
+name: Update Dashboard Stats
+
+on:
+  schedule:
+    - cron: "0 */6 * * *" # Every 6 hours
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  update-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.THE_CORE_DUMP }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Fetch Stats
+        env:
+          CHESSMAN_TOKEN: ${{ secrets.CHESSMAN_TOKEN }}
+          EXECUTABLES_TOKEN: ${{ secrets.EXECUTABLES_TOKEN }}
+          EXPLORINGOS_TOKEN: ${{ secrets.EXPLORINGOS_TOKEN }}
+          LEARNINGRESOURCE_TOKEN: ${{ secrets.LEARNINGRESOURCE_TOKEN }}
+          LEGACY_TOKEN: ${{ secrets.LEGACY_TOKEN }}
+          OSJOURNEY_TOKEN: ${{ secrets.OSJOURNEY_TOKEN }}
+          REVERSINGBITS_TOKEN: ${{ secrets.REVERSINGBITS_TOKEN }}
+        run: |
+          node .github/scripts/fetch-stats.js
+
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add _data/dashboard.json
+          git diff --staged --quiet || git commit -m "Update dashboard stats [skip ci]"
+          git push
