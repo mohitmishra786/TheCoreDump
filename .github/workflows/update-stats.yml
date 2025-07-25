@@ -20,17 +20,19 @@ jobs:
 
       - name: Fetch Stats
         env:
-          CHESSMAN_TOKEN: ${{ secrets.CHESSMAN_TOKEN }}
-          EXECUTABLES_TOKEN: ${{ secrets.EXECUTABLES_TOKEN }}
-          EXPLORINGOS_TOKEN: ${{ secrets.EXPLORINGOS_TOKEN }}
-          LEARNINGRESOURCE_TOKEN: ${{ secrets.LEARNINGRESOURCE_TOKEN }}
-          LEGACY_TOKEN: ${{ secrets.LEGACY_TOKEN }}
-          OSJOURNEY_TOKEN: ${{ secrets.OSJOURNEY_TOKEN }}
-          REVERSINGBITS_TOKEN: ${{ secrets.REVERSINGBITS_TOKEN }}
+          CHESSMAN_TOKEN: ${{ secrets.GOATCOUNTER_SECRET }}
+          EXECUTABLES_TOKEN: ${{ secrets.GOATCOUNTER_SECRET }}
+          EXPLORINGOS_TOKEN: ${{ secrets.GOATCOUNTER_SECRET }}
+          LEARNINGRESOURCE_TOKEN: ${{ secrets.GOATCOUNTER_SECRET }}
+          LEGACY_TOKEN: ${{ secrets.GOATCOUNTER_SECRET }}
+          OSJOURNEY_TOKEN: ${{ secrets.GOATCOUNTER_SECRET }}
+          REVERSINGBITS_TOKEN: ${{ secrets.GOATCOUNTER_SECRET }}
         run: |
           node .github/scripts/fetch-stats.js
 
       - name: Commit and push if changed
+        env:
+          GITHUB_TOKEN: ${{ secrets.THE_CORE_DUMP }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
