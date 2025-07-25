@@ -5,37 +5,37 @@ const goatSites = [
   {
     name: 'chessman',
     url: 'https://chessman.goatcounter.com',
-    token: process.env.GOATCOUNTER_SECRET,
+    token: process.env.CHESSMAN_TOKEN,
   },
   {
     name: 'executables',
     url: 'https://executables.goatcounter.com',
-    token: process.env.GOATCOUNTER_SECRET,
+    token: process.env.EXECUTABLES_TOKEN,
   },
   {
     name: 'exploringos',
     url: 'https://exploringos.goatcounter.com',
-    token: process.env.GOATCOUNTER_SECRET,
+    token: process.env.EXPLORINGOS_TOKEN,
   },
   {
     name: 'learningresource',
     url: 'https://learningresource.goatcounter.com',
-    token: process.env.GOATCOUNTER_SECRET,
+    token: process.env.LEARNINGRESOURCE_TOKEN,
   },
   {
     name: 'legacy',
     url: 'https://legacy.goatcounter.com',
-    token: process.env.GOATCOUNTER_SECRET,
+    token: process.env.LEGACY_TOKEN,
   },
   {
     name: 'osjourney',
     url: 'https://osjourney.goatcounter.com',
-    token: process.env.GOATCOUNTER_SECRET,
+    token: process.env.OSJOURNEY_TOKEN,
   },
   {
     name: 'reversingbits',
     url: 'https://reversingbits.goatcounter.com',
-    token: process.env.GOATCOUNTER_SECRET,
+    token: process.env.REVERSINGBITS_TOKEN,
   },
 ];
 
