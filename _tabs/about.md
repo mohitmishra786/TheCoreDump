@@ -143,6 +143,8 @@ For consulting inquiries or technical questions:
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 (async function() {
+  console.log('🚀 Dashboard script starting...');
+  
   // Configuration for fallback/manual data
   const FALLBACK_CONFIG = {
     manual: {
@@ -157,6 +159,7 @@ For consulting inquiries or technical questions:
 
   // Update status indicator
   function updateStatus(message, type = 'loading') {
+    console.log(`Status: ${message} (${type})`);
     const statusText = document.getElementById('status-text');
     const statusDot = document.getElementById('status-dot');
     
@@ -195,7 +198,10 @@ For consulting inquiries or technical questions:
   // Render chart
   function renderChart(chartData = {}) {
     const canvas = document.getElementById('views-graph');
-    if (!canvas) return;
+    if (!canvas) {
+      console.warn('Chart canvas not found');
+      return;
+    }
 
     const ctx = canvas.getContext('2d');
     
@@ -277,17 +283,27 @@ For consulting inquiries or technical questions:
 
   // Update UI with stats
   function updateDashboard(stats) {
+    console.log('Updating dashboard with stats:', stats);
+    
     // Total views
     const totalEl = document.getElementById('total-views');
     if (totalEl && stats.totalViews !== undefined) {
       totalEl.textContent = formatNumber(stats.totalViews);
+      console.log('Updated total views:', stats.totalViews);
+    } else {
+      console.warn('Total views element not found or stats.totalViews undefined');
     }
 
     // Site views
     if (stats.siteViews) {
       Object.entries(stats.siteViews).forEach(([site, views]) => {
         const el = document.getElementById(site + '-views');
-        if (el) el.textContent = formatNumber(views);
+        if (el) {
+          el.textContent = formatNumber(views);
+          console.log(`Updated ${site} views:`, views);
+        } else {
+          console.warn(`Element not found for ${site}-views`);
+        }
       });
     }
 
@@ -295,12 +311,14 @@ For consulting inquiries or technical questions:
     const githubEl = document.getElementById('github-followers');
     if (githubEl && stats.githubFollowers !== undefined) {
       githubEl.textContent = formatNumber(stats.githubFollowers);
+      console.log('Updated GitHub followers:', stats.githubFollowers);
     }
 
     // GitHub profile views
     const profileViewsEl = document.getElementById('github-profile-views');
     if (profileViewsEl && stats.githubProfileViews !== undefined) {
       profileViewsEl.textContent = formatNumber(stats.githubProfileViews);
+      console.log('Updated GitHub profile views:', stats.githubProfileViews);
     }
 
     // Publication views
@@ -308,9 +326,11 @@ For consulting inquiries or technical questions:
     const substackEl = document.getElementById('substack-views');
     if (mediumEl) {
       mediumEl.textContent = formatNumber(stats.mediumViews || FALLBACK_CONFIG.manual.medium);
+      console.log('Updated Medium views:', stats.mediumViews || FALLBACK_CONFIG.manual.medium);
     }
     if (substackEl) {
       substackEl.textContent = formatNumber(stats.substackViews || FALLBACK_CONFIG.manual.substack);
+      console.log('Updated Substack views:', stats.substackViews || FALLBACK_CONFIG.manual.substack);
     }
 
     // Social followers (use manual data as fallback)
@@ -318,15 +338,18 @@ For consulting inquiries or technical questions:
     const twitterEl = document.getElementById('twitter-followers');
     if (linkedinEl) {
       linkedinEl.textContent = formatNumber(stats.linkedinFollowers || FALLBACK_CONFIG.manual.linkedin);
+      console.log('Updated LinkedIn followers:', stats.linkedinFollowers || FALLBACK_CONFIG.manual.linkedin);
     }
     if (twitterEl) {
       twitterEl.textContent = formatNumber(stats.twitterFollowers || FALLBACK_CONFIG.manual.twitter);
+      console.log('Updated Twitter followers:', stats.twitterFollowers || FALLBACK_CONFIG.manual.twitter);
     }
 
     // Last updated
     const lastUpdatedEl = document.getElementById('last-updated');
     if (lastUpdatedEl && stats.lastUpdated) {
       lastUpdatedEl.textContent = formatRelativeTime(stats.lastUpdated);
+      console.log('Updated last updated:', stats.lastUpdated);
     }
 
     // Render chart
@@ -338,52 +361,45 @@ For consulting inquiries or technical questions:
     updateStatus('Loading dashboard data...', 'loading');
 
     try {
-      // Try to fetch from GitHub Actions generated data
-      const response = await fetch('{{ "/assets/data/dashboard.json" | relative_url }}');
+      // Try to fetch from dashboard.json file
+      console.log('Attempting to fetch dashboard.json...');
+      const response = await fetch('./assets/data/dashboard.json');
+      console.log('Response status:', response.status, response.ok);
       
       if (response.ok) {
         const stats = await response.json();
+        console.log('Loaded dashboard data:', stats);
         updateDashboard(stats);
         updateStatus('Data loaded successfully', 'success');
-        console.log('Dashboard loaded from GitHub Actions data');
+        console.log('Dashboard loaded from dashboard.json');
         return;
+      } else {
+        console.warn('Failed to load dashboard.json, status:', response.status);
       }
     } catch (e) {
-      console.warn('Failed to load from GitHub Actions data:', e);
+      console.warn('Failed to load from dashboard.json:', e);
     }
 
-    try {
-      // Fallback: Try Jekyll data file
-      const response = await fetch('{{ site.data.dashboard | jsonify }}');
-      if (response) {
-        const stats = JSON.parse(response);
-        updateDashboard(stats);
-        updateStatus('Data loaded from Jekyll data', 'success');
-        console.log('Dashboard loaded from Jekyll _data');
-        return;
-      }
-    } catch (e) {
-      console.warn('Failed to load from Jekyll data:', e);
-    }
-
-    // Final fallback: Use manual/placeholder data
+    // Fallback: Use manual/placeholder data
+    console.log('Using fallback data...');
     updateStatus('Using cached data', 'warning');
     const fallbackStats = {
-      totalViews: 0,
+      totalViews: 3797,
       siteViews: {
-        chessman: 0,
-        executables: 0,
-        exploringos: 0,
-        learningresource: 0,
-        legacy: 0,
-        osjourney: 0,
-        reversingbits: 0
+        chessman: 1319,
+        executables: 28,
+        exploringos: 1263,
+        learningresource: 437,
+        legacy: 494,
+        osjourney: 189,
+        reversingbits: 67
       },
       githubFollowers: 0,
       githubProfileViews: 0,
       lastUpdated: new Date().toISOString(),
       chartData: {}
     };
+    console.log('Fallback stats:', fallbackStats);
 
     // Try to fetch GitHub data directly (no auth needed for public info)
     try {
@@ -410,11 +426,13 @@ For consulting inquiries or technical questions:
       console.warn('Failed to fetch GitHub profile views:', e);
     }
 
+    console.log('Calling updateDashboard with fallback stats...');
     updateDashboard(fallbackStats);
     console.log('Dashboard loaded with fallback data');
   }
 
   // Initialize dashboard
+  console.log('Starting dashboard initialization...');
   await loadDashboardData();
 
   // Auto-refresh every 5 minutes
