@@ -70,18 +70,18 @@ T* unique_ptr_release_##T(unique_ptr_##T* up) { \
 \
 void unique_ptr_reset_##T(unique_ptr_##T *up, T *p)    \
     {                                                           \
-        if (atomic_load(&pointer->is_owned))                    \
+        if (atomic_load(&up->is_owned))                    \
         {                                                       \
             if (atomic_exchange(&up->is_owned, false))     \
             {                                                   \
                 if (up->ptr)                               \
                 {                                               \
-                    up->deleter(pointer->ptr);             \
+                    up->deleter(up->ptr);             \
                 }                                               \
             }                                                   \
         }                                                       \
         up->ptr = p;                                       \
-        atomic_store(&pointer->is_owned, p != NULL);            \
+        atomic_store(&up->is_owned, p != NULL);            \
     }                                                           \
                                                                 \
 unique_ptr_##T unique_ptr_move_##T(unique_ptr_##T* up) { \
