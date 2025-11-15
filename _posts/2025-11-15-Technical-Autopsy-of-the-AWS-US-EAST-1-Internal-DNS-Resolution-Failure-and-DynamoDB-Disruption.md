@@ -46,7 +46,7 @@ All times shown in PDT (Pacific Daylight Time):
 | **00:38 October 20** | Engineers identify empty authoritative record set |
 | **01:15** | Temporary manual overrides applied for critical internal endpoints; some internal tooling recovers |
 | **02:25** | Full manual restoration of correct record set; cached records begin expiring |
-| **02:40** | ✅ DynamoDB API error rate returns to normal as client caches expire |
+| **02:40** | DynamoDB API error rate returns to normal as client caches expire |
 
 ### Phase 2: Secondary Cascade and Recovery (October 20)
 
@@ -59,7 +59,7 @@ All times shown in PDT (Pacific Daylight Time):
 | **10:36** | Network Manager backlog cleared; new instance connectivity restored |
 | **13:50** | EC2 launch throttling fully relaxed |
 | **14:09** | NLB health-check failover re-enabled |
-| **14:20** | ✅ Final customer-facing impact cleared |
+| **14:20** | Final customer-facing impact cleared |
 
 **Total Duration:** ~14 hours 32 minutes (23:48 PDT October 19 → 14:20 PDT October 20)
 
@@ -86,33 +86,7 @@ The failure mode was NOERROR with empty answer section (not NXDOMAIN). Clients t
 
 ## Deep Technical Dive: Internal DNS Resolution Failure
 
-```plantuml
-@startuml
-!define RECTANGLE_COLOR #E6F3FF
-
-skinparam rectangle {
-    BackgroundColor<<highlight>> RECTANGLE_COLOR
-    BorderColor #333
-}
-
-rectangle "Normal Resolution Path" {
-    [EC2 Instance / Lambda] as Client
-    (HyperResolver\n169.254.169.253) as HyperResolver
-    (Regional Cache Fleet) as Cache
-    (Authoritative Hyperplane\nVIP Anycast) as AuthVIP
-    (Authoritative Backend Fleet) as AuthBackend
-    rectangle "Multiple A/AAAA to\nHyperplane VIPs" as Records <<highlight>>
-    (Hyperplane VIP → NLB\n→ DynamoDB Frontends) as DynamoDB
-    
-    Client -down-> HyperResolver : Query
-    HyperResolver -down-> Cache
-    Cache -down-> AuthVIP
-    AuthVIP -down-> AuthBackend
-    AuthBackend -down-> Records : Returns
-    Records -down-> DynamoDB
-}
-@enduml
-```
+![Normal Resolution Path](/assets/images/posts/aws-outage/Normal_Resolution_Path.png)
 
 In normal operation an internal client (e.g., Lambda worker, EC2 host agent, control-plane service) issues a DNS query to the well-known anycast address 169.254.169.253. HyperResolver performs iterative resolution:
 
@@ -139,23 +113,7 @@ Thundering herd on recovery: when records were restored at 02:25 PDT, millions o
 
 Comparison with public Route 53: public Route 53 zones were unaffected because DynamoDB automation maintains separate public and internal record sets. Public customers using only non-US-EAST-1 tables were fine; internal services and customers with US-EAST-1 tables or replication lag were not.
 
-```plantuml
-@startuml
-participant Planner
-participant "Enactor A" as EnactorA
-participant "Enactor B" as EnactorB
-participant Route53
-
-EnactorA -> Route53: Begin plan #5121 (delayed)
-Planner -> Planner: Generate #5122…#5130
-EnactorB -> Route53: Apply #5130 to all endpoints
-EnactorB -> Route53: Cleanup delete ≤5129
-note right of EnactorB: Assumes #5130 fully applied
-EnactorA -> Route53: Apply stale #5121 to regional record (succeeds)
-EnactorB -> Route53: Delete #5121 (executes)
-note over Route53: Record set now empty
-@enduml
-```
+![Enactor Plan](/assets/images/posts/aws-outage/Enactor_Plan.png)
 
 ## Deep Technical Dive: Why DynamoDB Became Unreachable and the Cascade Began
 
@@ -213,33 +171,7 @@ AWS disabled the Planner/Enactor automation worldwide and fixed the race conditi
 - Chaos inject empty DNS answers in pre-prod
 - Monitor for NOERROR + empty answer as distinct metric
 
-```plantuml
-@startuml
-!define CRITICAL_COLOR #FF9999
-
-skinparam rectangle {
-    BackgroundColor<<critical>> CRITICAL_COLOR
-    BorderColor #333
-}
-
-rectangle "DynamoDB" as DynamoDB <<critical>>
-rectangle "IAM" as IAM
-rectangle "STS" as STS
-rectangle "Lambda" as Lambda
-rectangle "CloudFormation" as CloudFormation
-rectangle "API Gateway" as APIGateway
-rectangle "Service Catalog" as ServiceCatalog
-rectangle "Console" as Console
-
-DynamoDB -down-> IAM
-DynamoDB -down-> STS
-DynamoDB -down-> Lambda
-DynamoDB -down-> CloudFormation
-DynamoDB -down-> APIGateway
-DynamoDB -down-> ServiceCatalog
-DynamoDB -down-> Console
-@enduml
-```
+![Lessons](/assets/images/posts/aws-outage/Lessons.png)
 
 ## Conclusion
 
