@@ -84,7 +84,7 @@ Canaries did not catch this because the canary validated the plan content, not t
 
 The failure mode was NOERROR with empty answer section (not NXDOMAIN). Clients treat this as “service intentionally has no IPs” and immediately fail rather than retry or fallback.
 
-## Deep Technical Dive: Internal DNS Resolution Failure
+## Internal DNS Resolution Failure
 
 ![Normal Resolution Path](/assets/images/posts/aws-outage/Normal_Resolution_Path.png)
 
@@ -115,7 +115,7 @@ Comparison with public Route 53: public Route 53 zones were unaffected because D
 
 ![Enactor Plan](/assets/images/posts/aws-outage/Enactor_Plan.png)
 
-## Deep Technical Dive: Why DynamoDB Became Unreachable and the Cascade Began
+## Why DynamoDB Became Unreachable and the Cascade Began
 
 DynamoDB is the primary durable store for control-plane metadata in US-EAST-1 even in 2025. Examples:
 
