@@ -72,11 +72,11 @@ DynamoDB maintains hundreds of thousands of A/AAAA records pointing to Hyperplan
 The failing sequence (simplified):
 
 1. Enactor A picks plan #5121, begins applying, but experiences unusual delay before reaching the regional endpoint record.
-2 Planner continues generating #5122, #5123 … #5130.
-3 Enactor B picks #5130, applies it rapidly to all endpoints including the regional one.
-4 Enactor B triggers cleanup, deleting all plans ≤ #5129.
-5 Delayed Enactor A finally applies stale #5121 to the regional endpoint (stale “is-newer” check passed earlier).
-6 Cleanup from Enactor B deletes #5121 → record set becomes empty.
+2. Planner continues generating #5122, #5123 … #5130.
+3. Enactor B picks #5130, applies it rapidly to all endpoints including the regional one.
+4. Enactor B triggers cleanup, deleting all plans ≤ #5129.
+5. Delayed Enactor A finally applies stale #5121 to the regional endpoint (stale “is-newer” check passed earlier).
+6. Cleanup from Enactor B deletes #5121 → record set becomes empty.
 
 The transaction that applied the stale plan succeeded because the “newer-plan” check was performed once at the beginning, not per-record. No locking or per-record versioning existed. Critically, the cleanup logic assumed any plan that old must be safe to delete because the applying Enactor “should have” completed.
 
@@ -91,11 +91,11 @@ The failure mode was NOERROR with empty answer section (not NXDOMAIN). Clients t
 In normal operation an internal client (e.g., Lambda worker, EC2 host agent, control-plane service) issues a DNS query to the well-known anycast address 169.254.169.253. HyperResolver performs iterative resolution:
 
 1. Check local cache (typically 60–300 s TTL for control-plane records)
-2 If miss → forward to regional HyperResolver cache fleet (anycast VIP)
-3 Regional cache checks its cache
-4 If miss → iterative query to internal authoritative anycast VIP
-5 Authoritative returns CNAME chain → Hyperplane VIP records → A/AAAA set
-6 Return to client with TTL
+2. If miss → forward to regional HyperResolver cache fleet (anycast VIP)
+3. Regional cache checks its cache
+4. If miss → iterative query to internal authoritative anycast VIP
+5. Authoritative returns CNAME chain → Hyperplane VIP records → A/AAAA set
+6. Return to client with TTL
 
 During the incident the authoritative backend returned NOERROR + empty answer section + SOA. Packet capture:
 
