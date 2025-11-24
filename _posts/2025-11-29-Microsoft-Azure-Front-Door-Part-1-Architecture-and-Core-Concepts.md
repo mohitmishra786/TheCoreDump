@@ -658,61 +658,7 @@ Validated configurations enter the control plane queue for processing. The queue
 
 Control plane workers dequeue configuration changes and generate data plane metadata. This generation involves resolving references between Azure Front Door components, compiling routing rules into efficient matching structures, validating backend connectivity and DNS resolution, and optimizing cache key calculations. The metadata generation process must handle configuration complexity while maintaining deterministic output for testing and validation.
 
-```plantuml
-@startuml
-!define RECTANGLE rectangle
-
-skinparam rectangle {
-    BackgroundColor<<management>> LightBlue
-    BackgroundColor<<control>> LightGreen
-    BackgroundColor<<data>> LightYellow
-    BorderColor Black
-}
-
-RECTANGLE "Management Plane" <<management>> {
-    [Azure Portal/CLI/API] as Portal
-    [Azure Resource Manager] as ARM
-    [Configuration Validator] as Validator
-}
-
-RECTANGLE "Control Plane" <<control>> {
-    [Configuration Queue] as Queue
-    [Metadata Generator] as Generator
-    [Pre-Canary Validator] as PreCanary
-    [Staged Deployment Controller] as Deployment
-}
-
-RECTANGLE "Data Plane" <<data>> {
-    [Edge Location 1] as Edge1
-    [Edge Location 2] as Edge2
-    [Edge Location N] as EdgeN
-}
-
-Portal --> ARM
-ARM --> Validator
-Validator --> Queue
-Queue --> Generator
-Generator --> PreCanary
-PreCanary --> Deployment
-Deployment --> Edge1
-Deployment --> Edge2
-Deployment --> EdgeN
-
-note right of PreCanary
-  Validates configuration
-  with production-like data
-  before propagation
-end note
-
-note right of Deployment
-  Implements staged rollout:
-  - Canary (5%)
-  - Small (25%)
-  - Large (100%)
-end note
-
-@enduml
-```
+![Metadata Generation](/assets/images/posts/azure-front-door/Metadata-Generation.png)
 
 ### Staged Deployment Process
 
@@ -734,63 +680,7 @@ Canary deployment includes extended monitoring periods of 30 to 60 minutes, auto
 
 Successful canary deployment triggers progressive rollout to larger populations. The rollout proceeds in waves: small wave deploying to 25% of edge locations, large wave deploying to remaining 75%, and completion verification across the entire fleet. Each wave includes monitoring periods before proceeding to the next, providing multiple opportunities to detect issues.
 
-```plantuml
-@startuml
-!theme plain
-
-title Azure Front Door Staged Deployment Flow
-
-|Management Plane|
-start
-:Configuration Change Submitted;
-:Initial Validation;
-
-|Control Plane|
-:Queue Configuration;
-:Generate Metadata;
-
-|Pre-Canary|
-:Deploy to Isolated Test Environment;
-:Load Configuration;
-:Execute Health Probes;
-:15+ Minute Baking Period;
-
-if (Asynchronous Operations Successful?) then (yes)
-  |Canary Stage|
-  :Deploy to 5% of Edge Locations;
-  :30-60 Minute Monitoring;
-  
-  if (Health Metrics Normal?) then (yes)
-    |Small Wave|
-    :Deploy to 25% of Fleet;
-    :Monitor for Anomalies;
-    
-    if (No Issues Detected?) then (yes)
-      |Large Wave|
-      :Deploy to Remaining 75%;
-      :Final Verification;
-      
-      |Completion|
-      :Update Last Known Good Snapshot;
-      stop
-    else (issues)
-      :Halt Deployment;
-      :Automatic Rollback;
-      stop
-    endif
-  else (anomalies)
-    :Halt at Canary;
-    :Alert Operations;
-    stop
-  endif
-else (failures)
-  :Reject Configuration;
-  :Notify Customer;
-  stop
-endif
-
-@enduml
-```
+![Azure Front Door Staged Deployment Flow](/assets/images/posts/azure-front-door/Azure-Front-Door-Staged-Deployment-Flow.png)
 
 ### Configuration Guard Systems
 
@@ -828,68 +718,7 @@ Each Kubernetes pod hosts NGINX master and worker processes that handle request 
 
 Pod scheduling uses node affinity and anti-affinity rules to distribute pods across physical servers, preventing single points of failure. Resource limits prevent individual pods from consuming excessive CPU or memory, maintaining system stability under load.
 
-```plantuml
-@startuml
-!theme plain
-
-package "Azure Front Door Edge Location" {
-    
-    package "Kubernetes Cluster" {
-        
-        node "Physical Server 1" {
-            component [Load Balancer] as LB1
-            
-            card "Pod 1" {
-                [NGINX Master] as NM1
-                [NGINX Worker 1] as NW1
-                [NGINX Worker 2] as NW2
-                [Health Probe Endpoint] as HP1
-                [Metrics Exporter] as ME1
-            }
-            
-            card "Pod 2" {
-                [NGINX Master] as NM2
-                [NGINX Worker 3] as NW3
-                [NGINX Worker 4] as NW4
-                [Health Probe Endpoint] as HP2
-                [Metrics Exporter] as ME2
-            }
-        }
-        
-        node "Physical Server 2" {
-            component [Load Balancer] as LB2
-            
-            card "Pod 3" {
-                [NGINX Master] as NM3
-                [NGINX Worker 5] as NW5
-                [NGINX Worker 6] as NW6
-                [Health Probe Endpoint] as HP3
-                [Metrics Exporter] as ME3
-            }
-        }
-    }
-    
-    cloud "Control Plane" as CP
-    database "Configuration Storage" as CS
-    
-    CP --> CS : Update Configs
-    CS --> NM1 : Watch & Load
-    CS --> NM2 : Watch & Load
-    CS --> NM3 : Watch & Load
-}
-
-cloud "Client Traffic" as CT
-CT --> LB1
-CT --> LB2
-
-note right of CS
-  Centralized configuration
-  storage for 750,000+
-  customer profiles
-end note
-
-@enduml
-```
+![Kubernetes Pod Architecture](/assets/images/posts/azure-front-door/K8S-Pod-Architecture.png)
 
 ### Request Processing Pipeline
 
