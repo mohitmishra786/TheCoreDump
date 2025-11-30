@@ -28,53 +28,7 @@ Cloudflare's network architecture is fundamentally built on Anycast routing, a n
 
 The company operates over 310 data centers distributed across more than 120 countries, forming a truly global edge network. Each PoP functions as a fully autonomous unit capable of serving requests, making security decisions, and executing edge computing workloads without requiring communication with centralized control planes for routine operations. This distributed autonomy is both a strength and a potential vulnerability, as we will see in the analysis of the November 18 incident.
 
-```mermaid
-graph TB
-    subgraph "User Layer"
-        U1[User - North America]
-        U2[User - Europe]
-        U3[User - Asia]
-    end
-    
-    subgraph "Anycast Network Layer"
-        A1[Anycast IP: 104.16.0.0/12]
-        A2[Anycast IP: 2606:4700::/32]
-    end
-    
-    subgraph "Global PoP Distribution"
-        P1[PoP - New York<br/>nginx + Varnish + Bot Mgmt]
-        P2[PoP - London<br/>nginx + Varnish + Bot Mgmt]
-        P3[PoP - Singapore<br/>nginx + Varnish + Bot Mgmt]
-    end
-    
-    subgraph "Backend Services"
-        CH[(ClickHouse<br/>Distributed Cluster)]
-        KV[(Workers KV)]
-        R2[(R2 Storage)]
-    end
-    
-    U1 -->|BGP Routing| A1
-    U2 -->|BGP Routing| A1
-    U3 -->|BGP Routing| A2
-    
-    A1 -.->|Nearest PoP| P1
-    A1 -.->|Nearest PoP| P2
-    A2 -.->|Nearest PoP| P3
-    
-    P1 -->|Feature File Query| CH
-    P2 -->|Feature File Query| CH
-    P3 -->|Feature File Query| CH
-    
-    P1 -.->|Edge Computing| KV
-    P2 -.->|Edge Computing| R2
-    
-    style CH fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    style P1 fill:#4dabf7,stroke:#1971c2,color:#fff
-    style P2 fill:#4dabf7,stroke:#1971c2,color:#fff
-    style P3 fill:#4dabf7,stroke:#1971c2,color:#fff
-    style A1 fill:#51cf66,stroke:#2f9e44,color:#fff
-    style A2 fill:#51cf66,stroke:#2f9e44,color:#fff
-```
+[![](https://mermaid.ink/img/pako:eNqdlGtvmzAUhv-K5X5ptYRiQyFBUyWS3qZ2EUvXTluyDwYOxArgyJi1WdP_PtNcStX0svoDMn7Pc87rY8wdjkQM2MOpZLMJ-t4bF0iPsgqXC2N8VYJEF2wOcoyXYj2uyOhBaKOBkGqC_Bwkj9jvRgRdRxxXUsygKVlryS_5moEiXk6eOfCLecRKhQagboScPjfjk9E65kvgIWLaBnEM0zD3CW2U9emTMOqYjme7pul5-xZ908VpJkKWoUAE6IiXSvKwUlwUTR8BGdWy7gncoJ_a6udQ7h8WKS9u0Sd0zWTBy4me9YRCX9NcNbwFdIVeiCIWxX-A1gq85EXKZkLC-9iXN9pj0VSr6BLkHx5B2dxh_2y02894ND0TVbmstGkGxKifVaUCudfwd3492v2hWwGy1POmMqSj3SFFl0pIlsLedl9XBLXbh4veaYCGQje8SBf6uFcafUWztmi0mdnXmQ0dMgAmQX8SuosLfYKviSvep9tEq5k8WNo-AaYqCeiEZ4C-VSDnC93CVQh9O8R6M-SxXO3oOE4B9UU-W-34_Pqx1jZ9-KQjpZrrAv0zlPAs83aSxAmdsKVPV0zB24m6lFHWikQmZC0mTUgbWEJ2zMLE3UCk65KIvgTRj0DWByB_be-ARInjbCCadMG2X4LoOyHc0n9PHmNPyQpaWP8Jc1a_4rs63RirCeQwxp6exkxO6_t0r5kZK34Jka8xKap0gr2EZaV-q2YxU3DEmb6V-WZV6tsBsi-qQmHPtR9yYO8O32LPci2DUJPadqdDHItQt4Xn2Gt3jI5F7G7HMm2iBadz38J_H8oSg3RN4lpaO9BPYjn3_wC9KszW?type=png)](https://mermaid.live/edit#pako:eNqdlGtvmzAUhv-K5X5ptYRiQyFBUyWS3qZ2EUvXTluyDwYOxArgyJi1WdP_PtNcStX0svoDMn7Pc87rY8wdjkQM2MOpZLMJ-t4bF0iPsgqXC2N8VYJEF2wOcoyXYj2uyOhBaKOBkGqC_Bwkj9jvRgRdRxxXUsygKVlryS_5moEiXk6eOfCLecRKhQagboScPjfjk9E65kvgIWLaBnEM0zD3CW2U9emTMOqYjme7pul5-xZ908VpJkKWoUAE6IiXSvKwUlwUTR8BGdWy7gncoJ_a6udQ7h8WKS9u0Sd0zWTBy4me9YRCX9NcNbwFdIVeiCIWxX-A1gq85EXKZkLC-9iXN9pj0VSr6BLkHx5B2dxh_2y02894ND0TVbmstGkGxKifVaUCudfwd3492v2hWwGy1POmMqSj3SFFl0pIlsLedl9XBLXbh4veaYCGQje8SBf6uFcafUWztmi0mdnXmQ0dMgAmQX8SuosLfYKviSvep9tEq5k8WNo-AaYqCeiEZ4C-VSDnC93CVQh9O8R6M-SxXO3oOE4B9UU-W-34_Pqx1jZ9-KQjpZrrAv0zlPAs83aSxAmdsKVPV0zB24m6lFHWikQmZC0mTUgbWEJ2zMLE3UCk65KIvgTRj0DWByB_be-ARInjbCCadMG2X4LoOyHc0n9PHmNPyQpaWP8Jc1a_4rs63RirCeQwxp6exkxO6_t0r5kZK34Jka8xKap0gr2EZaV-q2YxU3DEmb6V-WZV6tsBsi-qQmHPtR9yYO8O32LPci2DUJPadqdDHItQt4Xn2Gt3jI5F7G7HMm2iBadz38J_H8oSg3RN4lpaO9BPYjn3_wC9KszW)
 
 ### Core Infrastructure Components
 
@@ -140,36 +94,7 @@ This phase involved deep diagnostic work to identify the root cause while the ou
 
 **12:35 UTC** - Database administrators identified a permissions change made to the ClickHouse cluster earlier that day, intended to improve security by making access to underlying tables explicit. The change modified how queries were executed against the distributed database, causing queries to return results from both the "default" database and a replica database named "r0". This duplication was not immediately apparent in testing because it only affected specific query patterns used by the Bot Management feature file generator.
 
-```mermaid
-sequenceDiagram
-    participant Monitoring as Monitoring System<br/>(Prometheus/Grafana)
-    participant Engineer as Incident Response<br/>Team
-    participant EdgeNode as Edge PoP<br/>(nginx + Bot Mgmt)
-    participant BotService as Bot Management<br/>Service
-    participant ClickHouse as ClickHouse<br/>Database Cluster
-    
-    Note over Monitoring,ClickHouse: 11:20 UTC - Initial Detection
-    EdgeNode->>BotService: Process Request
-    BotService->>ClickHouse: Request Feature File
-    ClickHouse-->>BotService: Oversized File (400 features)
-    BotService->>BotService: Bounds Check Fails
-    BotService--xEdgeNode: Panic & Crash
-    EdgeNode-->>Monitoring: HTTP 5xx Errors
-    Monitoring->>Engineer: P0 Alert Triggered
-    
-    Note over Monitoring,ClickHouse: 11:32-12:35 UTC - Investigation
-    Engineer->>EdgeNode: Analyze Logs
-    Engineer->>BotService: Examine Core Dumps
-    Engineer->>ClickHouse: Query Database State
-    ClickHouse-->>Engineer: Duplicate Rows Detected
-    
-    Note over Monitoring,ClickHouse: 12:35 UTC - Root Cause Identified
-    Engineer->>Engineer: Identify Permission Change
-    
-    style BotService fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    style ClickHouse fill:#ffd43b,stroke:#f59f00,color:#000
-    style Engineer fill:#51cf66,stroke:#2f9e44,color:#fff
-```
+[![](https://mermaid.ink/img/pako:eNqVVNtu2kAQ_ZXRSqkSlSTmYjBWFSmBpInUpDShLxUvG3swq9i7dHcdIAip_9A_7Jd0bDA2gZfwgLw755zZOTO7SxaoEJnPjo6WQgrrw3LE7AQTHDEfRizEMU9jO2I1Whj8naIM8hDBZppPs0-rU8zCMxHaSbZR95zVClZHRyNZUPqCR5onIwn0s8LGCFfKwj2XPKJk0sIT6lcRIAwcuJOBCLO9f3_-wqMiXI-nBn34_oraiDcM4Qa5TTXCjYhxLbr-n3JtRSCmnNj3igpSWsgIuKmunhbGYvLlWZ9fHA-0SpAKTs35V83HdJ6TfaVrGQmJqDOd7eEe0UwVFZjrDLEobocXRvhA_ma87BsGarBOmwnO4fPahCixB5JSqPCE6Ltu5SKb6D6zF4vg5VaRZRmzXOWsPrf8mVOoF6dkg66696AsgiKTK27VSj51tu43HPg57OWtuSOM4DH00WJghZJVraL204uLshIfyO8AjSH3aDCMXWNLAKGr-TaoA-0uUafvMlSGhNBw3HIcGK_55uRAvir3SqUyJMsmGLzADRex2SOczovKqBguRQCfoKe5mbwrm5RLE324HQ4H4M7ncK210hvZEkDoYsj87ApcxqgtDLWIItQYfrRJzQb1p97wm26lWa_kpIh42agiY5Z8W9Ol5PHiDeGbiswerOrV9ZwntA89RY3pp8l0H1491Y8U9QK20_dkuT3YytKGfjqlCMHoDZiZzZR91IsdD8q3BO6yOyzGotCrelE2AnUijCHDIJhwSRc4yMhhfpFS-ZxNC83ZZrog0mpmJ6zGIi1C5ufvIktIg2dLtswy7b6uXL-M2EiuiEM395dSSUHTKo0mzB_z2NAqnYbkw-YR3e5qpPS6R6ewzHdzCeYv2Zz5zZZ35jXbbtdrOJ2657VqbMH8Om263WbHbbcbjtvpdlY19pbnrJ_RutPoOF2v1W512663-g8itg0v?type=png)](https://mermaid.live/edit#pako:eNqVVNtu2kAQ_ZXRSqkSlSTmYjBWFSmBpInUpDShLxUvG3swq9i7dHcdIAip_9A_7Jd0bDA2gZfwgLw755zZOTO7SxaoEJnPjo6WQgrrw3LE7AQTHDEfRizEMU9jO2I1Whj8naIM8hDBZppPs0-rU8zCMxHaSbZR95zVClZHRyNZUPqCR5onIwn0s8LGCFfKwj2XPKJk0sIT6lcRIAwcuJOBCLO9f3_-wqMiXI-nBn34_oraiDcM4Qa5TTXCjYhxLbr-n3JtRSCmnNj3igpSWsgIuKmunhbGYvLlWZ9fHA-0SpAKTs35V83HdJ6TfaVrGQmJqDOd7eEe0UwVFZjrDLEobocXRvhA_ma87BsGarBOmwnO4fPahCixB5JSqPCE6Ltu5SKb6D6zF4vg5VaRZRmzXOWsPrf8mVOoF6dkg66696AsgiKTK27VSj51tu43HPg57OWtuSOM4DH00WJghZJVraL204uLshIfyO8AjSH3aDCMXWNLAKGr-TaoA-0uUafvMlSGhNBw3HIcGK_55uRAvir3SqUyJMsmGLzADRex2SOczovKqBguRQCfoKe5mbwrm5RLE324HQ4H4M7ncK210hvZEkDoYsj87ApcxqgtDLWIItQYfrRJzQb1p97wm26lWa_kpIh42agiY5Z8W9Ol5PHiDeGbiswerOrV9ZwntA89RY3pp8l0H1491Y8U9QK20_dkuT3YytKGfjqlCMHoDZiZzZR91IsdD8q3BO6yOyzGotCrelE2AnUijCHDIJhwSRc4yMhhfpFS-ZxNC83ZZrog0mpmJ6zGIi1C5ufvIktIg2dLtswy7b6uXL-M2EiuiEM395dSSUHTKo0mzB_z2NAqnYbkw-YR3e5qpPS6R6ewzHdzCeYv2Zz5zZZ35jXbbtdrOJ2657VqbMH8Om263WbHbbcbjtvpdlY19pbnrJ_RutPoOF2v1W512663-g8itg0v)
 
 **12:50 UTC** - The engineering team understood the causal chain: the ClickHouse permissions change caused query result duplication, which inflated the feature file beyond the hardcoded limit in the Bot Management service, causing the service to crash on every startup attempt across all PoPs globally. The feature file generation process ran every five minutes, and depending on which ClickHouse node serviced the query, either a correct or malformed file would be generated, explaining the intermittent nature of early recovery attempts.
 
@@ -294,43 +219,7 @@ However, the lack of graduated failure modes proved problematic. Alternative des
 
 The feature file generation and distribution system operated on a five-minute cycle, continuously updating Bot Management configurations across all PoPs. This system provides near-real-time updates for threat model improvements but also acts as a vector for rapid failure propagation.
 
-```mermaid
-graph TB
-    subgraph "Configuration Generation"
-        CG[Cron Job<br/>Every 5 minutes]
-        CG -->|Query| CH[(ClickHouse<br/>Cluster)]
-        CH -->|Results| FG[Feature File<br/>Generator]
-        FG -->|Serialize| FS[(File Storage<br/>S3/R2)]
-    end
-    
-    subgraph "Global Distribution"
-        FS -->|Publish| PUB[Configuration<br/>Publisher]
-        PUB -->|Push| CDN[Internal CDN]
-    end
-    
-    subgraph "PoP Consumption"
-        CDN -->|Poll/Push| POP1[PoP 1<br/>Bot Management]
-        CDN -->|Poll/Push| POP2[PoP 2<br/>Bot Management]
-        CDN -->|Poll/Push| POP3[PoP N<br/>Bot Management]
-        
-        POP1 -->|Load| BM1[Bot Service<br/>CRASH]
-        POP2 -->|Load| BM2[Bot Service<br/>CRASH]
-        POP3 -->|Load| BM3[Bot Service<br/>CRASH]
-    end
-    
-    subgraph "Impact"
-        BM1 -.->|5xx Errors| U1[Users]
-        BM2 -.->|5xx Errors| U2[Users]
-        BM3 -.->|5xx Errors| U3[Users]
-    end
-    
-    style CH fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    style BM1 fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    style BM2 fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    style BM3 fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    style FS fill:#ffd43b,stroke:#f59f00,color:#000
-    style PUB fill:#ffd43b,stroke:#f59f00,color:#000
-```
+[![](https://mermaid.ink/img/pako:eNqdlNtO4zAQhl_FMjes1JbEOdBGK6QlpS0I2G4rbjblwmmc1sKJK8dGHMq77yRpd1NgATVXPvzfzK-ZcZ7xXCYMB3ih6GqJLiezHMFXmLg-mOFQ5ilfGEU1lzkaspzVyxmupeUXDqNQwe2FjL_H6ujk7J6pR-ShjOdGs-K2qUTt9sn6lwHBGoWj6DAUfH43kqZgFRoKU2imvjWZUcVMWGGELtZoMIwGjGqjGBpwUWMbX1I1uEGda8oUp4I_MSCn0WGJoCko6aJGp87RhGzzsTypF2_qMBQypgL1eaEVj83rEgymVbKxiQUvlms0vjmNdkpX5dpcs6ZNUG7Qkgv719F5DhXIIRlsPvU1lmMEiQqTrd60pX9dR5ZCHNXhxz_HdlQiduXnVGp0RXMoRcZyffsZSiqU7IM6FXr9MdooCvisolxKmqzR6ZUdlRT08p7PN5My-TEd3e4gZAchX0GcHcT5EPl_E86zFZ3rZu3BMWp3ILT38IDOlJIKJvfGjm4KppoPAmy-oyPv6Jx3dM6O7rU__QijDq8n5UIEB2nqx37cgvGVdyw4mPcIJbQ1l0Kq8jJtQqX7fSiyF-XsQcF720KJ6_yDUq-XWtYWsiyrCZVP7WsUbsEfkSc40MqwFs6Yymi5xc9lvBnWS5jdGQ5gmVB1V3b-BZgVzX9LmW0xJc1iiYOUigJ2ZpVQzfqcwtRkf08VdI2pUJpc48DuHldBcPCMH3DQdi2n07MJcYnl-5brEr-FH0HmdDt-17KOHd-yfdfuuS8t_FQltjtW1-u5HvGOvZ7jerb_8gdozsrw?type=png)](https://mermaid.live/edit#pako:eNqdlNtO4zAQhl_FMjes1JbEOdBGK6QlpS0I2G4rbjblwmmc1sKJK8dGHMq77yRpd1NgATVXPvzfzK-ZcZ7xXCYMB3ih6GqJLiezHMFXmLg-mOFQ5ilfGEU1lzkaspzVyxmupeUXDqNQwe2FjL_H6ujk7J6pR-ShjOdGs-K2qUTt9sn6lwHBGoWj6DAUfH43kqZgFRoKU2imvjWZUcVMWGGELtZoMIwGjGqjGBpwUWMbX1I1uEGda8oUp4I_MSCn0WGJoCko6aJGp87RhGzzsTypF2_qMBQypgL1eaEVj83rEgymVbKxiQUvlms0vjmNdkpX5dpcs6ZNUG7Qkgv719F5DhXIIRlsPvU1lmMEiQqTrd60pX9dR5ZCHNXhxz_HdlQiduXnVGp0RXMoRcZyffsZSiqU7IM6FXr9MdooCvisolxKmqzR6ZUdlRT08p7PN5My-TEd3e4gZAchX0GcHcT5EPl_E86zFZ3rZu3BMWp3ILT38IDOlJIKJvfGjm4KppoPAmy-oyPv6Jx3dM6O7rU__QijDq8n5UIEB2nqx37cgvGVdyw4mPcIJbQ1l0Kq8jJtQqX7fSiyF-XsQcF720KJ6_yDUq-XWtYWsiyrCZVP7WsUbsEfkSc40MqwFs6Yymi5xc9lvBnWS5jdGQ5gmVB1V3b-BZgVzX9LmW0xJc1iiYOUigJ2ZpVQzfqcwtRkf08VdI2pUJpc48DuHldBcPCMH3DQdi2n07MJcYnl-5brEr-FH0HmdDt-17KOHd-yfdfuuS8t_FQltjtW1-u5HvGOvZ7jerb_8gdozsrw)
 
 The distribution mechanism exhibits eventual consistency characteristics. When a new feature file is generated, it's published to Cloudflare's internal content distribution system, from which PoPs pull updates. Network latency, PoP polling intervals, and caching behavior mean that different PoPs receive updates at different times, creating transient inconsistency windows.
 
@@ -435,56 +324,7 @@ Quantifying economic losses from internet outages involves considerable uncertai
 
 **Productivity Losses**: Beyond direct revenue impacts, organizations experienced productivity losses as employees couldn't access cloud applications, collaboration tools, or business systems. Assuming an average of 10 million workers affected for an average of 3 hours at an average fully-loaded hourly rate of $50, productivity losses could exceed $1.5 billion globally—though this figure involves substantial estimation uncertainty.
 
-```mermaid
-graph TD
-    subgraph "Primary Impact"
-        O[Cloudflare Outage<br/>5.75 hours]
-        O --> E1[HTTP 5xx Errors]
-        O --> E2[Request Timeouts]
-        O --> E3[DNS Resolution Delays]
-    end
-    
-    subgraph "Service Layer Impact"
-        E1 --> S1[Web Applications<br/>Unavailable]
-        E1 --> S2[Mobile Apps<br/>Fail to Load]
-        E1 --> S3[API Endpoints<br/>Non-responsive]
-        
-        E2 --> S4[User Experience<br/>Degradation]
-        
-        E3 --> S5[Domain Resolution<br/>Failures]
-    end
-    
-    subgraph "Cascading Failures"
-        S1 --> C1[Payment Processing<br/>Disrupted]
-        S1 --> C2[Authentication Systems<br/>Offline]
-        S1 --> C3[Content Delivery<br/>Failed]
-        
-        S3 --> C4[Microservice Communication<br/>Broken]
-        S3 --> C5[Third-party Integrations<br/>Failed]
-        
-        S5 --> C6[Email Delivery<br/>Delayed]
-    end
-    
-    subgraph "Business Impact"
-        C1 --> B1[Revenue Loss<br/>E-commerce]
-        C2 --> B2[Access Denial<br/>Enterprise Apps]
-        C3 --> B3[Ad Revenue Loss<br/>Media Platforms]
-        C4 --> B4[System Degradation<br/>Cloud Services]
-        C5 --> B5[Workflow Disruption<br/>SaaS Tools]
-        C6 --> B6[Communication Delays<br/>Business Operations]
-    end
-    
-    style O fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    style E1 fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    style E2 fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    style E3 fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    style B1 fill:#ffd43b,stroke:#f59f00,color:#000
-    style B2 fill:#ffd43b,stroke:#f59f00,color:#000
-    style B3 fill:#ffd43b,stroke:#f59f00,color:#000
-    style B4 fill:#ffd43b,stroke:#f59f00,color:#000
-    style B5 fill:#ffd43b,stroke:#f59f00,color:#000
-    style B6 fill:#ffd43b,stroke:#f59f00,color:#000
-```
+[![](https://mermaid.ink/img/pako:eNqdlW9v4jgQxr-K5X0LPecvEK1WKoHTrbRd0MKq0pp9YRKnWE3snGP3ylX97juJoQ0q3TuRVyGZn2fmmWfCE85UznGC7zSrd2g920gEV2O37sEGL7WomN6jz1XNMrPBLqC9FjQtlc2LkmmOFtawO_5xq__4FF2NIrRTVjc_e8FoOPyE5h79a71eoujxEc21VudCfPqN_215Y9BaVFxZcyYmoLOvK_SNN6q0RiiJZrxk-2Mgl7m7edPMiusHkXH0he25PtPS3OvOX3n0lm_RdV2XImNtgqbr7LtkD0yUbFvyn28hn96orSh5y7n4PyEYGYW-KJafAQJ6vfyM5jKvlZDGIV-VHGre1JBSPPSz9HDf4SH93kAX88eaa8Fl5tSfcWg274o-TweOjuhMVUzInoovNVuo4D-1TFmTsVzIO3RE-kquXI-pR5dsX3Fp0FKrjDcNAK5O0WhbG94X5gj59NqaHUAH9dFq3xheOYUWRVEKyc9gAU2VNG0usAOop_cvHZ2k6ZFOjDSkNyLTqjnYI1VVZeUheXfGVKt73hf0SEZ0vRM6H9ZMG1gSSA_6vDrmd7kjd0JM51Xrk5OaOz-_gO8PYWpBUFD1jJdTp8rUg3164NKC61XjqpoPM-iQ66yvYupsNQXxs3ZQUJAUrHQA9KVrLRpn7j7ldJiCl3P0JtENzwVDy5KZQunqhAsdF1I3W9TzbYd23xZ0WNgT0uk2jeit0vdFqf5BBy8d0RVjK7RWqjzBYofF9GS6hy-HG_JRzAVslBviOwMwe1jzBSpEWSYfiiLexttBY1qPJB-yic98NshUqXT7sugzsPoXQP4lUHABNH0tLw-DV6iIJgUhR4gQcgL5l0DBJVB4CRRdAsX_E8ID-OsUOU6MtnyAYalgmeEnfmqP22D4jFV8gxO4zZm-bxf0GZiayR9KVUdMK3u3w0nBygZ-2Rr2gM8Eg42oXp5qMCHXqbLS4CSIuzNw8oQfceJPgqsoImNCYjIOiAcv9zjxCLnyxuNRMCEhIZMgGD0P8L9dVnI1iqOJR0bhaDwahUEYP_8Cw6BxrQ?type=png)](https://mermaid.live/edit#pako:eNqdlW9v4jgQxr-K5X0LPecvEK1WKoHTrbRd0MKq0pp9YRKnWE3snGP3ylX97juJoQ0q3TuRVyGZn2fmmWfCE85UznGC7zSrd2g920gEV2O37sEGL7WomN6jz1XNMrPBLqC9FjQtlc2LkmmOFtawO_5xq__4FF2NIrRTVjc_e8FoOPyE5h79a71eoujxEc21VudCfPqN_215Y9BaVFxZcyYmoLOvK_SNN6q0RiiJZrxk-2Mgl7m7edPMiusHkXH0he25PtPS3OvOX3n0lm_RdV2XImNtgqbr7LtkD0yUbFvyn28hn96orSh5y7n4PyEYGYW-KJafAQJ6vfyM5jKvlZDGIV-VHGre1JBSPPSz9HDf4SH93kAX88eaa8Fl5tSfcWg274o-TweOjuhMVUzInoovNVuo4D-1TFmTsVzIO3RE-kquXI-pR5dsX3Fp0FKrjDcNAK5O0WhbG94X5gj59NqaHUAH9dFq3xheOYUWRVEKyc9gAU2VNG0usAOop_cvHZ2k6ZFOjDSkNyLTqjnYI1VVZeUheXfGVKt73hf0SEZ0vRM6H9ZMG1gSSA_6vDrmd7kjd0JM51Xrk5OaOz-_gO8PYWpBUFD1jJdTp8rUg3164NKC61XjqpoPM-iQ66yvYupsNQXxs3ZQUJAUrHQA9KVrLRpn7j7ldJiCl3P0JtENzwVDy5KZQunqhAsdF1I3W9TzbYd23xZ0WNgT0uk2jeit0vdFqf5BBy8d0RVjK7RWqjzBYofF9GS6hy-HG_JRzAVslBviOwMwe1jzBSpEWSYfiiLexttBY1qPJB-yic98NshUqXT7sugzsPoXQP4lUHABNH0tLw-DV6iIJgUhR4gQcgL5l0DBJVB4CRRdAsX_E8ID-OsUOU6MtnyAYalgmeEnfmqP22D4jFV8gxO4zZm-bxf0GZiayR9KVUdMK3u3w0nBygZ-2Rr2gM8Eg42oXp5qMCHXqbLS4CSIuzNw8oQfceJPgqsoImNCYjIOiAcv9zjxCLnyxuNRMCEhIZMgGD0P8L9dVnI1iqOJR0bhaDwahUEYP_8Cw6BxrQ)
 
 ### Cascading Technical Failures
 
@@ -607,33 +447,7 @@ Fixing the database ensured that future feature file generations would produce c
 
 The final mitigation phase involved carefully deploying the corrected configuration across all PoPs. Cloudflare's deployment orchestration follows a staged approach:
 
-```mermaid
-graph LR
-    subgraph "Deployment Stages"
-        V[Version<br/>Validation]
-        T[Test PoPs<br/>1% traffic]
-        C1[Canary PoPs<br/>5% traffic]
-        C2[Low-Traffic<br/>Regions 25%]
-        M[Medium-Traffic<br/>Regions 50%]
-        H[High-Traffic<br/>Regions 100%]
-    end
-    
-    V -->|Success| T
-    T -->|Monitor 5min<br/>No errors| C1
-    C1 -->|Monitor 10min<br/>Validate metrics| C2
-    C2 -->|Monitor 15min<br/>Check error rates| M
-    M -->|Monitor 20min<br/>Confirm stability| H
-    
-    T -.->|Errors detected| RB1[Halt &<br/>Rollback]
-    C1 -.->|Errors detected| RB2[Halt &<br/>Rollback]
-    C2 -.->|Errors detected| RB3[Halt &<br/>Rollback]
-    
-    style V fill:#51cf66,stroke:#2f9e44,color:#fff
-    style H fill:#51cf66,stroke:#2f9e44,color:#fff
-    style RB1 fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    style RB2 fill:#ff6b6b,stroke:#c92a2a,color:#fff
-    style RB3 fill:#ff6b6b,stroke:#c92a2a,color:#fff
-```
+[![](https://mermaid.ink/img/pako:eNqdlMuO2jAUQH_FMpquAo2dByGqZtFMJRZDNWIQi4ZZOMk1WCQxchy1FPj3OgnDQ4JRNVlY9vU5vrmOnR1OZQY4xEvFNiv0PF2UyDxVnXSBBX6CTS63BZQavWq2hGqBO6Z55vEcVCVk-S1RXx_nLBcZ02b4dkZm8QwqjV7kS9VC5AFpxTgX6QUUkThiJVPbM-fd5Gj8LH_3Z91Ey01haRJWiHoPF-AknkAm6uIm6tmX6Dgei-XqJkjsEwll1nW6do76_cf9a52mUFV7NOuiszY6kaXQUiGvEN2-_JQIlJLKgBHpyIhcocR-Z497CKgArUTaKPSo0GvltHy0gnTdZUDKqMaZdMrkyqCnJJEsuVAFqjRLRC70do_Gl9WZOgZG_NG-NMpAQ6oh26PpdxKPWa7Rl26bZJ4nLF2_nWu6o9GPNHpXcz7QjgdVb3MwX4OLPA97Hkm571uVVnINYY_yEbiulcpcqrDHOb90xp9wTP1Hi3M_8ZOTlY4oo-yuRT9lOf9pYcvcXpHhUKsaLFyAKlgzxLtmvQXWKyhggUPTzZhaN_f3YJwNK39JWbxrStbLFQ45yyszqjfNIXwSzPwGilNUmVsAKpJ1qXE4tNs1cLjDf3DoDJ0BoTZ13SAgvkPo0MJbHPaDQeAQdxQ4tkvMhB8cLPy3TUsGZGSToWPmPNMSxz_8A7BKaYA?type=png)](https://mermaid.live/edit#pako:eNqdlMuO2jAUQH_FMpquAo2dByGqZtFMJRZDNWIQi4ZZOMk1WCQxchy1FPj3OgnDQ4JRNVlY9vU5vrmOnR1OZQY4xEvFNiv0PF2UyDxVnXSBBX6CTS63BZQavWq2hGqBO6Z55vEcVCVk-S1RXx_nLBcZ02b4dkZm8QwqjV7kS9VC5AFpxTgX6QUUkThiJVPbM-fd5Gj8LH_3Z91Ey01haRJWiHoPF-AknkAm6uIm6tmX6Dgei-XqJkjsEwll1nW6do76_cf9a52mUFV7NOuiszY6kaXQUiGvEN2-_JQIlJLKgBHpyIhcocR-Z497CKgArUTaKPSo0GvltHy0gnTdZUDKqMaZdMrkyqCnJJEsuVAFqjRLRC70do_Gl9WZOgZG_NG-NMpAQ6oh26PpdxKPWa7Rl26bZJ4nLF2_nWu6o9GPNHpXcz7QjgdVb3MwX4OLPA97Hkm571uVVnINYY_yEbiulcpcqrDHOb90xp9wTP1Hi3M_8ZOTlY4oo-yuRT9lOf9pYcvcXpHhUKsaLFyAKlgzxLtmvQXWKyhggUPTzZhaN_f3YJwNK39JWbxrStbLFQ45yyszqjfNIXwSzPwGilNUmVsAKpJ1qXE4tNs1cLjDf3DoDJ0BoTZ13SAgvkPo0MJbHPaDQeAQdxQ4tkvMhB8cLPy3TUsGZGSToWPmPNMSxz_8A7BKaYA)
 
 Each stage included automated health checks, error rate monitoring, and validation before proceeding to the next stage. If any stage detected elevated error rates or service degradation, the deployment would halt and automatically rollback to the previous configuration. This progressive rollout strategy prioritized safety over speed, accepting longer recovery time to minimize risk of exacerbating the outage.
 
