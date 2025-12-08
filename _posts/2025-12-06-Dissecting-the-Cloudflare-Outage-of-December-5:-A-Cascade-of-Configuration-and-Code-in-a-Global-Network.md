@@ -24,21 +24,7 @@ The following table outlines the key phases, with all timestamps in UTC:
 
 This timeline reveals propagation as a flashpoint: The buffer change itself was benign and gradual, but the ad-hoc killswitch—intended as a quick fix—propagated instantaneously, amplifying impact. Cloudflare's metrics graphs, as described in their postmortem, depict a stark divergence: unaffected traffic (green line) holds steady at the top, while 500 errors (red) plunge affected segments, correlating with FL1 proxy usage and Managed Ruleset deployment. ThousandEyes data corroborates this, noting timeouts and 5XX errors resolving by ~09:10 UTC, with no latency spikes in front-end paths—indicating a backend processing failure.
 
-To visualize the flow, consider this Mermaid Gantt chart approximating the phases:
-
-```mermaid
-gantt
-    title Cloudflare Outage Timeline - December 5, 2025 (UTC)
-    dateFormat  HH:mm
-    section Deployment
-    Buffer Size Rollout :08:47, 1m
-    Killswitch Activation :08:48, 23m
-    section Detection
-    Alerts & Triage :08:50, 21m
-    section Response
-    Revert Push :09:11, 1m
-    Full Recovery :09:12, 0m
-```
+[![](https://mermaid.ink/img/pako:eNplkMtu2zAQRX9lMIuiBVSDkqxHuEsdBAG6SOC4m0IbVhrZBPgwKDKtY_jfM7JSBGi5Gg7vuXc4Z-z9QChxr1yMnQM-UUdDsDE-DaNRgeAxRbUn2GlLRjuCr3BHPdlfFKDKoBBFBZ9_7DZfFnxQke59sCoCPDxIa5f2RH3U3jF6NP5kyb2nfUvjyEbP-pVg6w2nRpCilesmg_yd_a6NmX7r2B_gll1e1NXpqmp5gPK_iLhUS_vWUIgTfIJd0PM_Zq4SzOX_cFuajt5NtHS39MIcPKXpwMiNzPOPge6TMSzoPUtOy2uRgbCY4T7oAWUMiTK0xGuYr3ieuQ7jgSx1KLkcaFTJxA47d2HsqNxP7-1fMvi0P6AclZn4lo7zUu94-qA-JOQGChufXESZN1cLlGf8g7yVfNXUQty0dS7KWqwzPKGsm1WZF-u6KouyrtuyuGT4es0Uq7apLm9Fj6Ff?type=png)](https://mermaid.live/edit#pako:eNplkMtu2zAQRX9lMIuiBVSDkqxHuEsdBAG6SOC4m0IbVhrZBPgwKDKtY_jfM7JSBGi5Gg7vuXc4Z-z9QChxr1yMnQM-UUdDsDE-DaNRgeAxRbUn2GlLRjuCr3BHPdlfFKDKoBBFBZ9_7DZfFnxQke59sCoCPDxIa5f2RH3U3jF6NP5kyb2nfUvjyEbP-pVg6w2nRpCilesmg_yd_a6NmX7r2B_gll1e1NXpqmp5gPK_iLhUS_vWUIgTfIJd0PM_Zq4SzOX_cFuajt5NtHS39MIcPKXpwMiNzPOPge6TMSzoPUtOy2uRgbCY4T7oAWUMiTK0xGuYr3ieuQ7jgSx1KLkcaFTJxA47d2HsqNxP7-1fMvi0P6AclZn4lo7zUu94-qA-JOQGChufXESZN1cLlGf8g7yVfNXUQty0dS7KWqwzPKGsm1WZF-u6KouyrtuyuGT4es0Uq7apLm9Fj6Ff)
 
 The rapid escalation from deployment (1 minute) to full impact (23 minutes of degradation) highlights why global systems demand "canary" testing, absent here for the killswitch. Pre-outage preparations involved aligning WAF buffers with Next.js defaults (1MB) to scan larger payloads for deserialization exploits in CVE-2025-55182, a CVSS 10.0 remote code execution (RCE) flaw. Detection relied on real-time dashboards, but the 2-minute lag to declaration underscores human-in-the-loop delays in high-velocity incidents.
 
@@ -146,18 +132,8 @@ Cloudflare's anycasted edge deploys configs via a pub-sub model: Changes to the 
 
 Affected: FL1 (legacy, ~28% fleet) + Managed Ruleset (sub-ruleset invocation). Unaffected: China network (isolated peering), DNS (separate resolver), CDN (static caching), Zero Trust (identity plane). Architectural separations—modular microservices—spared silos, but unified config for WAF/FL1 created a monoculture risk.
 
-Mermaid flowchart for propagation:
-
-```mermaid
-flowchart TD
-    A[Control Plane: Killswitch Push] --> B[Gossip Propagation: <1s Global]
-    B --> C[FL1 Edge Nodes: Ruleset Skip]
-    C --> D[Nil rule_result.execute]
-    D --> E[Lua Exception: 500 Error]
-    E --> F[Affected Traffic: 28% HTTP]
-    G[FL2 Nodes] -.->|Unaffected| H[Normal Processing]
-    I[China/DNS/CDN] -.->|Isolated| J[No Impact]
-```
+Flowchart for propagation:
+[![](https://mermaid.ink/img/pako:eNo9j21vmzAUhf_KlaV9SygvCWHWVKkFmmarULRmXwbR5MHlRTM2so2aLc1_n0PY_MnXfs4595xJKSsklNRcvpUtUwYOSSHAnoc8lsIoyWHPmUAKXzrO9Vtnyhb2o26PsFzew2O-lVp3A-yVHFjDTCcFhU-ehi2XPxk_3sweJzjOn148SKsGIbOxmsLXkaNGA6-_umFG4wlN8qzjoOz3D4V65MbBE5ajwZlKJirNX0YG6anE4Ra8dl1IlZJqxtIJe8of6hpLgxUcFKvrrqTgRx_g-XDYz-DWrubftrLFnOX9-zfBZtE7POeZVD3j15Yl2r6imXW7PG47we6S7PUuTrJZu9OSs0n52Sph1w-sNEeyII3qKkKNGnFBerSW15Gcr14FMS32WBBqrxXWzJYuSCEuVjYw8V3K_p9SybFpCa0Z13Yah8pmJR1rFOv_vyoUFapYjsIQ6nuTB6FnciJ0FXnOJnTdj1HouUHorhbkN6Hhxgk8fxWuAz8IwyjwLwvyZwp1nWizvvwFFAWtgg?type=png)](https://mermaid.live/edit#pako:eNo9j21vmzAUhf_KlaV9SygvCWHWVKkFmmarULRmXwbR5MHlRTM2so2aLc1_n0PY_MnXfs4595xJKSsklNRcvpUtUwYOSSHAnoc8lsIoyWHPmUAKXzrO9Vtnyhb2o26PsFzew2O-lVp3A-yVHFjDTCcFhU-ehi2XPxk_3sweJzjOn148SKsGIbOxmsLXkaNGA6-_umFG4wlN8qzjoOz3D4V65MbBE5ajwZlKJirNX0YG6anE4Ra8dl1IlZJqxtIJe8of6hpLgxUcFKvrrqTgRx_g-XDYz-DWrubftrLFnOX9-zfBZtE7POeZVD3j15Yl2r6imXW7PG47we6S7PUuTrJZu9OSs0n52Sph1w-sNEeyII3qKkKNGnFBerSW15Gcr14FMS32WBBqrxXWzJYuSCEuVjYw8V3K_p9SybFpCa0Z13Yah8pmJR1rFOv_vyoUFapYjsIQ6nuTB6FnciJ0FXnOJnTdj1HouUHorhbkN6Hhxgk8fxWuAz8IwyjwLwvyZwp1nWizvvwFFAWtgg)
 
 ### Related Vulnerabilities and Context
 
