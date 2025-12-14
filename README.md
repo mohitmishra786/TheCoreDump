@@ -1,43 +1,232 @@
-# Chirpy Starter
+<div align="center">
 
-[![Gem Version](https://img.shields.io/gem/v/jekyll-theme-chirpy)][gem]&nbsp;
-[![GitHub license](https://img.shields.io/github/license/cotes2020/chirpy-starter.svg?color=blue)][mit]
+# TheCoreDump
 
-When installing the [**Chirpy**][chirpy] theme through [RubyGems.org][gem], Jekyll can only read files in the folders
-`_data`, `_layouts`, `_includes`, `_sass` and `assets`, as well as a small part of options of the `_config.yml` file
-from the theme's gem. If you have ever installed this theme gem, you can use the command
-`bundle info --path jekyll-theme-chirpy` to locate these files.
+**Raw tech insights, unfiltered.**
 
-The Jekyll team claims that this is to leave the ball in the user’s court, but this also results in users not being
-able to enjoy the out-of-the-box experience when using feature-rich themes.
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://mohitmishra786.github.io/TheCoreDump/)
+[![Jekyll](https://img.shields.io/badge/Jekyll-4.x-blue)](https://jekyllrb.com/)
+[![Theme](https://img.shields.io/badge/Theme-Chirpy-purple)](https://github.com/cotes2020/jekyll-theme-chirpy)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
-To fully use all the features of **Chirpy**, you need to copy the other critical files from the theme's gem to your
-Jekyll site. The following is a list of targets:
+A technical blog focused on deep-dive analysis of distributed systems, cloud infrastructure, database internals, operating systems, and incident post-mortems.
 
-```shell
-.
-├── _config.yml
-├── _plugins
-├── _tabs
-└── index.html
+**[Visit the Blog →](https://mohitmishra786.github.io/TheCoreDump/)**
+
+</div>
+
+---
+
+## Overview
+
+TheCoreDump delivers comprehensive technical content for engineers, architects, and system designers. Each article provides granular technical insights backed by evidence, code examples, and architectural diagrams.
+
+### Content Focus
+
+| Category | Topics |
+|----------|--------|
+| **Cloud Infrastructure** | Azure Front Door, AWS Lambda, distributed systems architecture |
+| **Database Systems** | PostgreSQL internals, MVCC, indexing strategies, performance optimization |
+| **Operating Systems** | Linux kernel, memory management, system calls, concurrency |
+| **Incident Analysis** | Post-mortems of major outages, root cause analysis, lessons learned |
+| **System Design** | Architecture patterns, scalability, reliability engineering |
+
+## Live Site
+
+**[https://mohitmishra786.github.io/TheCoreDump/](https://mohitmishra786.github.io/TheCoreDump/)**
+
+## Technical Stack
+
+- **Static Site Generator**: Jekyll 4.x
+- **Theme**: Chirpy (minimal, responsive, feature-rich)
+- **Hosting**: GitHub Pages
+- **Syntax Highlighting**: Rouge
+- **Diagrams**: Mermaid.js
+- **Analytics**: GoatCounter
+- **PWA**: Progressive Web App support
+
+## Features
+
+- **Dark/Light Mode**: Automatic theme switching based on system preferences
+- **Table of Contents**: Auto-generated TOC for all posts
+- **Syntax Highlighting**: Code blocks with line numbers and language detection
+- **Mermaid Diagrams**: Technical diagrams rendered client-side
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
+- **Search Functionality**: Full-text search across all posts
+- **Tag & Category System**: Organized content discovery
+- **PWA Support**: Installable as a Progressive Web App with offline caching
+
+## Project Structure
+
+```
+TheCoreDump/
+├── _posts/              # Blog posts (Markdown format)
+│   └── YYYY-MM-DD-*.md
+├── _tabs/               # Navigation pages
+│   ├── about.md
+│   ├── archives.md
+│   ├── categories.md
+│   └── tags.md
+├── _data/               # Site data files
+│   ├── authors.yml
+│   ├── contact.yml
+│   └── dashboard.json
+├── _plugins/            # Jekyll plugins
+│   └── posts-lastmod-hook.rb
+├── assets/              # Static assets
+│   ├── images/          # Post images and diagrams
+│   ├── code/            # Code examples
+│   └── data/            # JSON data files
+├── _config.yml          # Site configuration
+└── index.html           # Homepage
 ```
 
-To save you time, and also in case you lose some files while copying, we extract those files/configurations of the
-latest version of the **Chirpy** theme and the [CD][CD] workflow to here, so that you can start writing in minutes.
+## Getting Started
 
-## Usage
+### Prerequisites
 
-Check out the [theme's docs](https://github.com/cotes2020/jekyll-theme-chirpy/wiki).
+- Ruby 2.5 or higher
+- Bundler gem
+- Jekyll 4.x
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/mohitmishra786/TheCoreDump.git
+   cd TheCoreDump
+   ```
+
+2. **Install dependencies**
+   ```bash
+   bundle install
+   ```
+
+3. **Run the development server**
+   ```bash
+   bundle exec jekyll serve
+   ```
+
+4. **Open your browser**
+   Navigate to `http://localhost:4000/TheCoreDump/`
+
+### Building for Production
+
+```bash
+bundle exec jekyll build
+```
+
+The generated site will be in the `_site` directory.
+
+## Writing Posts
+
+### Post Format
+
+Posts are written in Markdown and stored in the `_posts/` directory following the naming convention:
+
+```
+YYYY-MM-DD-Post-Title.md
+```
+
+### Front Matter Template
+
+```yaml
+---
+title: Your Post Title
+date: 2025-01-01 00:00:00 +0000
+categories: [Category Name]
+tags: [tag1, tag2, tag3]
+math: true          # Enable LaTeX math rendering
+mermaid: true       # Enable Mermaid diagrams
+---
+```
+
+### Mermaid Diagrams
+
+The site supports Mermaid diagrams for technical illustrations:
+
+````markdown
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    Client->>Server: Request
+    Server-->>Client: Response
+```
+````
+
+### Code Blocks
+
+Syntax highlighting is automatic based on language tags:
+
+````markdown
+```python
+def hello_world():
+    print("Hello, World!")
+```
+````
+
+## Recent Articles
+
+- **Microsoft Azure Front Door Series**: Comprehensive 5-part series covering architecture, request flows, load balancing, security, and monitoring
+- **The Cloudflare November 18, 2025 Outage**: Deep technical analysis of root causes and lessons learned
+- **PostgreSQL 18**: Asynchronous I/O revolution and next-generation database performance
+- **AWS Lambda Runtime**: Execution model and event loop behavior analysis
+- **PostgreSQL MVCC**: Transaction visibility and garbage collection mechanisms
+
+## Configuration
+
+Key configuration options in `_config.yml`:
+
+| Setting | Value | Description |
+|---------|-------|-------------|
+| `title` | `TheCoreDump` | Site title |
+| `tagline` | `Raw tech insights, unfiltered.` | Site tagline |
+| `baseurl` | `/TheCoreDump` | Base URL path |
+| `timezone` | `Asia/Kolkata` | Site timezone |
+| `paginate` | `10` | Posts per page |
+| `toc` | `true` | Enable table of contents |
 
 ## Contributing
 
-This repository is automatically updated with new releases from the theme repository. If you encounter any issues or want to contribute to its improvement, please visit the [theme repository][chirpy] to provide feedback.
+Contributions are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+### Content Guidelines
+
+- Technical accuracy is paramount
+- Include code examples and diagrams where appropriate
+- Cite sources and references
+- Maintain a professional, objective tone
+- Use Mermaid diagrams for complex technical concepts
+- Follow existing post structure and formatting
 
 ## License
 
-This work is published under [MIT][mit] License.
+This work is published under the [MIT License](LICENSE).
 
-[gem]: https://rubygems.org/gems/jekyll-theme-chirpy
-[chirpy]: https://github.com/cotes2020/jekyll-theme-chirpy/
-[CD]: https://en.wikipedia.org/wiki/Continuous_deployment
-[mit]: https://github.com/cotes2020/chirpy-starter/blob/master/LICENSE
+## Author
+
+**Mohit Mishra**
+
+- **Blog**: [TheCoreDump](https://mohitmishra786.github.io/TheCoreDump/)
+- **GitHub**: [@mohitmishra786](https://github.com/mohitmishra786)
+- **Twitter**: [@chessMan786](https://x.com/chessMan786)
+- **LinkedIn**: [mohitmishraml](https://www.linkedin.com/in/mohitmishraml/)
+- **Email**: dukechessman@gmail.com
+
+## Acknowledgments
+
+- Built with [Jekyll](https://jekyllrb.com/) static site generator
+- Theme: [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy)
+- Diagram rendering: [Mermaid.js](https://mermaid.js.org/)
+- Syntax highlighting: [Rouge](https://github.com/rouge-ruby/rouge)
+
+---
+
+<div align="center">
+
+**For technical insights, architectural deep-dives, and system design analysis**
+
+**[Visit TheCoreDump →](https://mohitmishra786.github.io/TheCoreDump/)**
+
+</div>
