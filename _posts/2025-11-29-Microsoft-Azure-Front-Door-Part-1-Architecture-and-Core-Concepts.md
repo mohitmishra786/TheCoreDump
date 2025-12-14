@@ -1,6 +1,6 @@
 ---
 title: "Microsoft Azure Front Door Part 1: Architecture and Core Concepts"
-date: 2025-11-24 00:00:00 +0530
+date: 2025-11-29 00:00:00 +0530
 categories: [Cloud Infrastructure, Distributed Systems]
 tags: [Azure, Azure Front Door, CDN, Architecture, Control Plane, Data Plane, Global Network, Edge Computing]
 author: mohitmishra786

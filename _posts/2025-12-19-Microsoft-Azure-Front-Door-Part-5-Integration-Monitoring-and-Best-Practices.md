@@ -1,6 +1,6 @@
 ---
 title: "Microsoft Azure Front Door Part 5: Integration, Monitoring, and Best Practices"
-date: 2025-11-28 00:00:00 +0530
+date: 2025-12-19 00:00:00 +0530
 categories: [Cloud Infrastructure, Distributed Systems]
 tags: [Azure, Azure Front Door, Monitoring, Azure Monitor, Terraform, IaC, Best Practices, Troubleshooting, Operations]
 author: mohitmishra786
@@ -34,85 +34,7 @@ When integrating these services, several configuration details require attention
 
 SSL certificate management becomes more complex with two termination points. Organizations can terminate SSL at Azure Front Door and use HTTP to Application Gateway over Azure's private network, or terminate SSL at both layers for end-to-end encryption. The security benefits of dual termination must be weighed against operational complexity and performance overhead.
 
-```plantuml
-@startuml
-!theme plain
-
-title Azure Front Door + Application Gateway Integration
-
-actor "Global Users" as Users
-
-cloud "Azure Front Door" {
-    [Global Edge PoPs] as Edge
-    [WAF - Edge] as WAF_Edge
-    [Global Load Balancer] as GLB
-}
-
-package "Azure Region: US West 2" {
-    rectangle "Virtual Network" {
-        [Application Gateway] as AppGW_US
-        [WAF - Regional] as WAF_Regional_US
-        
-        rectangle "Backend Pool" {
-            [VM Scale Set] as VMSS_US
-            [AKS Cluster] as AKS_US
-        }
-    }
-}
-
-package "Azure Region: West Europe" {
-    rectangle "Virtual Network" {
-        [Application Gateway] as AppGW_EU
-        [WAF - Regional] as WAF_Regional_EU
-        
-        rectangle "Backend Pool" {
-            [VM Scale Set] as VMSS_EU
-            [AKS Cluster] as AKS_EU
-        }
-    }
-}
-
-Users --> Edge
-Edge --> WAF_Edge: First-line defense\nDDoS + WAF
-WAF_Edge --> GLB: Clean traffic
-
-GLB --> AppGW_US: Regional routing\n(US users)
-GLB --> AppGW_EU: Regional routing\n(EU users)
-
-AppGW_US --> WAF_Regional_US: Second-line defense
-WAF_Regional_US --> VMSS_US
-WAF_Regional_US --> AKS_US
-
-AppGW_EU --> WAF_Regional_EU: Second-line defense
-WAF_Regional_EU --> VMSS_EU
-WAF_Regional_EU --> AKS_EU
-
-note right of WAF_Edge
-  Global Layer:
-  - DDoS protection
-  - Global WAF policies
-  - Edge caching
-  - SSL termination
-end note
-
-note right of WAF_Regional_US
-  Regional Layer:
-  - VNet integration
-  - Regional WAF policies
-  - Internal load balancing
-  - Backend health monitoring
-end note
-
-note bottom of VMSS_US
-  Benefits:
-  ✓ Defense in depth
-  ✓ Global + regional failover
-  ✓ Network isolation
-  ✓ Flexibility in SSL termination
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNqlVV1v2jAU_SuW-zjoCBA-oqkSFOjD2qlaFiqtTJVJbiCqiZHjqF_0v-_aJmmgW0tVv9T35pxzr099zRMNRQTUowvJ1kvyazhLCa4sn9tEkIHMrmf0jIs54zac0T8WpVfgXOskqRML2X6CNLKbPb3BZIRqg8dcAplIkSoyEkLuKI6jBVxv6-k9uRSXWeX71WByYzC4wbJ6W_l6dj4syOeCRWTIOEtDkO_09RMWiUhvAr_szmY8EvjkCjJFmjtNlsTpD1CWNk2kyrEsJu6EvN2B6zVYr8-uNBQ3PAmZQnlyxhTcsYc9qD6irc-4ZtiTFpk9cNnKkIW3eD7bzTZA8wR_1Ype0wvf19DpBfFDxoH4oP4BG3w3KPxDTnmeqdLJYpWO7gTv-DwOXvlsTB7nUqzhDacN8TCnEfpBp5HxMadNN4c5jdADnNY9f87pwCH1-omZCpswI4SpzSSRmarzJAUSQQxpBt_m8uvJaCR88kUbsSlHyzKLyLBPObCUKMniOAk3esyqVTE0qMI4IkWuknRhKuAE5frd2JQjcABpHOySxkG1XiFk-D6EIo12TrbZH6GXE1WSxqntHPwfYCfgdXXs8LDqRet7yZfqbwHsrdiZJfWAdwgfUhInnHtH4MRuHNcyJcUteEcNx-3259uwfpdEauk11_dVbvnYbRXiOG5Bo1SAjus0GocoYI9bhRa4sVsqtJnT7oVvKpSXywq0Qxa7Ly00oRu1mrVQcCFNf_vU6j_pkwrlId5ToDX8lUwi6imZQ42uQK6YDumT1p5RtYQVvl0ebvEisJyrGZ2lz0hbs_S3EKuCifd8saRezHiGUb6O8GkaJQzfllWZlTjXIE9FnirqNV2jQb0nek89p-scO03X7fe7Tq_favdr9IF67c5xt9dqd_pOBz91O85zjT6aoo3jXtdtVJbz_BcG2Gqb?type=png)](https://mermaid.live/edit#pako:eNqlVV1v2jAU_SuW-zjoCBA-oqkSFOjD2qlaFiqtTJVJbiCqiZHjqF_0v-_aJmmgW0tVv9T35pxzr099zRMNRQTUowvJ1kvyazhLCa4sn9tEkIHMrmf0jIs54zac0T8WpVfgXOskqRML2X6CNLKbPb3BZIRqg8dcAplIkSoyEkLuKI6jBVxv6-k9uRSXWeX71WByYzC4wbJ6W_l6dj4syOeCRWTIOEtDkO_09RMWiUhvAr_szmY8EvjkCjJFmjtNlsTpD1CWNk2kyrEsJu6EvN2B6zVYr8-uNBQ3PAmZQnlyxhTcsYc9qD6irc-4ZtiTFpk9cNnKkIW3eD7bzTZA8wR_1Ype0wvf19DpBfFDxoH4oP4BG3w3KPxDTnmeqdLJYpWO7gTv-DwOXvlsTB7nUqzhDacN8TCnEfpBp5HxMadNN4c5jdADnNY9f87pwCH1-omZCpswI4SpzSSRmarzJAUSQQxpBt_m8uvJaCR88kUbsSlHyzKLyLBPObCUKMniOAk3esyqVTE0qMI4IkWuknRhKuAE5frd2JQjcABpHOySxkG1XiFk-D6EIo12TrbZH6GXE1WSxqntHPwfYCfgdXXs8LDqRet7yZfqbwHsrdiZJfWAdwgfUhInnHtH4MRuHNcyJcUteEcNx-3259uwfpdEauk11_dVbvnYbRXiOG5Bo1SAjus0GocoYI9bhRa4sVsqtJnT7oVvKpSXywq0Qxa7Ly00oRu1mrVQcCFNf_vU6j_pkwrlId5ToDX8lUwi6imZQ42uQK6YDumT1p5RtYQVvl0ebvEisJyrGZ2lz0hbs_S3EKuCifd8saRezHiGUb6O8GkaJQzfllWZlTjXIE9FnirqNV2jQb0nek89p-scO03X7fe7Tq_favdr9IF67c5xt9dqd_pOBz91O85zjT6aoo3jXtdtVJbz_BcG2Gqb)
 
 ### Azure Private Link Integration
 
@@ -327,87 +249,7 @@ Azure Front Door emits metrics across multiple dimensions. Request metrics inclu
 
 These metrics aggregate across multiple dimensions including endpoint, origin group, origin, and geographic region, enabling detailed analysis of performance patterns and issues.
 
-```plantuml
-@startuml
-!theme plain
-
-title Azure Front Door Monitoring Architecture
-
-package "Azure Front Door" {
-    [Edge PoPs] as Edge
-    [Control Plane] as Control
-    [Data Plane] as Data
-}
-
-package "Azure Monitor" {
-    database "Metrics Store" as Metrics {
-        [Request Metrics]
-        [Latency Metrics]
-        [Backend Health]
-        [Cache Performance]
-    }
-    
-    database "Log Analytics" as Logs {
-        [Access Logs]
-        [WAF Logs]
-        [Health Probe Logs]
-    }
-    
-    [Alert Rules] as Alerts
-    [Workbooks & Dashboards] as Dashboards
-}
-
-package "Notification Channels" {
-    [Email Notifications] as Email
-    [SMS Alerts] as SMS
-    [PagerDuty Integration] as PagerDuty
-    [Webhook Actions] as Webhook
-}
-
-package "Analysis & Response" {
-    [Log Analytics Queries] as Queries
-    [Azure Workbooks] as Workbooks
-    [Power BI Reports] as PowerBI
-}
-
-Edge --> Metrics: Emit metrics\nevery 60 seconds
-Edge --> Logs: Stream logs\nreal-time
-
-Control --> Metrics: Configuration metrics
-Data --> Logs: Request logs
-
-Metrics --> Alerts: Evaluate thresholds
-Logs --> Alerts: Log query alerts
-
-Alerts --> Email: High error rate
-Alerts --> SMS: Service down
-Alerts --> PagerDuty: Critical incidents
-Alerts --> Webhook: Auto-remediation
-
-Logs --> Queries: KQL analysis
-Metrics --> Dashboards: Visualization
-Queries --> Workbooks: Custom views
-Metrics --> PowerBI: Executive reports
-
-note right of Metrics
-  Key Metrics:
-  - Requests/sec
-  - Error rate (4xx, 5xx)
-  - Origin latency (P50, P95, P99)
-  - Cache hit ratio
-  - Healthy backend count
-end note
-
-note right of Logs
-  Log Categories:
-  - Access logs (all requests)
-  - WAF logs (blocked requests)
-  - Health probe results
-  - Performance telemetry
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNqFVW1v4jgQ_iuWV7pP0IVQ3qLTSry0anV0xZbTVTqzH0wyIVYdm7MdWlr638_OWxPYdiPFb_PMeJ7xjP2KAxkC9vFW0V2M_p6uBbKfTjf5wuR6TtZ48pIqQNdKCoPmUqo1_pnj3HcVboG4Bi3lUtcEMwtXkpOiR0tOBdTkc2oocU1DAiLMByee3EnBjFSVN8W84co7GIxigbbgYoRWFgsNsPvu78g9_JeCNqXKCWBxRxbUgAgOHwCmN2RKg0frNboByk18Ip8tyYwGsQ0OqEiqhIqgHoOK7TvjBpGF3DoWtkMTQfnBWA_OWEwWZBIEoHUGPxE-LMjD5PpXkpsFyV1GSyU3cAr5wLUJB2U0yTp0n3LQjSPV8UZSFWryINXjRspHjf6oLf_mkL9LwyIWUMOkcLzrczSLqRDAm_yvEso4ydqmdg2zulsR-xeu1wRLugU1T82BVCN0KwxYZ5yNGvIBNrElQ4oeTYL6Jh_RyY5MM8ekHNpo3IPeWd1mNv5IQTHQpHHS5WrdkTKsJC-Dal6nJZ9ATW9J1qPprd1xJ9-Zn3iblW67_e14lTCDkjzL_9yor99gD-qABh2kIZAi1MeyBk4UV0YBTRC3-ZPp2RlvG5bAMcupHF3eAk7BjiO2TfMol1ueWM8uBgcuC9SZrxvM27K-MwJ7ylNbrcjECnQsuXM5P_Qc7JQzpIuytWrZ0UzchOVtvpLBb9g2RqCUVMj6bGll-XYGW4HaswBQKJ_E0WXdGWKmmD1XyhETAQtBuJ2r1DtDT1Ij2woSCFkWqWOZhnU3K05__VggWmTZscyc8yD9w3RKOXspLL6XZg4t9HJvU21kgvYMnqzFKtN-EfhnCFLD9oBUnmnHMgcbZWEOHNyLgiLGuf8FepEXhS1t0-IR_C_d8XAQesW0_cRCE_ve7rmuW9z5hX4URT3oVPpRfxh0Op_qNy6I0koP-lG_sjLcdCP6uRdVKRc0RlEfxpWB3mgEveBzA_kRlyz6Xt-r1IOBN_JGrUByqTKKuGXfZhZi36gUWjgB-4a4KX51JtfYxDZB1ti3wxAimnKzxmvxZtV2VPwrZVJqKpluY-xHlGs7S3ehzeQ5o_amSqpVZe8GUDOZCoN9b5zZwP4rfsZ-d9i96Hr9_ng87I7GvUsrPGD_cnAxHPUuB-PuwIqGg-5bC79km3YuRsP-2_-wfq3C?type=png)](https://mermaid.live/edit#pako:eNqFVW1v4jgQ_iuWV7pP0IVQ3qLTSry0anV0xZbTVTqzH0wyIVYdm7MdWlr638_OWxPYdiPFb_PMeJ7xjP2KAxkC9vFW0V2M_p6uBbKfTjf5wuR6TtZ48pIqQNdKCoPmUqo1_pnj3HcVboG4Bi3lUtcEMwtXkpOiR0tOBdTkc2oocU1DAiLMByee3EnBjFSVN8W84co7GIxigbbgYoRWFgsNsPvu78g9_JeCNqXKCWBxRxbUgAgOHwCmN2RKg0frNboByk18Ip8tyYwGsQ0OqEiqhIqgHoOK7TvjBpGF3DoWtkMTQfnBWA_OWEwWZBIEoHUGPxE-LMjD5PpXkpsFyV1GSyU3cAr5wLUJB2U0yTp0n3LQjSPV8UZSFWryINXjRspHjf6oLf_mkL9LwyIWUMOkcLzrczSLqRDAm_yvEso4ydqmdg2zulsR-xeu1wRLugU1T82BVCN0KwxYZ5yNGvIBNrElQ4oeTYL6Jh_RyY5MM8ekHNpo3IPeWd1mNv5IQTHQpHHS5WrdkTKsJC-Dal6nJZ9ATW9J1qPprd1xJ9-Zn3iblW67_e14lTCDkjzL_9yor99gD-qABh2kIZAi1MeyBk4UV0YBTRC3-ZPp2RlvG5bAMcupHF3eAk7BjiO2TfMol1ueWM8uBgcuC9SZrxvM27K-MwJ7ylNbrcjECnQsuXM5P_Qc7JQzpIuytWrZ0UzchOVtvpLBb9g2RqCUVMj6bGll-XYGW4HaswBQKJ_E0WXdGWKmmD1XyhETAQtBuJ2r1DtDT1Ij2woSCFkWqWOZhnU3K05__VggWmTZscyc8yD9w3RKOXspLL6XZg4t9HJvU21kgvYMnqzFKtN-EfhnCFLD9oBUnmnHMgcbZWEOHNyLgiLGuf8FepEXhS1t0-IR_C_d8XAQesW0_cRCE_ve7rmuW9z5hX4URT3oVPpRfxh0Op_qNy6I0koP-lG_sjLcdCP6uRdVKRc0RlEfxpWB3mgEveBzA_kRlyz6Xt-r1IOBN_JGrUByqTKKuGXfZhZi36gUWjgB-4a4KX51JtfYxDZB1ti3wxAimnKzxmvxZtV2VPwrZVJqKpluY-xHlGs7S3ehzeQ5o_amSqpVZe8GUDOZCoN9b5zZwP4rfsZ-d9i96Hr9_ng87I7GvUsrPGD_cnAxHPUuB-PuwIqGg-5bC79km3YuRsP-2_-wfq3C)
 
 **Log Collection:**
 

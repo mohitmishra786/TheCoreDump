@@ -1,6 +1,6 @@
 ---
 title: "Microsoft Azure Front Door Part 4: Security and Performance Optimization"
-date: 2025-11-27 00:00:00 +0530
+date: 2025-12-11 00:00:00 +0530
 categories: [Cloud Infrastructure, Distributed Systems]
 tags: [Azure, Azure Front Door, WAF, DDoS Protection, Security, Caching, Compression, Performance, OWASP]
 author: mohitmishra786
@@ -30,77 +30,7 @@ The WAF engine operates in phases. Custom rules evaluate first, enabling organiz
 
 Each rule phase can take different actions based on match results. Allow actions permit requests to continue processing through subsequent phases and routing logic. Block actions immediately terminate processing, returning HTTP 403 Forbidden responses without backend involvement. Log actions record matches without blocking, useful for monitoring and rule tuning before enforcement. Redirect actions return HTTP 302 responses directing clients to alternative URLs.
 
-```plantuml
-@startuml
-!theme plain
-
-title WAF Request Processing Pipeline
-
-start
-
-:Client Request Arrives;
-:Protocol Parsing\n(HTTP headers/body);
-
-partition "WAF Evaluation" {
-    
-    :Evaluate Custom Rules;
-    if (Custom Rule Match?) then (block)
-        :Return HTTP 403;
-        stop
-    else (allow/log)
-        :Continue;
-    endif
-    
-    :Evaluate Managed Rules\n(OWASP CRS);
-    if (OWASP Rule Match?) then (block)
-        :Log to Azure Monitor;
-        :Return HTTP 403\nWith Rule ID;
-        stop
-    else (allow/log)
-        :Continue;
-    endif
-    
-    if (Premium Tier?) then (yes)
-        :Evaluate Bot Protection;
-        if (Bot Detected?) then (challenge)
-            :Return CAPTCHA\nor JS Challenge;
-            stop
-        else (legitimate)
-            :Continue;
-        endif
-    endif
-    
-    :Check Rate Limiting;
-    if (Rate Exceeded?) then (yes)
-        :Return HTTP 429;
-        stop
-    else (within limits)
-        :Continue;
-    endif
-}
-
-:Routing Rule Evaluation;
-:Backend Selection;
-:Forward to Backend;
-
-stop
-
-note right of "WAF Evaluation"
-  WAF processing occurs at edge
-  before backend routing
-  
-  Blocked requests never reach
-  backends, reducing attack surface
-  
-  Rule evaluation is sequential:
-  1. Custom rules
-  2. Managed rules (OWASP)
-  3. Bot protection
-  4. Rate limiting
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNqVVOtvmzAQ_1cs78sqpQ8gL9DUKaObtmnVoiZSpZFqcuEgqAZnxvSxNP_7jLF5pFHV8QH7zve7x-_O3uKQRYA9HFP2EK4JF2h5scqR_BZCSu8Dn6aQC3QFf0ooBJpxnt5DcXOEjo_P0ZzwAoI5Z4KFjCoxzZMPt_z0_OtyOUdrIBHw4vSWRU83tdv6r4DKxfXsy-d7QrdyRdWmJCJl-a5rrE2UuV8WgmVXJYUi0OaglUhpdZiOXQd3SUS43nbMkdJ83HVBSlWBnm8pC--eZe2i5PnwzPltBfUeqeqkRkfrWKhoC8E21vugWm6ODvsmVDJ-SlnyjHyWizQvwQrMrsdVc6xcX5KcJBDtMaC1NQWK_5_Xs8Uc-VcL7auLU45-Lq5n85qQ2vYlH61Jl44fLLlkeSoYD-QWCYZmf0suobVSx2utVLSWIXufQ5XudSrWdQbfLl6Qajek2n1S9xI8wKn9Oqe15zmHLC2zZQp8q_eoEgwPnXMV5wmKZ_SJiWrwIazmte2EVKNWf3PYQc7kVEnrH2mWisBfQ3inZKQU8gr1ku1FUglLzQVUCoi2VUAjmIQ75yqevNmUQp6AGWafbCRpxLTCn82X_teZ6oRs2PcF8g2i1wwNa9rh9NuxH5ZCIqvJZGFtQ5zXG-LU02K40cGN2Bx-fgwBIlm9Ys1IpvyuRdswPU-22x9A2-3Pm-025Q375b1w-yCHNs0RrVIr2hKHr5c4rKtgZdXoQK_17LcPoMlJn6qmk_AO8mgBVDIcaAnVYovoWSncF8YfCI8CvVYXVhtpiDkwZY_6Zdf_QjzJBM1THKeUeu_iOHbgbFAIzu5AiqNJeGbE44c0EmvP3jx28d1nufYBTmzHUePDcifjyO5Ceg_XGzH9G_NGUDtlbwV0Xn1DSBhFdgMJx_bUnh6G2P8HMTevId4Nh3vEH4gjZ_mNUcwM1ObhFMah25g70yk4IR7ghKcR9gQvYYAz4BmpRLytHK2wWEMGK-zJbQQxKalY4VW-k7ANyX8xlhkkZ2Wyxl5MaCGlchNJ4i9SknCSNVouxxO4z8pcYM9ylA_sbfGjlCbWiWWPRq47saauM3QH-Al7w_HJZOoMx641lkeTsbUb4L8q6NnJdDLa_QOD9u7o?type=png)](https://mermaid.live/edit#pako:eNqVVOtvmzAQ_1cs78sqpQ8gL9DUKaObtmnVoiZSpZFqcuEgqAZnxvSxNP_7jLF5pFHV8QH7zve7x-_O3uKQRYA9HFP2EK4JF2h5scqR_BZCSu8Dn6aQC3QFf0ooBJpxnt5DcXOEjo_P0ZzwAoI5Z4KFjCoxzZMPt_z0_OtyOUdrIBHw4vSWRU83tdv6r4DKxfXsy-d7QrdyRdWmJCJl-a5rrE2UuV8WgmVXJYUi0OaglUhpdZiOXQd3SUS43nbMkdJ83HVBSlWBnm8pC--eZe2i5PnwzPltBfUeqeqkRkfrWKhoC8E21vugWm6ODvsmVDJ-SlnyjHyWizQvwQrMrsdVc6xcX5KcJBDtMaC1NQWK_5_Xs8Uc-VcL7auLU45-Lq5n85qQ2vYlH61Jl44fLLlkeSoYD-QWCYZmf0suobVSx2utVLSWIXufQ5XudSrWdQbfLl6Qajek2n1S9xI8wKn9Oqe15zmHLC2zZQp8q_eoEgwPnXMV5wmKZ_SJiWrwIazmte2EVKNWf3PYQc7kVEnrH2mWisBfQ3inZKQU8gr1ku1FUglLzQVUCoi2VUAjmIQ75yqevNmUQp6AGWafbCRpxLTCn82X_teZ6oRs2PcF8g2i1wwNa9rh9NuxH5ZCIqvJZGFtQ5zXG-LU02K40cGN2Bx-fgwBIlm9Ys1IpvyuRdswPU-22x9A2-3Pm-025Q375b1w-yCHNs0RrVIr2hKHr5c4rKtgZdXoQK_17LcPoMlJn6qmk_AO8mgBVDIcaAnVYovoWSncF8YfCI8CvVYXVhtpiDkwZY_6Zdf_QjzJBM1THKeUeu_iOHbgbFAIzu5AiqNJeGbE44c0EmvP3jx28d1nufYBTmzHUePDcifjyO5Ceg_XGzH9G_NGUDtlbwV0Xn1DSBhFdgMJx_bUnh6G2P8HMTevId4Nh3vEH4gjZ_mNUcwM1ObhFMah25g70yk4IR7ghKcR9gQvYYAz4BmpRLytHK2wWEMGK-zJbQQxKalY4VW-k7ANyX8xlhkkZ2Wyxl5MaCGlchNJ4i9SknCSNVouxxO4z8pcYM9ylA_sbfGjlCbWiWWPRq47saauM3QH-Al7w_HJZOoMx641lkeTsbUb4L8q6NnJdDLa_QOD9u7o)
 
 **Request Components Inspected:**
 
@@ -126,78 +56,7 @@ False positive handling typically involves several strategies. Rule exclusions d
 
 Azure Front Door provides detailed logging of WAF matches including matched rule identifiers, request details, and match locations within requests. This logging enables systematic false positive investigation, identifying patterns in blocked legitimate traffic for targeted exclusion rules.
 
-```plantuml
-@startuml
-!theme plain
-
-title WAF Rule Evaluation and Tuning Process
-
-actor "Legitimate User" as User
-participant "Azure Front Door\nWAF" as WAF
-participant Backend
-database "Azure Monitor\nLogs" as Logs
-
-== Initial Deployment (Detection Mode) ==
-
-User -> WAF: POST /api/update\ndata: <product>Item</product>
-WAF -> WAF: Evaluate OWASP rules\nMatch: XSS detection\n(< and > characters)
-WAF -> Logs: Log WAF match\nRule: 941xxx\nMode: Detection
-WAF -> Backend: Forward request\n(not blocked)
-Backend -> User: Success response
-
-note right
-  Detection mode logs matches
-  without blocking, enabling
-  rule validation
-end note
-
-== Analysis Phase ==
-
-Logs -> Logs: Analyze matches\nIdentify pattern:\n"<product>" field\nlegitimately contains XML
-
-note right of Logs
-  Security team reviews logs:
-  
-  Finding: Rule 941xxx triggers on
-  valid XML in product field
-  
-  Decision: Create exclusion rule
-  for product field
-end note
-
-== Exclusion Rule Creation ==
-
-activate WAF
-WAF -> WAF: Add exclusion rule:\nPath: /api/update\nField: product field\nExclude from: Rule 941xxx
-deactivate WAF
-
-== Production with Exclusions ==
-
-User -> WAF: POST /api/update\ndata: <product>Item</product>
-WAF -> WAF: Evaluate OWASP rules\nExclusion applied\nSkip Rule 941xxx for product field
-WAF -> Backend: Forward request
-Backend -> User: Success response
-
-note right
-  Legitimate traffic flows
-  while protection remains
-  for other fields
-end note
-
-== Actual Attack Blocked ==
-
-User -> WAF: POST /api/update\ncomment: <script>alert('XSS')</script>
-WAF -> WAF: Evaluate OWASP rules\nMatch: XSS in comment field\nNo exclusion applies
-WAF -> Logs: Log blocked request\nRule: 941xxx\nAction: Block
-WAF -> User: HTTP 403 Forbidden
-
-note right
-  Attacks in non-excluded
-  fields still blocked
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNrNVl1v0zAU_SuWn8ugrFvXPCCVjQqkDSo6NIT6Yuyb1MKxg-1s7ab9d67ttM3WdEPAA32IGvvcD59z73XuKDcCaEYd_KxBcziTrLCsnGuCv4pZL7msmPbkiwNLmCPnUEgvS-YhLu0Cr8aTgBvf1hbIxBpcOjPGhvVd8FvGf4AWuxvnpnBbNxdGS48-wmrCpudHg2mYa8ws5NIL2xn5gFjJFDmDSplVCSEB8MC9NBo9CWh7CHYv3rzB5DIy_TS7JC9ZJV_WlcADdsXICO4wwvFYTGpHKmtEzT0BBSFSMkFva5_vrpmqA1mfrsazKbG1AvfYbwReMM8X5OtsRsQ62U7c6YJZxj1Y1wBBtIMmCvAZdSiD08duEuQzZkJGg_5yuewGBKa2xLVjNKJlZGLsDbOC2FA8znfmq40n35VBiybPxhr9JD5nNefgHDpxldEOdvS1slh4YvLkbytlGRJUoU7iMR_w-tDmRvqFqZs8pC6ItyzPJX-2lMaaqZWTjkwX7GFmYX9Dd4TdQkceLT4_CKwPma-wzD3Kp7tR63rKJShB1KbZ1KobvynErxfnxHmLttgw-zlMVjPgtZV-RTywEpm_lnDjIpf7bSZSi8BdLByPm0WoQdQBK1yKEH-_7Rlw6YJmpxZCM8CSq9ptyuoJBd6tkSlutH9kh90gr4PXzYRp9d9YiG202H6dVTplfvFU60fQJGrSKNSJiNliVe40l4DdLJ849TTFCCmH2t2y4P7L2bUViVWVkutOf4Sa_ZBVYibHUf6Axt-ZK385N1r3VtP9JFfmZv_QQA3Wk8ZCGQmLGsLzUwN7EO-fsfeYMnnbHn5_Khw3ZbzINto5bmXliWfFv7hypN5EiIOnE_7RtDopCe26r55m3u-7F37zAhon8iN_7TiJkfeXl1MyeHUYiuW7FDhcnymAJIcLZ9VGv4DUqmIvPhKBRHup1PpEtEcLKwXNcNBCj5ZgsTDwld4FN3PqF9hJc5rhXwE5q5Wf07m-RzP8qPlmTLm2tKYuFjTLmXL4lpRvPr02qxarHeypqbWnWX8YfdDsji7DW_-g__roaDQa9k9Gh4NRj65oNjg-GJ4cDo5H_WPcGh7373v0NgZ9dXAyPLr_BbDxQTo?type=png)](https://mermaid.live/edit#pako:eNrNVl1v0zAU_SuWn8ugrFvXPCCVjQqkDSo6NIT6Yuyb1MKxg-1s7ab9d67ttM3WdEPAA32IGvvcD59z73XuKDcCaEYd_KxBcziTrLCsnGuCv4pZL7msmPbkiwNLmCPnUEgvS-YhLu0Cr8aTgBvf1hbIxBpcOjPGhvVd8FvGf4AWuxvnpnBbNxdGS48-wmrCpudHg2mYa8ws5NIL2xn5gFjJFDmDSplVCSEB8MC9NBo9CWh7CHYv3rzB5DIy_TS7JC9ZJV_WlcADdsXICO4wwvFYTGpHKmtEzT0BBSFSMkFva5_vrpmqA1mfrsazKbG1AvfYbwReMM8X5OtsRsQ62U7c6YJZxj1Y1wBBtIMmCvAZdSiD08duEuQzZkJGg_5yuewGBKa2xLVjNKJlZGLsDbOC2FA8znfmq40n35VBiybPxhr9JD5nNefgHDpxldEOdvS1slh4YvLkbytlGRJUoU7iMR_w-tDmRvqFqZs8pC6ItyzPJX-2lMaaqZWTjkwX7GFmYX9Dd4TdQkceLT4_CKwPma-wzD3Kp7tR63rKJShB1KbZ1KobvynErxfnxHmLttgw-zlMVjPgtZV-RTywEpm_lnDjIpf7bSZSi8BdLByPm0WoQdQBK1yKEH-_7Rlw6YJmpxZCM8CSq9ptyuoJBd6tkSlutH9kh90gr4PXzYRp9d9YiG202H6dVTplfvFU60fQJGrSKNSJiNliVe40l4DdLJ849TTFCCmH2t2y4P7L2bUViVWVkutOf4Sa_ZBVYibHUf6Axt-ZK385N1r3VtP9JFfmZv_QQA3Wk8ZCGQmLGsLzUwN7EO-fsfeYMnnbHn5_Khw3ZbzINto5bmXliWfFv7hypN5EiIOnE_7RtDopCe26r55m3u-7F37zAhon8iN_7TiJkfeXl1MyeHUYiuW7FDhcnymAJIcLZ9VGv4DUqmIvPhKBRHup1PpEtEcLKwXNcNBCj5ZgsTDwld4FN3PqF9hJc5rhXwE5q5Wf07m-RzP8qPlmTLm2tKYuFjTLmXL4lpRvPr02qxarHeypqbWnWX8YfdDsji7DW_-g__roaDQa9k9Gh4NRj65oNjg-GJ4cDo5H_WPcGh7373v0NgZ9dXAyPLr_BbDxQTo)
 
 ### Custom Rules and Application-Specific Protection
 
@@ -251,84 +110,7 @@ Common network-layer attacks mitigated include UDP flood attacks overwhelming ta
 
 When attacks are detected, scrubbing centers apply filtering rules that drop attack traffic while allowing legitimate traffic through. The filtering updates propagate globally within seconds, protecting all Azure Front Door edge locations simultaneously. Attack traffic is absorbed at scrubbing centers, never reaching application infrastructure or consuming backend capacity.
 
-```plantuml
-@startuml
-!theme plain
-
-title Multi-Layer DDoS Protection Architecture
-
-package "Internet Attackers" {
-    [Botnet] as Botnet
-    [Reflection\nAmplifiers] as Amplifiers
-    [Application\nLayer Attackers] as AppAttackers
-}
-
-package "Microsoft Network Edge" {
-    
-    rectangle "Layer 3/4 Scrubbing Centers" {
-        [Traffic Analysis] as L3Analysis
-        [Anomaly Detection] as L3Detection
-        [Filtering Rules] as L3Filter
-    }
-    
-    rectangle "Azure Front Door PoPs" {
-        [WAF Engine] as WAF
-        [Rate Limiting] as RateLimit
-        [L7 Anomaly Detection] as L7Detection
-    }
-}
-
-package "Backend Infrastructure" {
-    [Application Servers] as Backend
-    [Databases] as DB
-}
-
-Botnet -down-> L3Analysis: UDP/SYN Floods\n(100+ Gbps)
-Amplifiers -down-> L3Analysis: Reflection Attacks\n(1+ Tbps potential)
-
-L3Analysis -> L3Detection: Traffic patterns
-L3Detection -> L3Filter: Attack signatures
-L3Filter -down-> WAF: Clean traffic only\n(Attack traffic dropped)
-
-note right of L3Filter
-  Layer 3/4 Protection:
-  - UDP flood mitigation
-  - SYN flood protection
-  - Reflection attack filtering
-  
-  Capacity: Terabit-scale
-  Latency: <10ms added
-end note
-
-AppAttackers -down-> WAF: HTTP Floods\nSlowloris\nApplication Exploits
-
-WAF -> RateLimit: Check request rates
-RateLimit -> L7Detection: Analyze patterns
-L7Detection -down-> Backend: Legitimate traffic only
-
-note right of WAF
-  Layer 7 Protection:
-  - WAF rule enforcement
-  - Rate limiting per IP
-  - Bot detection
-  - Behavioral analysis
-end note
-
-Backend -> DB: Normal operations
-DB -> Backend: Data access
-
-note bottom of Backend
-  Backend protected by
-  multiple security layers:
-  
-  Layer 3/4: Network floods
-  Layer 7: Application attacks
-  WAF: Exploits and bots
-  Rate Limits: Abuse prevention
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNp9VV1v2jAU_SuW97JptCUJJBBNk6ApWyU2ocI0bbAHx3GoVceOHGctK_3vs-OQBNgaCfD9ONfn-h6HZ4hFQmAItxLl92A13XCgn6KMrWOiFMIPRBbrDbzlikhOVOvcwF823zxToXRwbX86_kmWM5pSU-OOpIxgRQX_EMurj22km57n7abaYBSjBjFHOyLb_WsY4YldnJD_srxJtkQz_0KxFIVIFfhK1KOQD8AEjtg3oLk3H2iI3cm7GoAllmUcU74F18ScwHHX5pl7E47YrqDFeiVRmlIMDo6zzIgoewLrCReZTgKN5yx3Rpneb21_DIG7kpFuyabxtvnj6c2ihe5l8qeUBMyk4ApEQkiwEIvzLr5PZmv9ATd8Szk5Cd4hReY0o2ptVqBaakanlIO2vXkAXuuwof6_4U3NiHmi6dcrcMtTiQolS6x0P0f8tU6WRP4-kQyofZ3EaLp-GyGFYlSQ4t2_9WMVDC4uPu6_RYur5Y-vYMaESIpKgk6__x58ivNi35m7BbZ6rsCt2mvF1gXeg5WGg1worSeK2Hkh-916Tbmudg7xxlEnWKUcotaqqFwzgjhQtTgFZzt7AStajT-RIs9JsjdS6BLpXsmq3OfVatE9kyUTj0xIaq3uBG6eciaoKs5qGqUZ0o2wrLsxbUfBacvBUcv7OdlqHWZGkt3m9h1BnDRSe6vyUf22i6aV-W9MoXaMVG8FkFLGwjdpipPE7WkhigcSvsG-O3JHtXnxSBN1H7r5UxdsrmEDTj3Sb8DpMMD9_qvgg_otHo-Ij8cN3huNiIdfxTc6sAVIOvSGLYE4cLCDe1jo8VXsulAzowNtFLh-gyL-UF-D_6A6h2zBvh_HPmrALgkSz-2AYU__-9AEhvpqkx7MiMyQMeGzKbuB6p5k-rqHepmQFJVMbeCGv2hYjvhPIbIDUopyew_DFLFCW2WeaF1EFOn3SdZ4pT5LIq9FyRUMXaeqAcNn-ARDJ3AuHXc4HI8DZzT2BuMe3MFw4F8GI2_gjx1fhwLfeenBP9Wm_ctRMHz5C5DaTGA?type=png)](https://mermaid.live/edit#pako:eNp9VV1v2jAU_SuW97JptCUJJBBNk6ApWyU2ocI0bbAHx3GoVceOHGctK_3vs-OQBNgaCfD9ONfn-h6HZ4hFQmAItxLl92A13XCgn6KMrWOiFMIPRBbrDbzlikhOVOvcwF823zxToXRwbX86_kmWM5pSU-OOpIxgRQX_EMurj22km57n7abaYBSjBjFHOyLb_WsY4YldnJD_srxJtkQz_0KxFIVIFfhK1KOQD8AEjtg3oLk3H2iI3cm7GoAllmUcU74F18ScwHHX5pl7E47YrqDFeiVRmlIMDo6zzIgoewLrCReZTgKN5yx3Rpneb21_DIG7kpFuyabxtvnj6c2ihe5l8qeUBMyk4ApEQkiwEIvzLr5PZmv9ATd8Szk5Cd4hReY0o2ptVqBaakanlIO2vXkAXuuwof6_4U3NiHmi6dcrcMtTiQolS6x0P0f8tU6WRP4-kQyofZ3EaLp-GyGFYlSQ4t2_9WMVDC4uPu6_RYur5Y-vYMaESIpKgk6__x58ivNi35m7BbZ6rsCt2mvF1gXeg5WGg1worSeK2Hkh-916Tbmudg7xxlEnWKUcotaqqFwzgjhQtTgFZzt7AStajT-RIs9JsjdS6BLpXsmq3OfVatE9kyUTj0xIaq3uBG6eciaoKs5qGqUZ0o2wrLsxbUfBacvBUcv7OdlqHWZGkt3m9h1BnDRSe6vyUf22i6aV-W9MoXaMVG8FkFLGwjdpipPE7WkhigcSvsG-O3JHtXnxSBN1H7r5UxdsrmEDTj3Sb8DpMMD9_qvgg_otHo-Ij8cN3huNiIdfxTc6sAVIOvSGLYE4cLCDe1jo8VXsulAzowNtFLh-gyL-UF-D_6A6h2zBvh_HPmrALgkSz-2AYU__-9AEhvpqkx7MiMyQMeGzKbuB6p5k-rqHepmQFJVMbeCGv2hYjvhPIbIDUopyew_DFLFCW2WeaF1EFOn3SdZ4pT5LIq9FyRUMXaeqAcNn-ARDJ3AuHXc4HI8DZzT2BuMe3MFw4F8GI2_gjx1fhwLfeenBP9Wm_ctRMHz5C5DaTGA)
 
 ### Layer 7 Application Layer Attack Protection
 
@@ -384,88 +166,7 @@ URL path distinguishes different resources, making /index.html and /about.html s
 
 This multi-component key ensures correct responses while maximizing cache hit rates. Including unnecessary components reduces hit rates by creating separate entries for functionally identical content. Excluding necessary components causes incorrect responses when content varies based on excluded components.
 
-```plantuml
-@startuml
-!theme plain
-
-title Cache Key Calculation and Lookup Process
-
-start
-
-:Incoming Request;
-:Parse Request\nComponents;
-
-partition "Cache Key Calculation" {
-    :Extract URL Path\n(/api/products);
-    
-    :Check Query String Config;
-    if (Query String Mode?) then (include all)
-        :Add full query string\n(?category=electronics&sort=price);
-    else if (include specified) then
-        :Add specified params\n(?category=electronics);
-    else (ignore)
-        :Omit query string;
-    endif
-    
-    :Add Host Header\n(www.example.com);
-    
-    :Check Accept-Encoding\n(gzip, br);
-    :Add encoding to key;
-    
-    :Compute Cache Key Hash\nSHA256(all components);
-}
-
-:Lookup in Cache;
-
-if (Cache Hit?) then (yes)
-    :Check Freshness\n(TTL expired?);
-    
-    if (Still Fresh?) then (yes)
-        :Serve from Cache;
-        :Update LRU position;
-        stop
-    else (expired)
-        :Conditional Request\nto Backend\nIf-Modified-Since;
-        
-        if (Backend: 304\nNot Modified?) then (yes)
-            :Refresh TTL;
-            :Serve from Cache;
-            stop
-        else (200 new content)
-            :Update Cache Entry;
-            :Serve New Content;
-            stop
-        endif
-    endif
-    
-else (miss)
-    :Request from Backend;
-    :Evaluate Cacheability;
-    
-    if (Cacheable?) then (yes)
-        :Store in Cache;
-        :Set TTL from headers;
-    endif
-    
-    :Serve to Client;
-    stop
-endif
-
-note right of "Cache Key Calculation"
-  Cache key components:
-  
-  1. URL path (always)
-  2. Query string (configurable)
-  3. Host header
-  4. Accept-Encoding
-  5. Custom vary headers
-  
-  Different combinations create
-  separate cache entries
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNqNVVuP2jgU_itWVqpaCRjul2jb0ex0VlSddtth-rJhHoxzAhYhTh2nQGH--9rHTkgoHS0PcC4-3_nOxebgMRGC53tRLLZsRaUij-_nCdGfmdLa6-BDwsSGJ0vyAN9zyNTTG9JsviNfqMwgwO_C8-dCXr27FZtUJJCo7MnC2G970ATeUraCj7A_oEC0pE0xy2OquEieq0HFUYz79nD_hapVcLdTkjJldGIMmPWKpvwqlSLM2VliF4YQX3OQ-0-63gNKukJpCjOWa5e4PGICjjxhca5lGsdHchOG6A20QKI8jsl3RMkQBWlcM6pgKeT-LcTAlBQJZ9mrTEj1NpWcwdNLSbIUGI84hJhqVmiYrvSRlEq6yX6f7XKKZSIkHMk_G65sDUaq8a81rSgVu6aVqchU6SmZ_eot8asuLMAIZAo0BInct9ttC3Z0k8bQ0vt1nh2P47asgK3v9AqGmmOAGrlhDFLVLKyIt_zJ0wZZSAdUCyvIlDCGEBROJcga9ucEarFmp3MFU5qtAieT0_YaM3KYTW-6g6FZFsIu34IKEALfC7HO04P9ITyxqLU74HxmijbllKujre9vCdnqYHuCcgKZ3YzHx3sCu5RLCK_rN6qMQ8SZ4pos6kcyA_kDMEcYoEwiKTaWkquicsTeyTTUK3j_8C2wEtEiSUXGzVV2MeUZjLhLws7rYKZE-vTmBWKOvC5UJCGi0TioyLUnR0_wL8rWkISofoiaevFxQ5szfbngbAQnEEPIRfba_YMTfaIVRPosFCmgij6eziPRPWRHTSYyzHXXAycSLbu0Jyfmq7Sw-z_a3C261r3UtTMy3XabJLDV25covXtH13tEKiZkl-guUXJfG5C1lww_w9ax05JpmgGs0jNmR613idove_uJZ9gqnJsjHjjVtsAZy75VT9pcP2iMYAcj5WU5dMFjrva1TS_PnijQRazfQE1VupagWF67orrS77qhzFz1j5mpJbrCdywr26Hqw4257tXvuZitqvI5xbiO6322em0d0FK0vH-p5Znax3D604z03fb_iKKoB-2GfuTFGrQ6GLF2oTa3PFQrv5vuqgBucjYcelE3CsvwzmQ0DLsvhlffCIvBxjBkkxKjNx5Dj1VDqhtYsAa26J1YR8Oo3a5lOU3phQiv4S0lDz1fyRwa3gbkhhrVOxisuadWsIG552sxhIjmsZp78-RZh6U0-VeITREpRb5ceX5E40xrOfJ9z-lS_xeXVqnXFOStyBPl-QOE8PyDt_P8zqjT6nQHg8lk1BlPev1Jw9t7fn_YGo17_eGkM9Su0bDz3PB-Ys52azwaPP8HIbYtlA?type=png)](https://mermaid.live/edit#pako:eNqNVVuP2jgU_itWVqpaCRjul2jb0ex0VlSddtth-rJhHoxzAhYhTh2nQGH--9rHTkgoHS0PcC4-3_nOxebgMRGC53tRLLZsRaUij-_nCdGfmdLa6-BDwsSGJ0vyAN9zyNTTG9JsviNfqMwgwO_C8-dCXr27FZtUJJCo7MnC2G970ATeUraCj7A_oEC0pE0xy2OquEieq0HFUYz79nD_hapVcLdTkjJldGIMmPWKpvwqlSLM2VliF4YQX3OQ-0-63gNKukJpCjOWa5e4PGICjjxhca5lGsdHchOG6A20QKI8jsl3RMkQBWlcM6pgKeT-LcTAlBQJZ9mrTEj1NpWcwdNLSbIUGI84hJhqVmiYrvSRlEq6yX6f7XKKZSIkHMk_G65sDUaq8a81rSgVu6aVqchU6SmZ_eot8asuLMAIZAo0BInct9ttC3Z0k8bQ0vt1nh2P47asgK3v9AqGmmOAGrlhDFLVLKyIt_zJ0wZZSAdUCyvIlDCGEBROJcga9ucEarFmp3MFU5qtAieT0_YaM3KYTW-6g6FZFsIu34IKEALfC7HO04P9ITyxqLU74HxmijbllKujre9vCdnqYHuCcgKZ3YzHx3sCu5RLCK_rN6qMQ8SZ4pos6kcyA_kDMEcYoEwiKTaWkquicsTeyTTUK3j_8C2wEtEiSUXGzVV2MeUZjLhLws7rYKZE-vTmBWKOvC5UJCGi0TioyLUnR0_wL8rWkISofoiaevFxQ5szfbngbAQnEEPIRfba_YMTfaIVRPosFCmgij6eziPRPWRHTSYyzHXXAycSLbu0Jyfmq7Sw-z_a3C261r3UtTMy3XabJLDV25covXtH13tEKiZkl-guUXJfG5C1lww_w9ax05JpmgGs0jNmR613idove_uJZ9gqnJsjHjjVtsAZy75VT9pcP2iMYAcj5WU5dMFjrva1TS_PnijQRazfQE1VupagWF67orrS77qhzFz1j5mpJbrCdywr26Hqw4257tXvuZitqvI5xbiO6322em0d0FK0vH-p5Znax3D604z03fb_iKKoB-2GfuTFGrQ6GLF2oTa3PFQrv5vuqgBucjYcelE3CsvwzmQ0DLsvhlffCIvBxjBkkxKjNx5Dj1VDqhtYsAa26J1YR8Oo3a5lOU3phQiv4S0lDz1fyRwa3gbkhhrVOxisuadWsIG552sxhIjmsZp78-RZh6U0-VeITREpRb5ceX5E40xrOfJ9z-lS_xeXVqnXFOStyBPl-QOE8PyDt_P8zqjT6nQHg8lk1BlPev1Jw9t7fn_YGo17_eGkM9Su0bDz3PB-Ys52azwaPP8HIbYtlA)
 
 ### Caching Rules and Policies
 
@@ -525,78 +226,7 @@ Azure Front Door selects compression algorithms through content negotiation. Cli
 
 If clients do not support compression, Azure Front Door serves uncompressed content. This fallback ensures compatibility with legacy clients while providing compression benefits to capable clients.
 
-```plantuml
-@startuml
-!theme plain
-
-title Compression Content Negotiation and Processing
-
-participant "Modern Browser" as Modern
-participant "Legacy Client" as Legacy
-participant "Azure Front Door" as AFD
-participant "Backend Server" as Backend
-
-== Modern Browser (Brotli Support) ==
-
-Modern -> AFD: GET /app.js\nAccept-Encoding: br, gzip, deflate
-AFD -> AFD: Check cache\nKey: /app.js + br
-
-alt Cache Hit (Brotli)
-    AFD -> Modern: HTTP 200 OK\nContent-Encoding: br\n(brotli compressed)
-else Cache Miss
-    AFD -> Backend: GET /app.js
-    Backend -> AFD: HTTP 200 OK\n(uncompressed, 500KB)
-    AFD -> AFD: Compress with Brotli\nResult: 100KB (80% reduction)
-    AFD -> AFD: Store in cache\n(both brotli and uncompressed)
-    AFD -> Modern: HTTP 200 OK\nContent-Encoding: br\n(100KB brotli)
-end
-
-note right
-  Brotli provides ~20% better
-  compression than gzip
-  
-  Original: 500KB
-  Brotli: 100KB
-  Gzip: 125KB (estimated)
-end note
-
-== Legacy Client (No Brotli Support) ==
-
-Legacy -> AFD: GET /app.js\nAccept-Encoding: gzip, deflate
-AFD -> AFD: Check cache\nKey: /app.js + gzip
-
-alt Cache Hit (Gzip)
-    AFD -> Legacy: HTTP 200 OK\nContent-Encoding: gzip\n(gzip compressed, 125KB)
-else Cache Miss
-    AFD -> AFD: Check uncompressed cache
-    AFD -> AFD: Compress with Gzip\nResult: 125KB
-    AFD -> AFD: Store gzip version
-    AFD -> Legacy: HTTP 200 OK\nContent-Encoding: gzip\n(125KB)
-end
-
-note right
-  Separate cache entries
-  for different encodings
-  
-  Same content with different
-  compression algorithms
-end note
-
-== Client Without Compression Support ==
-
-Legacy -> AFD: GET /app.js\n(No Accept-Encoding)
-AFD -> AFD: Check cache\nKey: /app.js (uncompressed)
-AFD -> Legacy: HTTP 200 OK\n(uncompressed, 500KB)
-
-note right
-  Fallback to uncompressed
-  for incompatible clients
-  
-  Ensures universal compatibility
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNrFVstu2zAQ_BWCZ8ewkvilQ4DYeQFp0qJOL4UvNLWW2MikSlJJnSD_3qUk-iU5TlGg1UGQxNnd4eyOpFfKVQQ0pAZ-5iA5XAgWa7aYSoJHxrQVXGRMWnKHOC0JM_5qpNWzAV1HfoKY8aVDVlfjVIC0deD51YVDnb_kGsiVVvjoQqmGjCPGH0FGDuwvJ6CffPHyfK8sEIUPK4KtChruECbPwibuxqaCTPIsU9pu5inRR2dnSC8k15cPhGVZ-4dprhKSc84hs0eXEpUUMiamTGnIrKKHeXy2cQL8kXDGEyBzpavMJSMPZ6n17MYF8EZU_NbJfO2bh4cv5LjTIZ9v15A6xTFKix1Yc_S1muFBp3M7QkzBgatFpsEYiMoQSA1s87sTxuwSXGm_q587qkUvyoFNFJhuQSmXu2x29a2WN3u8N-dXMDlqXey2RQYdkoHmKBPREOXcCiUba0yswnEVsmzj_-tM1Q4Z1UygRZxYouarsKpdmVZPIgKDvFZ7nYG13kfNwV5y1IPYhEkSv4jsY8bb8n_RE5XbrbaU5xJ32HIlrm45x4gomS7_yHDrfTjLXbscew3nKx9oq4fV2rqu1RwQHHexscU-Gg23wa7Jbht73fRI84g2OOV6D70tnziK7ziiII9BpsE4_0S-DxjC4yeAnxeGK-VkYC0twLwX4YYnEvM5aDfKUBEzH_PBjgHGa0f9jQvuVc0ICbAIDn926u_RA22qF_-2OWbF2_mw6lcsTWeoCbGqgUJzzKU0-HdgEC_cbLG08AezYiZSYZe0RWMtIhpanUOLLkAvmLulry7plNoEFjClIV5GMGc4x1M6lW8Yhj8W35Va-Eit8jih4Zyh21o0zyKcjupfaPUUW4_qjlUuLQ2HRQoavtJfNAz6QRtnsDsc9oPB8OQUF5c0PO21-4OT094w6OFSvxe8tehLUbPTHvS7b78BorP7eg?type=png)](https://mermaid.live/edit#pako:eNrFVstu2zAQ_BWCZ8ewkvilQ4DYeQFp0qJOL4UvNLWW2MikSlJJnSD_3qUk-iU5TlGg1UGQxNnd4eyOpFfKVQQ0pAZ-5iA5XAgWa7aYSoJHxrQVXGRMWnKHOC0JM_5qpNWzAV1HfoKY8aVDVlfjVIC0deD51YVDnb_kGsiVVvjoQqmGjCPGH0FGDuwvJ6CffPHyfK8sEIUPK4KtChruECbPwibuxqaCTPIsU9pu5inRR2dnSC8k15cPhGVZ-4dprhKSc84hs0eXEpUUMiamTGnIrKKHeXy2cQL8kXDGEyBzpavMJSMPZ6n17MYF8EZU_NbJfO2bh4cv5LjTIZ9v15A6xTFKix1Yc_S1muFBp3M7QkzBgatFpsEYiMoQSA1s87sTxuwSXGm_q587qkUvyoFNFJhuQSmXu2x29a2WN3u8N-dXMDlqXey2RQYdkoHmKBPREOXcCiUba0yswnEVsmzj_-tM1Q4Z1UygRZxYouarsKpdmVZPIgKDvFZ7nYG13kfNwV5y1IPYhEkSv4jsY8bb8n_RE5XbrbaU5xJ32HIlrm45x4gomS7_yHDrfTjLXbscew3nKx9oq4fV2rqu1RwQHHexscU-Gg23wa7Jbht73fRI84g2OOV6D70tnziK7ziiII9BpsE4_0S-DxjC4yeAnxeGK-VkYC0twLwX4YYnEvM5aDfKUBEzH_PBjgHGa0f9jQvuVc0ICbAIDn926u_RA22qF_-2OWbF2_mw6lcsTWeoCbGqgUJzzKU0-HdgEC_cbLG08AezYiZSYZe0RWMtIhpanUOLLkAvmLulry7plNoEFjClIV5GMGc4x1M6lW8Yhj8W35Va-Eit8jih4Zyh21o0zyKcjupfaPUUW4_qjlUuLQ2HRQoavtJfNAz6QRtnsDsc9oPB8OQUF5c0PO21-4OT094w6OFSvxe8tehLUbPTHvS7b78BorP7eg)
 
 ### Compression Configuration and Content Types
 

@@ -1,6 +1,6 @@
 ---
 title: "Microsoft Azure Front Door Part 3: Load Balancing and Traffic Management"
-date: 2025-11-26 00:00:00 +0530
+date: 2025-12-07 00:00:00 +0530
 categories: [Cloud Infrastructure, Distributed Systems]
 tags: [Azure, Azure Front Door, Load Balancing, Health Probes, Failover, Traffic Management, Session Affinity, Backend Pools]
 author: mohitmishra786
@@ -32,65 +32,7 @@ Capacity scales naturally across regions. Rather than predicting peak load in an
 
 Compliance requirements for data sovereignty are satisfied through geographic routing policies. Organizations operating in jurisdictions requiring local data processing can configure Azure Front Door to route users to backends in appropriate regions, maintaining regulatory compliance while benefiting from global infrastructure.
 
-```plantuml
-@startuml
-!theme plain
-
-title Global Load Balancing Architecture
-
-actor "User\nUS West" as User_US
-actor "User\nEurope" as User_EU
-actor "User\nAsia" as User_Asia
-
-cloud "Azure Front Door\nGlobal Edge Network" {
-    [PoP US West] as PoP_US
-    [PoP Europe] as PoP_EU
-    [PoP Asia] as PoP_Asia
-}
-
-package "Backend Pool: api-backends" {
-    
-    rectangle "Region: US West 2\nPriority: 1, Weight: 50" as Backend_US {
-        [Backend US-1]
-        [Backend US-2]
-        [Backend US-3]
-    }
-    
-    rectangle "Region: West Europe\nPriority: 1, Weight: 30" as Backend_EU {
-        [Backend EU-1]
-        [Backend EU-2]
-    }
-    
-    rectangle "Region: Southeast Asia\nPriority: 1, Weight: 20" as Backend_Asia {
-        [Backend Asia-1]
-        [Backend Asia-2]
-    }
-}
-
-User_US --> PoP_US: DNS → Anycast
-User_EU --> PoP_EU: DNS → Anycast
-User_Asia --> PoP_Asia: DNS → Anycast
-
-PoP_US --> Backend_US: Latency-based\n+ Weight routing
-PoP_EU --> Backend_EU: Latency-based\n+ Weight routing
-PoP_Asia --> Backend_Asia: Latency-based\n+ Weight routing
-
-note right of Backend_US
-  Weighted distribution:
-  US: 50% (5 backends)
-  EU: 30% (2 backends)
-  Asia: 20% (2 backends)
-end note
-
-note bottom of PoP_US
-  Each PoP can route to
-  any backend globally,
-  but prefers nearby
-  backends for latency
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNqdld1umzAUx1_Fci9HsgBJAGuqRBa6m6mKytCkhWniwyQoBEfGqE2T3O4B9oh7ktl8BAKJ1I4bY__POf6dP3ZygAEJMURwRb3dGnybuSngT5b75YKTYZotXViMLvxZyuIRK78ceynGTz79eO_Y4DvOWDfEcpoQK6dkh7sRZhZ7TYyYVRE4DcuXDpT5MOdI5mtOMXigJGVgTggFXxLiewmwwhUGj5g9E7q5IF6QhQDmA-izCpGjCrFHKbQCUqhv4Jt5wYZrC0ISzlnNgJgi4O3igV-uXPrZzRaoLnzCq5ikqAYGSuHRgsaExmyPgCzx9Xi1ZghMRhf1xDNzbHlZ7-_YA7mvK21d6etqW1db-rn5xoCrbXBTmzaKHkp_bzeiXmnEcppGLKffiOUobV35D9DiCzeoNsnZGnucVwi3aZUrtGbLdpHd5zVbxhcRV4k7B6y6cmAwuD_OH23w9_cfYKb7gEMeq9PdCrSc24GW0woU-98OFWobotyniP_qMZwGe36eMxwWDn2obAGUuxenq2PrNDfpFdl70mvgmujdBbptZGyfYPFLAqI4SdAdViMlCqWMUbLB6E42tGmoVNPBcxyyNVJ2L-3c1i2vakRRpOLRuUY00YLR6C01hKFliUDH08A4l1B1HavBtQzuYbWp7vths2mgyPrEv5ZR2FaD4sBXO6BQ4n8CcQgRozmW4BbTrSem8CCquZDfhi12IeKvIY68PGEudNMTT9t56Q9CtnUm9361hijykozP8l3IP9M89vht255XKSfC9DPJUwbReFTUgOgAXyCSNXkoK5OJYWiybqhjQ4J7HjMdaro6nhrylEvaVD5J8LXYdDTUtcnpH2G6FZY?type=png)](https://mermaid.live/edit#pako:eNqdld1umzAUx1_Fci9HsgBJAGuqRBa6m6mKytCkhWniwyQoBEfGqE2T3O4B9oh7ktl8BAKJ1I4bY__POf6dP3ZygAEJMURwRb3dGnybuSngT5b75YKTYZotXViMLvxZyuIRK78ceynGTz79eO_Y4DvOWDfEcpoQK6dkh7sRZhZ7TYyYVRE4DcuXDpT5MOdI5mtOMXigJGVgTggFXxLiewmwwhUGj5g9E7q5IF6QhQDmA-izCpGjCrFHKbQCUqhv4Jt5wYZrC0ISzlnNgJgi4O3igV-uXPrZzRaoLnzCq5ikqAYGSuHRgsaExmyPgCzx9Xi1ZghMRhf1xDNzbHlZ7-_YA7mvK21d6etqW1db-rn5xoCrbXBTmzaKHkp_bzeiXmnEcppGLKffiOUobV35D9DiCzeoNsnZGnucVwi3aZUrtGbLdpHd5zVbxhcRV4k7B6y6cmAwuD_OH23w9_cfYKb7gEMeq9PdCrSc24GW0woU-98OFWobotyniP_qMZwGe36eMxwWDn2obAGUuxenq2PrNDfpFdl70mvgmujdBbptZGyfYPFLAqI4SdAdViMlCqWMUbLB6E42tGmoVNPBcxyyNVJ2L-3c1i2vakRRpOLRuUY00YLR6C01hKFliUDH08A4l1B1HavBtQzuYbWp7vths2mgyPrEv5ZR2FaD4sBXO6BQ4n8CcQgRozmW4BbTrSem8CCquZDfhi12IeKvIY68PGEudNMTT9t56Q9CtnUm9361hijykozP8l3IP9M89vht255XKSfC9DPJUwbReFTUgOgAXyCSNXkoK5OJYWiybqhjQ4J7HjMdaro6nhrylEvaVD5J8LXYdDTUtcnpH2G6FZY)
 
 **Regional Considerations:**
 
@@ -144,66 +86,7 @@ The latency measurements use exponentially weighted moving averages, giving grea
 
 Measurement occurs independently from each edge location. A backend might exhibit low latency from US edge locations but higher latency from Asian locations due to network topology. Azure Front Door considers these geographic latency differences when routing, with each edge location selecting backends based on locally observed latency.
 
-```plantuml
-@startuml
-!theme plain
-
-title Latency-Based Backend Selection
-
-participant "Azure Front Door\nEdge US" as Edge_US
-collections "Health Probe" as Probe
-participant "Backend US\n(10ms avg)" as Backend_US
-participant "Backend EU\n(80ms avg)" as Backend_EU
-participant "Backend Asia\n(150ms avg)" as Backend_Asia
-
-== Continuous Latency Monitoring ==
-
-loop Every 30 seconds
-    Probe -> Backend_US: Health probe
-    Backend_US --> Probe: Response (10ms)
-    
-    Probe -> Backend_EU: Health probe
-    Backend_EU --> Probe: Response (80ms)
-    
-    Probe -> Backend_Asia: Health probe
-    Backend_Asia --> Probe: Response (150ms)
-    
-    Probe -> Edge_US: Update latency metrics
-end
-
-== Request Routing Decision ==
-
-Edge_US -> Edge_US: Calculate probabilities\nUS: 70% (lowest latency)\nEU: 20%\nAsia: 10%
-
-note right
-  Latency-based routing prefers
-  lower-latency backends but
-  still sends some traffic to
-  others for monitoring
-end note
-
-Edge_US -> Backend_US: Route 70% of requests
-Edge_US -> Backend_EU: Route 20% of requests
-Edge_US -> Backend_Asia: Route 10% of requests
-
-== Backend Degradation Scenario ==
-
-Backend_US -> Backend_US: Load increases\nLatency rises to 50ms
-
-Probe -> Backend_US: Health probe
-Backend_US --> Probe: Response (50ms)
-Probe -> Edge_US: Update metrics
-
-Edge_US -> Edge_US: Recalculate\nUS: 40% (degraded)\nEU: 40%\nAsia: 20%
-
-note right
-  Automatic adaptation
-  shifts traffic away
-  from degraded backend
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNqVVdtq20AQ_ZVhIZCAnVqOr6IE0tilD2kpDnophrKWRvJSSavurpI6If_e2ZVky8SuXT0Y7eXMmTlzRn5loYyQ-Uzj7xLzEGeCJ4pnyxzoKbgyIhQFzw3MowR_Bo_ANdy9lArhs5K0PZNSfVypD7f2HILH98DvSq7Qwr4gT826Wr-_9omHvzCPaop6RQFd8Euvl2ngT8nVceA8aAPnQQWcnAbeacHbULuuWYf76Or3mzQI8glVo0mnHcmHe9JF5KUsNTxwQ6Ju4KvMhZFK5Ek7UCplAXMKtIGbHmgMZR7p6sg-Tqju7e1OGb_RsNhpaJ_djS7ddzgfFqgLmWsEJ97V7vZxhnlwimEeHGSYnMtQKfRvDnvncB3DUzR1Q3wIioikh7TWP0OjRFhrSxz_086FnQxtYCFLamsCMwyFFjJvx6iR7QzueRqWlt-VyVciFUagdsay5-PeBVym8tmGrtO8qgaJmtDvXbj3KgOvd_EuYSWStQEZw5aw9lp3xTVGoOpsC4UxqorWsqluo8mqqlLDqjTuWBuRpmRDu6dlhmAUj2MRgpHuXJo1RYJYKsgO-nmnQtuyVjd05VK2qhJTHwPY4itA_zxA3SMH8Q5BzmtyM_szpK8fWYf6C48h5lwJ2Y7TmrT9Kh8kj0DkoUKSv5K7GX4laIdEBGvfdrDzBvzEcLdm4tgU7Ln_qGEXGDaW3Zp0YE0aOU0w2tlzsGfP_ln2vCuNzEjYEEjfwjiJK9utRWz01mz8mW_cfqxkBg1341bWYYkSEfONKrHDMlQZt0v2asmXjCya4ZL59BphzMvULNkyfyMYffJ_SJk1SJqPZM38mKeaVqUTqv7v2-4qIkR1L8vcMH8wcDGY_8r-MN8be9defzicTsfeZHozmHbYhu6MrseTm8Fo6o3oaDzy3jrsxZH2rifj4dtfTKthyw?type=png)](https://mermaid.live/edit#pako:eNqVVdtq20AQ_ZVhIZCAnVqOr6IE0tilD2kpDnophrKWRvJSSavurpI6If_e2ZVky8SuXT0Y7eXMmTlzRn5loYyQ-Uzj7xLzEGeCJ4pnyxzoKbgyIhQFzw3MowR_Bo_ANdy9lArhs5K0PZNSfVypD7f2HILH98DvSq7Qwr4gT826Wr-_9omHvzCPaop6RQFd8Euvl2ngT8nVceA8aAPnQQWcnAbeacHbULuuWYf76Or3mzQI8glVo0mnHcmHe9JF5KUsNTxwQ6Ju4KvMhZFK5Ek7UCplAXMKtIGbHmgMZR7p6sg-Tqju7e1OGb_RsNhpaJ_djS7ddzgfFqgLmWsEJ97V7vZxhnlwimEeHGSYnMtQKfRvDnvncB3DUzR1Q3wIioikh7TWP0OjRFhrSxz_086FnQxtYCFLamsCMwyFFjJvx6iR7QzueRqWlt-VyVciFUagdsay5-PeBVym8tmGrtO8qgaJmtDvXbj3KgOvd_EuYSWStQEZw5aw9lp3xTVGoOpsC4UxqorWsqluo8mqqlLDqjTuWBuRpmRDu6dlhmAUj2MRgpHuXJo1RYJYKsgO-nmnQtuyVjd05VK2qhJTHwPY4itA_zxA3SMH8Q5BzmtyM_szpK8fWYf6C48h5lwJ2Y7TmrT9Kh8kj0DkoUKSv5K7GX4laIdEBGvfdrDzBvzEcLdm4tgU7Ln_qGEXGDaW3Zp0YE0aOU0w2tlzsGfP_ln2vCuNzEjYEEjfwjiJK9utRWz01mz8mW_cfqxkBg1341bWYYkSEfONKrHDMlQZt0v2asmXjCya4ZL59BphzMvULNkyfyMYffJ_SJk1SJqPZM38mKeaVqUTqv7v2-4qIkR1L8vcMH8wcDGY_8r-MN8be9defzicTsfeZHozmHbYhu6MrseTm8Fo6o3oaDzy3jrsxZH2rifj4dtfTKthyw)
 
 **Selection Algorithm:**
 
@@ -243,71 +126,7 @@ The failover is stateless and requires no human intervention. Users experiencing
 
 Recovery follows the inverse process. When priority 1 backends recover and begin passing health checks, traffic shifts back from priority 2 backends. The return process uses the same health check thresholds as initial failure detection, requiring multiple consecutive successful probes before considering backends healthy.
 
-```plantuml
-@startuml
-!theme plain
-
-title Priority-Based Failover Process
-
-state "Normal Operation" as Normal {
-    state "Priority 1 Backends Active" as P1_Active
-    state "100% traffic to Primary DC" as Traffic_P1
-    
-    P1_Active --> Traffic_P1
-}
-
-state "Partial Failure" as Partial {
-    state "Some Priority 1 Failed" as P1_Partial
-    state "Remaining Priority 1 Active" as P1_Some
-    state "Traffic to healthy Priority 1" as Traffic_P1_Partial
-    
-    P1_Partial --> P1_Some
-    P1_Some --> Traffic_P1_Partial
-}
-
-state "Complete Primary Failure" as Complete {
-    state "All Priority 1 Failed" as P1_Failed
-    state "Priority 2 Backends Activated" as P2_Active
-    state "100% traffic to DR Site" as Traffic_P2
-    
-    P1_Failed --> P2_Active
-    P2_Active --> Traffic_P2
-}
-
-state "Recovery" as Recovery {
-    state "Priority 1 Health Restored" as P1_Restored
-    state "Traffic Returns to Primary" as Traffic_Return
-    
-    P1_Restored --> Traffic_Return
-}
-
-[*] --> Normal
-Normal --> Partial: Backend\nHealth Check\nFails
-
-Partial --> Complete: All Priority 1\nBackends Fail
-
-Partial --> Normal: Failed\nBackends\nRecover
-
-Complete --> Recovery: Priority 1\nBackends\nRecover
-
-Recovery --> Normal: Stable\nHealth\nConfirmed
-
-note right of Normal
-  Priority 1: 3 backends (Primary DC)
-  Priority 2: 2 backends (DR Site)
-  
-  Under normal operation,
-  Priority 2 receives zero traffic
-end note
-
-note right of Complete
-  Failover occurs automatically
-  within seconds of health
-  check failure detection
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNqFVVtv0zAU_itHlpAAdWPJul4sNGl0QjxB1cELFE1ectJaS-LKcQZd1f-OL3EuSzryEMXH5_Z957NzIJGIkVBSKKbwlrONZNnZU7jOQT-_3v-Gs7Nr-CpkxlJnc2_rDmviduDbDiVTXORrAqyo_OHgfNuZlsH9TaT4EzZbtYnCUnIhudpDAJ9Y9Ih5XMBJd5vvu2RJwqP7ZdB4NDYKwcXFG1DOAEqYChmTe7hdOP_jEKglk4rr_j8znpYSHSZvHAZV7XbarGwU7kSGbWwmL8ZDvj6diejsGwOFFWaM5zzftLMNEGQLdunpd9jfo95mmNoiS9V236r0CmMLke1SVFjz26Gu3h3mboAOZ6Jwk6b_Ic6ZXKqwr62wr63whbY0gnggostfOMBb2JfX7QruuMJXmFphJJ5Q7h0zfnWCmRUWSsgXiL2xc1y-2GnBqwEdRCtUpcz7qJy9UYJbF62zMwCuOu-2ay-liuSPD_LDddXdYovRozWYqRUutq18L5SXg7cx9dRMcD_W9UArjXQi7KKi2gXWijSRfgj0VMV-fD23duU7xR5SbAG2nwuRJ1xmfibunQtdW_LNVoFIOterhVW3QeESHjzut83l9W7AWcsxbDlXUmx5Nl8_8hilbsJOTfi7ezSUFCRGqI9DAc8ohde689SFLJLTyDzPTWYzHkMdiCgqZQGsVCLT5SOWpvvG7Q9XW55DoXk2aHQqdx81HpEREyTunoFYF4nsD6jTGRmRjeQxoUqWOCIZasRmSex5WxO1RX3REqo_Y0xYmao1WedHHbZj-U8hMh8pRbnZEpqwtNCrchc3f8vaKtHQuhBlrggdz2wOQg_kL6HBNDgPwqur-XwazOaX4_mI7LXP5Hw6uxxP5sFEb00nwXFEnm3Ri_PZdDxvP8d_YtxdWA?type=png)](https://mermaid.live/edit#pako:eNqFVVtv0zAU_itHlpAAdWPJul4sNGl0QjxB1cELFE1ectJaS-LKcQZd1f-OL3EuSzryEMXH5_Z957NzIJGIkVBSKKbwlrONZNnZU7jOQT-_3v-Gs7Nr-CpkxlJnc2_rDmviduDbDiVTXORrAqyo_OHgfNuZlsH9TaT4EzZbtYnCUnIhudpDAJ9Y9Ih5XMBJd5vvu2RJwqP7ZdB4NDYKwcXFG1DOAEqYChmTe7hdOP_jEKglk4rr_j8znpYSHSZvHAZV7XbarGwU7kSGbWwmL8ZDvj6diejsGwOFFWaM5zzftLMNEGQLdunpd9jfo95mmNoiS9V236r0CmMLke1SVFjz26Gu3h3mboAOZ6Jwk6b_Ic6ZXKqwr62wr63whbY0gnggostfOMBb2JfX7QruuMJXmFphJJ5Q7h0zfnWCmRUWSsgXiL2xc1y-2GnBqwEdRCtUpcz7qJy9UYJbF62zMwCuOu-2ay-liuSPD_LDddXdYovRozWYqRUutq18L5SXg7cx9dRMcD_W9UArjXQi7KKi2gXWijSRfgj0VMV-fD23duU7xR5SbAG2nwuRJ1xmfibunQtdW_LNVoFIOterhVW3QeESHjzut83l9W7AWcsxbDlXUmx5Nl8_8hilbsJOTfi7ezSUFCRGqI9DAc8ohde689SFLJLTyDzPTWYzHkMdiCgqZQGsVCLT5SOWpvvG7Q9XW55DoXk2aHQqdx81HpEREyTunoFYF4nsD6jTGRmRjeQxoUqWOCIZasRmSex5WxO1RX3REqo_Y0xYmao1WedHHbZj-U8hMh8pRbnZEpqwtNCrchc3f8vaKtHQuhBlrggdz2wOQg_kL6HBNDgPwqur-XwazOaX4_mI7LXP5Hw6uxxP5sFEb00nwXFEnm3Ri_PZdDxvP8d_YtxdWA)
 
 **Use Cases:**
 
@@ -355,69 +174,7 @@ The cookie format is opaque and includes tamper detection to prevent clients fro
 
 Subsequent requests from the same client include this cookie, directing Azure Front Door to route to the specified backend. The routing decision occurs before load balancing algorithm evaluation, overriding normal backend selection. Only when the specified backend is unhealthy does Azure Front Door select an alternative backend, prioritizing availability over strict affinity.
 
-```plantuml
-@startuml
-!theme plain
-
-title Session Affinity Cookie Flow
-
-actor Client
-participant "Azure Front Door" as AFD
-participant "Backend A" as BackendA
-participant "Backend B" as BackendB
-
-== Initial Request ==
-
-Client -> AFD: GET /login\n(No affinity cookie)
-AFD -> AFD: Load balance\nselect Backend A
-AFD -> BackendA: Forward request
-BackendA -> BackendA: Process request\nCreate session data
-BackendA -> AFD: HTTP 200 OK\nSession-ID: abc123
-AFD -> AFD: Add affinity cookie\nARM-Affinity: <encoded-backend-A>
-AFD -> Client: HTTP 200 OK\nSet-Cookie: ARM-Affinity=...
-
-note right
-  Azure Front Door adds
-  affinity cookie pointing
-  to Backend A
-end note
-
-== Subsequent Request with Affinity ==
-
-Client -> AFD: GET /api/data\nCookie: ARM-Affinity=<backend-A>
-AFD -> AFD: Parse affinity cookie\nExtract Backend A identifier
-AFD -> AFD: Check Backend A health\nStatus: Healthy ✓
-AFD -> BackendA: Forward request
-BackendA -> BackendA: Retrieve session abc123\nProcess request
-BackendA -> AFD: HTTP 200 OK
-AFD -> Client: HTTP 200 OK
-
-note right
-  Request routed to Backend A
-  due to affinity cookie,
-  bypassing load balancing
-end note
-
-== Request with Affinity to Failed Backend ==
-
-Client -> AFD: GET /api/update\nCookie: ARM-Affinity=<backend-A>
-AFD -> AFD: Parse affinity cookie\nExtract Backend A identifier
-AFD -> AFD: Check Backend A health\nStatus: Failed ✗
-AFD -> AFD: Override affinity\nLoad balance to healthy backend
-AFD -> BackendB: Forward request
-BackendB -> BackendB: Session not found\nRequire re-login
-BackendB -> AFD: HTTP 401 Unauthorized
-AFD -> AFD: Update affinity cookie\nARM-Affinity: <backend-B>
-AFD -> Client: HTTP 401 Unauthorized\nSet-Cookie: ARM-Affinity=<backend-B>
-
-note right
-  Affinity broken due to failure
-  Session data lost
-  Client must re-authenticate
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNrNVk1P20AQ_SujPbVSHOIQEmLRSE4gLaIFxMelymXtXccrHG-6XgMB8St66IVfxy_peG2DsQNB6qU-RPbuvJk3-57HuSe-ZJw4JOG_Uh77fF_QuaKLWQx4LanSwhdLGmuYRILHurnuTveBJuDepYrDVElc2pdSNQPH1L_iMXOz6OIe3DfDxtWwcR6W_x5LzUFec1VQapUIBw5joQWN4CxrJtFVVB5rjUbI14GvBxewFcm5iPc8tTX6dCyBBoFA-Ap8Ka8E_5zDMLrEfJeUgUcjiqdkUAmPuK_rveSIslkHplLdUMVAVTmV268iT5X0eZKUkabGRHGK7Sa4LmQMjGrayGDYfbu4OIVupwMnRwZ4niOsQ9yjnm93txsNuYzVuzZQ9-yH5RbrDuyhK9AizPLyipY7qmbKz3VdfW1NTE4sVEn4pd1uN9RUYh5qkAHkvGpWAspYYpLW2MJSiliLeG42taxLsdEv56mX-16XloEboUMoyW4wEF2KrUyRXKl1ze6tPzST4pSqhK8V4OBWK1p1FgiGtUUguGqkmYTcv6qEhpxGOsw10FSnCWpjllbw9Pj7Xz16xrUS_PrFkbm3TLmafzf6dIONNrikFEzJVHMGVfUNG5bybLF2vi2z562WFOnHc4heXmp8_KBt1nolKzalIkIuReQH3JMu0T_8f_dP0dbT458G-gQPSGH2Zx4GWB2V2bmEhQG96sG8MuH4fROOX0UWsw1iqSGQacxM0UwVgYNDcctM9kaCF__1OjZcxjTVoVTijrNGW5dGl49Mx1Kg8dtTsV7t_fnYyPj2nCzZeUoiAgrHB6gWDtDqV8B8N9Dr5UfFsINFmr0-3MqYZfbwsWXSInPUkzhapbxFFlwtaPZI7jMaM4KRCz4jDt4yHtA00jMyix8Qhh_vn1IuSiS-lvOQOAGNEnzKfV78t3heVdgmVxNUUBNnp2tyEOee3BLHHthtu7uzMxwO7N3hdm_YIivi9Prtwe52rz-0-7g16NsPLXJninbau4PesHo9_AXJUt2P?type=png)](https://mermaid.live/edit#pako:eNrNVk1P20AQ_SujPbVSHOIQEmLRSE4gLaIFxMelymXtXccrHG-6XgMB8St66IVfxy_peG2DsQNB6qU-RPbuvJk3-57HuSe-ZJw4JOG_Uh77fF_QuaKLWQx4LanSwhdLGmuYRILHurnuTveBJuDepYrDVElc2pdSNQPH1L_iMXOz6OIe3DfDxtWwcR6W_x5LzUFec1VQapUIBw5joQWN4CxrJtFVVB5rjUbI14GvBxewFcm5iPc8tTX6dCyBBoFA-Ap8Ka8E_5zDMLrEfJeUgUcjiqdkUAmPuK_rveSIslkHplLdUMVAVTmV268iT5X0eZKUkabGRHGK7Sa4LmQMjGrayGDYfbu4OIVupwMnRwZ4niOsQ9yjnm93txsNuYzVuzZQ9-yH5RbrDuyhK9AizPLyipY7qmbKz3VdfW1NTE4sVEn4pd1uN9RUYh5qkAHkvGpWAspYYpLW2MJSiliLeG42taxLsdEv56mX-16XloEboUMoyW4wEF2KrUyRXKl1ze6tPzST4pSqhK8V4OBWK1p1FgiGtUUguGqkmYTcv6qEhpxGOsw10FSnCWpjllbw9Pj7Xz16xrUS_PrFkbm3TLmafzf6dIONNrikFEzJVHMGVfUNG5bybLF2vi2z562WFOnHc4heXmp8_KBt1nolKzalIkIuReQH3JMu0T_8f_dP0dbT458G-gQPSGH2Zx4GWB2V2bmEhQG96sG8MuH4fROOX0UWsw1iqSGQacxM0UwVgYNDcctM9kaCF__1OjZcxjTVoVTijrNGW5dGl49Mx1Kg8dtTsV7t_fnYyPj2nCzZeUoiAgrHB6gWDtDqV8B8N9Dr5UfFsINFmr0-3MqYZfbwsWXSInPUkzhapbxFFlwtaPZI7jMaM4KRCz4jDt4yHtA00jMyix8Qhh_vn1IuSiS-lvOQOAGNEnzKfV78t3heVdgmVxNUUBNnp2tyEOee3BLHHthtu7uzMxwO7N3hdm_YIivi9Prtwe52rz-0-7g16NsPLXJninbau4PesHo9_AXJUt2P)
 
 **Affinity Guarantees and Limitations:**
 
@@ -455,69 +212,7 @@ Azure Front Door evaluates probe responses against configured thresholds to dete
 
 For example, sample size 4 with success threshold 3 requires 3 out of the last 4 probes to succeed. This configuration tolerates occasional failures without marking backends unhealthy, while detecting persistent issues relatively quickly. Conservative thresholds like 6 out of 10 reduce false positives from transient network issues but slow failure detection. Aggressive thresholds like 2 out of 2 detect failures immediately but may cause unnecessary failover due to momentary glitches.
 
-```plantuml
-@startuml
-!theme plain
-
-title Health Probe State Transitions
-
-state "Healthy" as Healthy {
-    [*] --> Serving
-    Serving: Backend receives traffic
-    Serving: Sample: [✓ ✓ ✓ ✓]
-    Serving: Threshold: 3/4 ✓
-}
-
-state "Degrading" as Degrading {
-    [*] --> Monitoring
-    Monitoring: Recent failures detected
-    Monitoring: Sample: [✗ ✓ ✓ ✓]
-    Monitoring: Still above threshold: 3/4 ✓
-    Monitoring: Continue serving traffic
-}
-
-state "Unhealthy" as Unhealthy {
-    [*] --> Removed
-    Removed: Backend excluded from rotation
-    Removed: Sample: [✗ ✗ ✗ ✓]
-    Removed: Below threshold: 1/4 ✗
-}
-
-state "Recovering" as Recovering {
-    [*] --> Testing
-    Testing: Probes succeeding again
-    Testing: Sample: [✗ ✗ ✓ ✓]
-    Testing: Not yet above threshold: 2/4
-    Testing: Still excluded from traffic
-}
-
-[*] --> Healthy
-
-Healthy --> Degrading: Probe failure\nStill above threshold
-Degrading --> Healthy: Probes recover\nSample improves
-Degrading --> Unhealthy: More failures\nBelow threshold
-
-Unhealthy --> Recovering: Probes succeed\nNot yet at threshold
-Recovering --> Healthy: Sustained success\nThreshold met
-Recovering --> Unhealthy: Failures resume\nThreshold lost
-
-note right of Healthy
-  Azure Front Door continuously
-  probes from multiple edge
-  locations worldwide
-  
-  Sample size: 4 probes
-  Success threshold: 3/4
-end note
-
-note bottom of Unhealthy
-  Hysteresis prevents flapping:
-  Backend must recover consistently
-  before returning to rotation
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNp1VE1v2zAM_SuEjoMTzPlsdNhhLYZdNgxNd1mzgyrTsTBLCmQ5axbkv4-JI3-kqk82_UQ-8j3qyKTNkHFWeeHxQYmtE3q0n2wM0PP84TeMRp_gK4rSF4cmeEGGEBybYB-9RrdXZtv9uAY4fBbyD5oMHEpUe6zAO5HnSkaga6F3JRKyqktfwQhEWcJOVFU881NByMKWGUzB5jADjb6BnfqsH5D6y-hEjPc3a5S3blCgi3F4JNbGQy5UWVM1yNCj9JjF0WkAJkTpDfE-cu0V9SZe7B7Bhz7i0HtrvDI1QtU0PhzgoNWfpnhfokfUVK1X5BroJMJXWdYZZpA7q8FZyqmsiRyYtgNJqOc3jXaJsbR_b_sbMKb5EtS9o84TVn6Q-Rrg8MPZF5KjqqVEvIgrtkKZCHIS-CX0GmhHcN-thwN6ED4mSAtrhBtOKiZI2JVzG60Dr7wDjRs3dUbt7R8PIzqAtCZXTsfhrfQcvgSzyqtzGnxnjsYNYfDtMJXeOdttcU-aAZ9u7RwKWQQ6N_AYn_Nia2QJ2zqVMe5djQnT6LQ4f7KLATbMF6hxwzi9ZpgLugo2bGNOdGwnzC9rdTjpbL0tGM9FWdFXvcu626yNOvI1untbG8_4fHHJwfiRvTKeLtNxOpnPV6tlereazlYJOzA-W4yXd9PZYpUu6NdykZ4S9u9S9OP4bjk__Qf8bawo?type=png)](https://mermaid.live/edit#pako:eNp1VE1v2zAM_SuEjoMTzPlsdNhhLYZdNgxNd1mzgyrTsTBLCmQ5axbkv4-JI3-kqk82_UQ-8j3qyKTNkHFWeeHxQYmtE3q0n2wM0PP84TeMRp_gK4rSF4cmeEGGEBybYB-9RrdXZtv9uAY4fBbyD5oMHEpUe6zAO5HnSkaga6F3JRKyqktfwQhEWcJOVFU881NByMKWGUzB5jADjb6BnfqsH5D6y-hEjPc3a5S3blCgi3F4JNbGQy5UWVM1yNCj9JjF0WkAJkTpDfE-cu0V9SZe7B7Bhz7i0HtrvDI1QtU0PhzgoNWfpnhfokfUVK1X5BroJMJXWdYZZpA7q8FZyqmsiRyYtgNJqOc3jXaJsbR_b_sbMKb5EtS9o84TVn6Q-Rrg8MPZF5KjqqVEvIgrtkKZCHIS-CX0GmhHcN-thwN6ED4mSAtrhBtOKiZI2JVzG60Dr7wDjRs3dUbt7R8PIzqAtCZXTsfhrfQcvgSzyqtzGnxnjsYNYfDtMJXeOdttcU-aAZ9u7RwKWQQ6N_AYn_Nia2QJ2zqVMe5djQnT6LQ4f7KLATbMF6hxwzi9ZpgLugo2bGNOdGwnzC9rdTjpbL0tGM9FWdFXvcu626yNOvI1untbG8_4fHHJwfiRvTKeLtNxOpnPV6tlereazlYJOzA-W4yXd9PZYpUu6NdykZ4S9u9S9OP4bjk__Qf8bawo)
 
 ### Probe Distribution and Timing
 

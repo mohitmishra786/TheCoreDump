@@ -1,6 +1,6 @@
 ---
 title: "Microsoft Azure Front Door Part 2: Request Flow and OSI Layer Implementation"
-date: 2025-11-25 00:00:00 +0530
+date: 2025-12-03 00:00:00 +0530
 categories: [Cloud Infrastructure, Distributed Systems]
 tags: [Azure, Azure Front Door, OSI Model, Layer 3, Layer 4, Layer 7, Anycast, BGP, TCP, HTTP, Network Protocols]
 author: mohitmishra786
@@ -34,45 +34,7 @@ Azure Front Door's authoritative DNS servers respond with A records (IPv4) and A
 
 The DNS response includes multiple IP addresses for redundancy. Clients typically attempt the first IP address, falling back to alternatives if connection attempts fail. This multi-address response provides resilience against individual edge location failures or routing issues affecting specific IP addresses.
 
-```plantuml
-@startuml
-!theme plain
-
-title DNS Resolution Flow for Azure Front Door
-
-actor Client
-participant "Client DNS\nResolver" as Resolver
-participant "Recursive\nDNS Server" as Recursive
-participant "Customer\nAuthoritative DNS" as CustomerDNS
-participant "Azure Front Door\nAuthoritative DNS" as AzureDNS
-
-Client -> Resolver: Resolve www.example.com
-Resolver -> Recursive: Query www.example.com
-
-Recursive -> CustomerDNS: Query www.example.com
-CustomerDNS --> Recursive: CNAME to example.azurefd.net
-
-Recursive -> AzureDNS: Query example.azurefd.net
-AzureDNS --> Recursive: A records with Anycast IPs\n(TTL 30-60s)
-
-Recursive --> Resolver: IP addresses
-Resolver --> Client: Anycast IP address
-
-note right of AzureDNS
-  Returns Anycast IPs:
-  - 1.2.3.4 (IPv4)
-  - 2001:db8::1 (IPv6)
-  TTL: 30 seconds
-end note
-
-note left of Client
-  Client selects first IP
-  and attempts TCP connection
-  to nearest Azure Front Door PoP
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNp9VNtu4jAQ_ZWRn1oJsuRCAGtVCdFdCWkXsS1PK17ceIBIic36AqWIf69jEpYWaB4S23POnDljO3uSSY6EEo3_LIoMH3O2VKycC3DPmimTZ_maCQOjIkdhLtefUMtigwqYrjHwOHn-_qK-PTSha6TMKp1vsGKdJp7kyPCM6iptZLWRJaoKU8nVU88bWrOSKjfMVGkd4pI-fLMKa64fw08lq3ql_DLH8X0013442aKNd9hutwG-snJdYJDJunkNzDNqhxT-WFS764SGVmMd78zvl8wzXPuj3Ggy_P0DjISGwyrfCx4INLdUmzY1kjepDfCT5hAUZlJxDdvcrGAodhnTBsZT7Zt8N5v9grjTTjv6_noJH3o8ngLjXKHWqD81tuqQ3xR6JtKgz1NPpEGQ1SH97-0JjVVCn5dHfX1tCIMoiIME7sbTTXJfL0adTkj5S5_S0AfSY8CZoc4NaGdZ8BuqTZX1_dBYYGY0LHLlhX0iJjgwY7Bcu8hsNAWXTzhYLoWPuz0UyJwzc3F2YSqnpEWWKueEGmWxRdxhKFk1JfuqmDkxKyxxTqgbclwwW5g5mYuDo7mr8VfKsmEqaZcrQhes0G5m15yZ5qdwgqDgqEbSCkPowGcgdE9eCW3H3TDoJUmaRN1BNwnjuEV2hIZRN-i7Bsa9KO7140F8aJE3rxkGYZp2o07SS-MkjNzn8A53doGN?type=png)](https://mermaid.live/edit#pako:eNp9VNtu4jAQ_ZWRn1oJsuRCAGtVCdFdCWkXsS1PK17ceIBIic36AqWIf69jEpYWaB4S23POnDljO3uSSY6EEo3_LIoMH3O2VKycC3DPmimTZ_maCQOjIkdhLtefUMtigwqYrjHwOHn-_qK-PTSha6TMKp1vsGKdJp7kyPCM6iptZLWRJaoKU8nVU88bWrOSKjfMVGkd4pI-fLMKa64fw08lq3ql_DLH8X0013442aKNd9hutwG-snJdYJDJunkNzDNqhxT-WFS764SGVmMd78zvl8wzXPuj3Ggy_P0DjISGwyrfCx4INLdUmzY1kjepDfCT5hAUZlJxDdvcrGAodhnTBsZT7Zt8N5v9grjTTjv6_noJH3o8ngLjXKHWqD81tuqQ3xR6JtKgz1NPpEGQ1SH97-0JjVVCn5dHfX1tCIMoiIME7sbTTXJfL0adTkj5S5_S0AfSY8CZoc4NaGdZ8BuqTZX1_dBYYGY0LHLlhX0iJjgwY7Bcu8hsNAWXTzhYLoWPuz0UyJwzc3F2YSqnpEWWKueEGmWxRdxhKFk1JfuqmDkxKyxxTqgbclwwW5g5mYuDo7mr8VfKsmEqaZcrQhes0G5m15yZ5qdwgqDgqEbSCkPowGcgdE9eCW3H3TDoJUmaRN1BNwnjuEV2hIZRN-i7Bsa9KO7140F8aJE3rxkGYZp2o07SS-MkjNzn8A53doGN)
 
 **DNS Caching Implications:**
 
@@ -92,46 +54,7 @@ Anycast routing directs these SYN packets to the nearest Azure Front Door Point 
 
 Clients complete handshakes with ACK (acknowledge) packets, establishing connection state. This three-way handshake typically completes within one round-trip time to the nearest Azure Front Door PoP, significantly lower than round-trip times to distant backend servers would be if clients connected directly.
 
-```plantuml
-@startuml
-!theme plain
-
-title TCP Three-Way Handshake with Azure Front Door
-
-participant "Client" as C
-participant "Internet\nRouting" as Internet
-participant "Azure Front Door\nPoP (Anycast)" as PoP
-participant "Edge Load\nBalancer" as LB
-participant "NGINX Edge\nServer" as NGINX
-
-C -> Internet: SYN (Seq=1000, MSS=1460)
-note right: Client initiates connection\nto Anycast IP
-
-Internet -> PoP: Route via BGP
-note right: BGP routes to\nnearest PoP
-
-PoP -> LB: Forward SYN
-LB -> NGINX: Distribute connection
-note right: L4 load balancing\nusing 5-tuple hash
-
-NGINX -> LB: SYN-ACK (Seq=5000, Ack=1001)
-LB -> PoP: Forward SYN-ACK
-PoP -> Internet: Return packet
-Internet -> C: SYN-ACK arrives
-
-C -> Internet: ACK (Seq=1001, Ack=5001)
-Internet -> PoP: Route to same PoP
-PoP -> LB: Forward ACK
-LB -> NGINX: Complete handshake
-
-note over C, NGINX
-  TCP connection established
-  Round-trip time: ~10-50ms to nearest PoP
-  vs ~100-300ms to distant backend
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNp1VFFv2jAQ_isnP7US6RKSQButlSBdq2oMobKHbeLFJFewSmxqO3Rt1f32nR0o6ejyQBzfff6---7MCytUiSxjBh9qlAVeCr7QvJpJoGfNtRWFWHNpIQduIF8JlPYweCMtaonW5ezWn-f608Wtqq2Qi0PERE1c8uC51ghXWtHWpVLag1zsaCCfCm7s8SF0NHTIL-UCYaR46SFDvuKkXh9mj69vxj8coFk4mEdMUW92-c3vWFkERZuQZ9tKQUhhBbdooFBSYmGFkh5uFWwVws2kwefBxcWu-AymP8dwNMWH8ygMww58m07Po6QXHn_MuMcNryegyTWitMpTSeQajbesge2SiY_2MnAmI2wEd-D2-RSlnNEwgyulH7kunap_qV14lMCKrIS5t5Ea5olrQytIA1uvVwhLbpYNdjSkU72dGVwKY7WYOwF7h97V6PK2Kog9GORfG19S78uguHcORceto31RLcUO0y5ob9Yt2lpL6ndxj_bAnHzPyLUWGzRtYe_b9SbLiWlkpXtZHztOM2B4hfvGHPr9prztWa4qMtQ6S2Vplvwe_zOGnS3gez5puQs0DHy-EmaJ5e6SyTKgNqzBigoz-BOFQRpWboKgNT0-eWNcOAzicJtQUgfdRZk7E2XJOmyhRckyq2vssAp1xd0ne3HyZswuscIZy2hZ4h2vV3bGZvKVYHTdfilV7ZA0xIsly-74ytBXvS7pGm3_Xd52NRGizkm_ZVkU-zNY9sJ-syyI0-iknyS9pJuepUkUU_SJkrrpyWk3DON-N-6fxmfxa4c9e9boJOr10m6Y9HtxEnXp9foXScaGOQ?type=png)](https://mermaid.live/edit#pako:eNp1VFFv2jAQ_isnP7US6RKSQButlSBdq2oMobKHbeLFJFewSmxqO3Rt1f32nR0o6ejyQBzfff6---7MCytUiSxjBh9qlAVeCr7QvJpJoGfNtRWFWHNpIQduIF8JlPYweCMtaonW5ezWn-f608Wtqq2Qi0PERE1c8uC51ghXWtHWpVLag1zsaCCfCm7s8SF0NHTIL-UCYaR46SFDvuKkXh9mj69vxj8coFk4mEdMUW92-c3vWFkERZuQZ9tKQUhhBbdooFBSYmGFkh5uFWwVws2kwefBxcWu-AymP8dwNMWH8ygMww58m07Po6QXHn_MuMcNryegyTWitMpTSeQajbesge2SiY_2MnAmI2wEd-D2-RSlnNEwgyulH7kunap_qV14lMCKrIS5t5Ea5olrQytIA1uvVwhLbpYNdjSkU72dGVwKY7WYOwF7h97V6PK2Kog9GORfG19S78uguHcORceto31RLcUO0y5ob9Yt2lpL6ndxj_bAnHzPyLUWGzRtYe_b9SbLiWlkpXtZHztOM2B4hfvGHPr9prztWa4qMtQ6S2Vplvwe_zOGnS3gez5puQs0DHy-EmaJ5e6SyTKgNqzBigoz-BOFQRpWboKgNT0-eWNcOAzicJtQUgfdRZk7E2XJOmyhRckyq2vssAp1xd0ne3HyZswuscIZy2hZ4h2vV3bGZvKVYHTdfilV7ZA0xIsly-74ytBXvS7pGm3_Xd52NRGizkm_ZVkU-zNY9sJ-syyI0-iknyS9pJuepUkUU_SJkrrpyWk3DON-N-6fxmfxa4c9e9boJOr10m6Y9HtxEnXp9foXScaGOQ)
 
 **TCP Fast Open Optimization:**
 
@@ -161,63 +84,7 @@ Border Gateway Protocol serves as the routing protocol enabling Anycast operatio
 
 Each BGP announcement includes several key attributes. The AS_PATH attribute lists the sequence of autonomous systems the route traversed, with shorter paths generally preferred. The ORIGIN attribute indicates how the route was learned (IGP, EGP, or INCOMPLETE). The NEXT_HOP attribute specifies the IP address of the next router toward the destination. Multi-Exit Discriminator (MED) values suggest preferred entry points when multiple connections exist between autonomous systems.
 
-```plantuml
-@startuml
-!theme plain
-
-title Azure Front Door Anycast BGP Announcement
-
-map "Azure Front Door PoP 1\n(US West)" as PoP1 {
-  Location => San Francisco
-  AS_PATH => AS8075 (Microsoft)
-  Prefix => 1.2.3.0/24
-  MED => 100
-}
-
-map "Azure Front Door PoP 2\n(Europe West)" as PoP2 {
-  Location => Amsterdam
-  AS_PATH => AS8075 (Microsoft)
-  Prefix => 1.2.3.0/24
-  MED => 100
-}
-
-map "Azure Front Door PoP 3\n(Asia East)" as PoP3 {
-  Location => Hong Kong
-  AS_PATH => AS8075 (Microsoft)
-  Prefix => 1.2.3.0/24
-  MED => 100
-}
-
-cloud "Internet BGP\nRouting Tables" as BGP {
-  [ISP Router US] as ISP_US
-  [ISP Router EU] as ISP_EU
-  [ISP Router Asia] as ISP_Asia
-}
-
-PoP1 -down-> ISP_US: BGP Announce
-PoP2 -down-> ISP_EU: BGP Announce
-PoP3 -down-> ISP_Asia: BGP Announce
-
-note bottom of BGP
-  Each ISP router selects best path based on:
-  1. Shortest AS_PATH
-  2. Lowest MED
-  3. Nearest NEXT_HOP (hot-potato routing)
-  
-  Result: Clients route to geographically
-  nearest PoP automatically
-end note
-
-actor "Client\n(US)" as Client_US
-actor "Client\n(Europe)" as Client_EU
-actor "Client\n(Asia)" as Client_Asia
-
-Client_US .up.> ISP_US: Routes via PoP1
-Client_EU .up.> ISP_EU: Routes via PoP2
-Client_Asia .up.> ISP_Asia: Routes via PoP3
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNq1lF1vmzAUhv-K5d5sUkKxDSG1pkq0zbZqm4RGo0krU2XANGhgR8Zs_fzvsyFjSRO0q3IRfI7f1-fxyUkeYSZzDim8VWy9AldniQDmadq0T0QyQtcJDB9axcF7JYUGF1IqmwfoXaqOT98sY_CNN_ptAn_0ZvtE6OZSFNJYP8uM6VIKCmImzBFMZGWTyc4bxjdRePWRgjCeu4Hf5SLFi_KOAuRghzjuMfa69JfFhcm57lCFi7xf7BPjMWLcEy9aJdf8EDXepw7rRnOVs_o1ickYMemJw6ZkYMH2eMk-70cpbsEn8_FqvGcfIlPxUpi2CK5tCL7KVpem7hVLK97sMF7G0c0yvjavTsUVWMYvthfL7e3F8sW2vfy2wMb_QTyvSi50YzA3qx2kPmep-lV3_R2qjcKAbSn6sdlXdXxbunE--2sC0-npk-1ZKIRsRcafNi0aJHhEslgOEjIisaW3Cw43BVPHGLoGNuCXGSaLslt5uPMhLd5F2Lr5ITU5TNPo-4r3TSjKqqJHXpGRIpg0WsmfnB65OAjSfJLJSioTmVHcteGNbY6yYO4NNsyDnOBxG9nYiiINvHyw8Zlvpn3EZlvbuzhKOf_HOGMoPWGbcPq7zPWK4vUdnJh_0DKHVKuWT2DNVc1sCB_tqQnUK17zBFKzzHnB2konMBHPxrZm4ruU9V-nku3tCtKCVY2J2nXONL8omRnresgqM1ZcnZvvXUOKgu4MSB_hHaRT4iMn8LyZh_0T30OETOC9EWHfmWPXJQEmwZyckOcJfOiqIgfNZj52vWBGPITN6_kPvNLVew?type=png)](https://mermaid.live/edit#pako:eNq1lF1vmzAUhv-K5d5sUkKxDSG1pkq0zbZqm4RGo0krU2XANGhgR8Zs_fzvsyFjSRO0q3IRfI7f1-fxyUkeYSZzDim8VWy9AldniQDmadq0T0QyQtcJDB9axcF7JYUGF1IqmwfoXaqOT98sY_CNN_ptAn_0ZvtE6OZSFNJYP8uM6VIKCmImzBFMZGWTyc4bxjdRePWRgjCeu4Hf5SLFi_KOAuRghzjuMfa69JfFhcm57lCFi7xf7BPjMWLcEy9aJdf8EDXepw7rRnOVs_o1ickYMemJw6ZkYMH2eMk-70cpbsEn8_FqvGcfIlPxUpi2CK5tCL7KVpem7hVLK97sMF7G0c0yvjavTsUVWMYvthfL7e3F8sW2vfy2wMb_QTyvSi50YzA3qx2kPmep-lV3_R2qjcKAbSn6sdlXdXxbunE--2sC0-npk-1ZKIRsRcafNi0aJHhEslgOEjIisaW3Cw43BVPHGLoGNuCXGSaLslt5uPMhLd5F2Lr5ITU5TNPo-4r3TSjKqqJHXpGRIpg0WsmfnB65OAjSfJLJSioTmVHcteGNbY6yYO4NNsyDnOBxG9nYiiINvHyw8Zlvpn3EZlvbuzhKOf_HOGMoPWGbcPq7zPWK4vUdnJh_0DKHVKuWT2DNVc1sCB_tqQnUK17zBFKzzHnB2konMBHPxrZm4ruU9V-nku3tCtKCVY2J2nXONL8omRnresgqM1ZcnZvvXUOKgu4MSB_hHaRT4iMn8LyZh_0T30OETOC9EWHfmWPXJQEmwZyckOcJfOiqIgfNZj52vWBGPITN6_kPvNLVew)
 
 **Hot-Potato Routing:**
 
@@ -241,73 +108,7 @@ Microsoft implements sophisticated traffic engineering to optimize path selectio
 
 The traffic engineering system considers multiple factors when selecting paths. Link utilization avoids overloaded connections, maintaining performance even during traffic spikes. Latency measurements prefer lower-latency paths for interactive traffic. Failure avoidance routes around known problems detected through monitoring. Cost considerations balance performance against operational expenses for provider transit where Microsoft's private network has gaps.
 
-```plantuml
-@startuml
-!theme plain
-
-title Microsoft Global Network Architecture
-
-package "Azure Front Door PoPs" {
-    [PoP US West] as PoP_USW
-    [PoP US East] as PoP_USE
-    [PoP Europe] as PoP_EU
-    [PoP Asia] as PoP_Asia
-}
-
-package "Microsoft Backbone Network" {
-    node "Subsea Fiber\nUS-Europe" as Fiber_US_EU
-    node "Subsea Fiber\nUS-Asia" as Fiber_US_Asia
-    node "Terrestrial Fiber\nUS Cross-Country" as Fiber_US
-    
-    [SDN Controller] as SDN
-}
-
-package "Azure Regions (Backend)" {
-    [Azure US West 2] as Region_USW
-    [Azure US East] as Region_USE
-    [Azure West Europe] as Region_EU
-    [Azure Southeast Asia] as Region_Asia
-}
-
-PoP_USW -down-> Fiber_US
-PoP_USE -down-> Fiber_US
-Fiber_US -up-> PoP_USW
-Fiber_US -up-> PoP_USE
-
-PoP_USW -down-> Fiber_US_EU
-PoP_EU -up-> Fiber_US_EU
-
-PoP_USW -down-> Fiber_US_Asia
-PoP_Asia -up-> Fiber_US_Asia
-
-Fiber_US -down-> Region_USW
-Fiber_US -down-> Region_USE
-Fiber_US_EU -down-> Region_EU
-Fiber_US_Asia -down-> Region_Asia
-
-SDN .down.> Fiber_US : Monitor & Optimize
-SDN .down.> Fiber_US_EU : Monitor & Optimize
-SDN .down.> Fiber_US_Asia : Monitor & Optimize
-
-note right of SDN
-  SDN Controller Functions:
-  - Real-time latency monitoring
-  - Congestion detection
-  - Automatic path rerouting
-  - Load balancing across paths
-end note
-
-note bottom of Fiber_US_EU
-  Typical latency:
-  US-Europe: 80-100ms
-  US-Asia: 120-180ms
-  
-  vs Public Internet:
-  Often 150-300ms+
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNqNVO9vqjAU_VeaLnmfxAcFFMlisin7tr1lzix58vKCcFEiUFNKNnX-768tiD_nG4nS9pxze-4ttxsc0giwi2csWM7R672fI_EU5bRaeKbPxcTHd-uSAXpgNOdoSClT6z7-U7HlIxb-jkdvE_FG4xF6g4Kfod4O9YIz1Bsr0CsZXcIJdlckgULloMYgj6rBieH7IFxMaQ7C9GMSMlrQmDeL6An4O2WLI-cPyRSYcDd5BcaEbZYEabV4O2U_-8LuQIQptAEtc85WF5TS_KicFhAc6bSzZBqByuiS5CBD-YyGTxPxQwNReEbTFNh_0n-BWULz_ZHVc6SpGkjVYeoVqs6totcnh8glkrcnnRxgTRFlqBgqxln2NUvlXvFGtORzELGunGz9YaFbTes3BTyEvEvQFa2wuUe98RfgtQDS7B6Xsy8J1f8OQJK1L_o10DsGpdEDfOfyaMdDwqkD-RFpba3_-UjzhIsG_oF-LXmSJWv4PCndt6iNg--xT-0UfJWCukRQnKSpewNmTOKoJbqPLsC9MXrdTkTqqfaeRHzukuXHobjp6SpAHMcm6E2A2O6Gun41wK41agNObEOv0ZuOA2Z4VS8z3-1tE5s02rBDHOK0QppSpozhlrhekwi7nJXQwhmwLJBTvJHxfCx6IAMfu2IYQRyUKfexn2-FbBnkvynNdkpGy9kcu3GQFmJWLqOAwzAJROtnzSoT_QNMXVbYJYaKgd0N_sCuZtpGu2tZHYvYPdsyTLOFV9g1iN12iK6bXWJ2HbNnblt4rXY12kanYxPd6nZMyyDitf0HuwTrVw?type=png)](https://mermaid.live/edit#pako:eNqNVO9vqjAU_VeaLnmfxAcFFMlisin7tr1lzix58vKCcFEiUFNKNnX-768tiD_nG4nS9pxze-4ttxsc0giwi2csWM7R672fI_EU5bRaeKbPxcTHd-uSAXpgNOdoSClT6z7-U7HlIxb-jkdvE_FG4xF6g4Kfod4O9YIz1Bsr0CsZXcIJdlckgULloMYgj6rBieH7IFxMaQ7C9GMSMlrQmDeL6An4O2WLI-cPyRSYcDd5BcaEbZYEabV4O2U_-8LuQIQptAEtc85WF5TS_KicFhAc6bSzZBqByuiS5CBD-YyGTxPxQwNReEbTFNh_0n-BWULz_ZHVc6SpGkjVYeoVqs6totcnh8glkrcnnRxgTRFlqBgqxln2NUvlXvFGtORzELGunGz9YaFbTes3BTyEvEvQFa2wuUe98RfgtQDS7B6Xsy8J1f8OQJK1L_o10DsGpdEDfOfyaMdDwqkD-RFpba3_-UjzhIsG_oF-LXmSJWv4PCndt6iNg--xT-0UfJWCukRQnKSpewNmTOKoJbqPLsC9MXrdTkTqqfaeRHzukuXHobjp6SpAHMcm6E2A2O6Gun41wK41agNObEOv0ZuOA2Z4VS8z3-1tE5s02rBDHOK0QppSpozhlrhekwi7nJXQwhmwLJBTvJHxfCx6IAMfu2IYQRyUKfexn2-FbBnkvynNdkpGy9kcu3GQFmJWLqOAwzAJROtnzSoT_QNMXVbYJYaKgd0N_sCuZtpGu2tZHYvYPdsyTLOFV9g1iN12iK6bXWJ2HbNnblt4rXY12kanYxPd6nZMyyDitf0HuwTrVw)
 
 ### Packet-Level Routing
 
@@ -349,74 +150,7 @@ Azure Front Door maintains connection pools to backends, reusing TCP connections
 
 The connection pool implementation includes sophisticated management logic. Pool size limits per backend prevent resource exhaustion if backends become slow or unresponsive. Idle timeout closes connections unused beyond configured durations, freeing resources. Health monitoring detects broken connections, removing them from pools before attempting use. Connection lifetime limits force periodic connection refresh, preventing issues from accumulating over long-lived connections.
 
-```plantuml
-@startuml
-!theme plain
-
-title TCP Connection Multiplexing in Azure Front Door
-
-participant "Client 1" as C1
-participant "Client 2" as C2
-participant "Client 3" as C3
-participant "Azure Front Door\nEdge Server" as Edge
-participant "Backend\nConnection Pool" as Pool
-participant "Backend\nServer" as Backend
-
-== Initial Connections ==
-
-C1 -> Edge: TCP SYN
-Edge -> C1: SYN-ACK
-C1 -> Edge: ACK
-note right: Client 1 connection established
-
-C2 -> Edge: TCP SYN
-Edge -> C2: SYN-ACK
-C2 -> Edge: ACK
-note right: Client 2 connection established
-
-== First Request (Pool Empty) ==
-
-C1 -> Edge: HTTP GET /api/data
-Edge -> Pool: Need connection
-Pool -> Backend: TCP SYN (establish new)
-Backend -> Pool: SYN-ACK
-Pool -> Backend: ACK
-Edge -> Backend: Forward HTTP GET
-Backend -> Edge: HTTP 200 OK
-Edge -> C1: HTTP 200 OK
-Pool <-- Backend: Connection returned to pool
-
-== Subsequent Requests (Pool Reuse) ==
-
-C2 -> Edge: HTTP GET /api/users
-Edge -> Pool: Need connection
-Pool --> Edge: Reuse existing connection
-Edge -> Backend: HTTP GET (on pooled conn)
-Backend -> Edge: HTTP 200 OK
-Edge -> C2: HTTP 200 OK
-Pool <-- Backend: Connection returned to pool
-
-C3 -> Edge: TCP SYN
-Edge -> C3: SYN-ACK
-C3 -> Edge: ACK
-
-C3 -> Edge: HTTP POST /api/update
-Edge -> Pool: Need connection
-Pool --> Edge: Reuse existing connection
-Edge -> Backend: HTTP POST (on pooled conn)
-Backend -> Edge: HTTP 201 Created
-Edge -> C3: HTTP 201 Created
-Pool <-- Backend: Connection returned to pool
-
-note over Edge, Pool
-  Connection multiplexing:
-  3 client connections → 1 backend connection
-  Eliminates 2 TCP handshakes
-  Reduces backend connection count by 66%
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNq9Vdtu2zAM_RVBwIAWSC-Wc2mNoUDntttQoA2avGzIi2KziVBb8iR5vaGv_YB94r5klO04Tpx2KzYsD7HNQ_IcUpT0SCMVAw2ogW85yAhOBJ9pnk4kwV_GtRWRyLi0JPQINyRMBOCHtwFnDZxtwP0G7rfx03gGzuP4IddAzrRC24lS-v1U7x0V4Aj0d9DtyKFSiYv8wKMbkHERECopIbJCyQJuB1XO63FNjvL_QlkgCo3YgU7lGpDPUljBE7LkMc2g0Ns5KkQHZBwOyejLRWl3JkRCL3C2nePwvOVf2wpiLWZzS9Q1cSGL5pNoWR0Yy6eJMHOIVwSw1wWwdQHstwJYLYD9gYDNbTsT2lhy5WYNn1vFyp2mmb3ffqF7n8bjIfl4OiZ7PBN7Mbd8pQ6XICAXAHFDUunhIPSoqas2kK1aMJFwW_FWXnXGld6sZ6qBSsSyOqVvuY5r0eu5GyWx_X1yed4aiha2CK6VNQZbg821xNKtIlk95K-1f5RPy31er4GpFuEKcgPbL0zQ6iKgozZvWoU6UcFC4E4YK-Ss5bzez5p3C6t1FVYE229sLPuHjQ391zeWv76x_PbGaiGFuuHlaNHhDAcd_l-LC-Y39dgjoQbUGLeK3-zw92PsKDqt2DRPrMgSLFfOguIA90lUHlLLyg35-fwDT81pdeQvkfJuSUQqJGo1eLC5NZ1zGZs5vwFT4FcQ5xGC7XB8zZFpek_6_Xe0Q2daxDSwOocOTUGn3H3SR1fKhNo5pDChAb7GcM1R-IRO5BOG4X30Val0EalVPpvT4JonBr_KWahu5dqqUQjo0NHTgPWKHDR4pHc02PF73u6g2-13We-w1_V8v0PvaeCx3u4BbgB_wPzBgX_oP3XoQ8Hq7Xr9fo_tdwd9v-sxfDz9Aj2ChPk?type=png)](https://mermaid.live/edit#pako:eNq9Vdtu2zAM_RVBwIAWSC-Wc2mNoUDntttQoA2avGzIi2KziVBb8iR5vaGv_YB94r5klO04Tpx2KzYsD7HNQ_IcUpT0SCMVAw2ogW85yAhOBJ9pnk4kwV_GtRWRyLi0JPQINyRMBOCHtwFnDZxtwP0G7rfx03gGzuP4IddAzrRC24lS-v1U7x0V4Aj0d9DtyKFSiYv8wKMbkHERECopIbJCyQJuB1XO63FNjvL_QlkgCo3YgU7lGpDPUljBE7LkMc2g0Ns5KkQHZBwOyejLRWl3JkRCL3C2nePwvOVf2wpiLWZzS9Q1cSGL5pNoWR0Yy6eJMHOIVwSw1wWwdQHstwJYLYD9gYDNbTsT2lhy5WYNn1vFyp2mmb3ffqF7n8bjIfl4OiZ7PBN7Mbd8pQ6XICAXAHFDUunhIPSoqas2kK1aMJFwW_FWXnXGld6sZ6qBSsSyOqVvuY5r0eu5GyWx_X1yed4aiha2CK6VNQZbg821xNKtIlk95K-1f5RPy31er4GpFuEKcgPbL0zQ6iKgozZvWoU6UcFC4E4YK-Ss5bzez5p3C6t1FVYE229sLPuHjQ391zeWv76x_PbGaiGFuuHlaNHhDAcd_l-LC-Y39dgjoQbUGLeK3-zw92PsKDqt2DRPrMgSLFfOguIA90lUHlLLyg35-fwDT81pdeQvkfJuSUQqJGo1eLC5NZ1zGZs5vwFT4FcQ5xGC7XB8zZFpek_6_Xe0Q2daxDSwOocOTUGn3H3SR1fKhNo5pDChAb7GcM1R-IRO5BOG4X30Val0EalVPpvT4JonBr_KWahu5dqqUQjo0NHTgPWKHDR4pHc02PF73u6g2-13We-w1_V8v0PvaeCx3u4BbgB_wPzBgX_oP3XoQ8Hq7Xr9fo_tdwd9v-sxfDz9Aj2ChPk)
 
 ### TCP Performance Optimizations
 
@@ -452,74 +186,7 @@ QUIC implements connection multiplexing natively, supporting multiple independen
 
 Connection migration allows clients to change IP addresses without breaking connections, beneficial for mobile clients moving between networks. QUIC identifies connections with connection IDs rather than five-tuples, enabling transparent migration as client addresses change.
 
-```plantuml
-@startuml
-!theme plain
-
-title TCP+TLS vs QUIC Connection Establishment
-
-participant Client as C1
-participant "Azure Front Door" as AFD1
-
-== Traditional TCP + TLS (3 RTT) ==
-
-group TCP Handshake (1 RTT)
-    C1 -> AFD1: SYN
-    AFD1 -> C1: SYN-ACK
-    C1 -> AFD1: ACK
-end
-
-group TLS 1.2 Handshake (2 RTT)
-    C1 -> AFD1: ClientHello
-    AFD1 -> C1: ServerHello, Certificate, Done
-    C1 -> AFD1: KeyExchange, ChangeCipherSpec
-    AFD1 -> C1: ChangeCipherSpec, Finished
-end
-
-C1 -> AFD1: HTTP Request (encrypted)
-AFD1 -> C1: HTTP Response
-
-note over C1, AFD1
-  Total: 3 RTTs before application data
-  200ms on 60ms RTT network
-end note
-
-|||
-
-participant Client as C2
-participant "Azure Front Door\n(QUIC/HTTP3)" as AFD2
-
-== QUIC / HTTP3 (1 RTT) ==
-
-group QUIC+TLS 1.3 Combined Handshake (1 RTT)
-    C2 -> AFD2: Initial[ClientHello + QUIC params]
-    AFD2 -> C2: Initial[ServerHello, Certificate]\n+ Handshake[Finished]\n+ 1-RTT[Application Data Ready]
-end
-
-C2 -> AFD2: HTTP/3 Request (encrypted)
-AFD2 -> C2: HTTP/3 Response
-
-note over C2, AFD2
-  Total: 1 RTT before application data
-  60ms on 60ms RTT network
-  
-  70% latency reduction vs TCP+TLS
-end note
-
-|||
-
-group QUIC 0-RTT (Resumption)
-    C2 -> AFD2: Initial[0-RTT Key] + 0-RTT[HTTP Request]
-    AFD2 -> C2: HTTP Response (immediate)
-end
-
-note over C2, AFD2
-  0-RTT with session resumption
-  Instant application data exchange
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNqlVd9P4kAQ_lcmm1yCsQJtgUpzMSH1jMaL8ZR7uAMelnaExna3t92qaPzfb7YFBCncw_WB0vnx7TfzzbRvLJQRMp_l-KdAEeJ5zGeKp2MBdGVc6TiMMy40BDbwHIIkRqF3vYOL89I_eC0UwoWSZDuXUtXgOP_Acepwvk5V66zx4-dV0LocDm_do7Gokm-kRpBPqIigZVj4MFQ8inUsBU9gGNzCMQy_30PDhbvhcJ2nMNSgZtOG0-1a4HTa9OO2jyrnPmACu-Qiyuf8EaFhLwFXGYF9cnZWRd7_uvmwGxN5gsp-Mgiua3PWdhTRf7GkYu2ms8nU2c-0EuISk0TWM0ZF6KXfggBJqYc45BotkkVgLeQ1Lr69hHMuZhQVlPcgzuao7jMMaw_5HGTBRSzifI7RTkc2zjGDAHdmbnMNDRpetcg0Rss6N-CXgXkmRY6HBkdqnvhQDkoOU3yQNIM8yxJTMc0TRFzzchKddjvNgSw9c6dwEKifpXqsQXcMuuODGV5olWTcj-H5rLNrJO4Ysbvdep238CqxXQhkOo0FRgfn06laR7lXghaEJ6MN9YESK0zaR57mky2lTGqwkbhvLCZle9YkRisdK7t9QoxGg42OnlNHSRoeLSa7Un_wNU1ruQfFXjFch-6Ve9XApdxlmw6q3dsjdun02l8gocpFuCAZoyIsc59y87Y4Jnn2SFzu875V3pK4bZoGDSqoSDMDfljSKpx2cFIqWj6ONlelXtitHYFGnKYYxVTW0Y4sNTyrM59jPYcc89w0QK3pll26Erk27_fP_QVcvimYxWYqjpivVYEWS1Gl3DyyN3PqmOk5pjhmPv2N8IEXiR6zsXinNPpu_JYyXWUqWczmzH_gSU5PRUanrD5qa6uiclAFshCa-a5TYjD_jb0w3_bspk3q9Puefdp3O32LLZjf6TW9U7fT69s9cnk9-91ir-Wh7eap1-mby-u43a7nee9_AWtXLOs?type=png)](https://mermaid.live/edit#pako:eNqlVd9P4kAQ_lcmm1yCsQJtgUpzMSH1jMaL8ZR7uAMelnaExna3t92qaPzfb7YFBCncw_WB0vnx7TfzzbRvLJQRMp_l-KdAEeJ5zGeKp2MBdGVc6TiMMy40BDbwHIIkRqF3vYOL89I_eC0UwoWSZDuXUtXgOP_Acepwvk5V66zx4-dV0LocDm_do7Gokm-kRpBPqIigZVj4MFQ8inUsBU9gGNzCMQy_30PDhbvhcJ2nMNSgZtOG0-1a4HTa9OO2jyrnPmACu-Qiyuf8EaFhLwFXGYF9cnZWRd7_uvmwGxN5gsp-Mgiua3PWdhTRf7GkYu2ms8nU2c-0EuISk0TWM0ZF6KXfggBJqYc45BotkkVgLeQ1Lr69hHMuZhQVlPcgzuao7jMMaw_5HGTBRSzifI7RTkc2zjGDAHdmbnMNDRpetcg0Rss6N-CXgXkmRY6HBkdqnvhQDkoOU3yQNIM8yxJTMc0TRFzzchKddjvNgSw9c6dwEKifpXqsQXcMuuODGV5olWTcj-H5rLNrJO4Ysbvdep238CqxXQhkOo0FRgfn06laR7lXghaEJ6MN9YESK0zaR57mky2lTGqwkbhvLCZle9YkRisdK7t9QoxGg42OnlNHSRoeLSa7Un_wNU1ruQfFXjFch-6Ve9XApdxlmw6q3dsjdun02l8gocpFuCAZoyIsc59y87Y4Jnn2SFzu875V3pK4bZoGDSqoSDMDfljSKpx2cFIqWj6ONlelXtitHYFGnKYYxVTW0Y4sNTyrM59jPYcc89w0QK3pll26Erk27_fP_QVcvimYxWYqjpivVYEWS1Gl3DyyN3PqmOk5pjhmPv2N8IEXiR6zsXinNPpu_JYyXWUqWczmzH_gSU5PRUanrD5qa6uiclAFshCa-a5TYjD_jb0w3_bspk3q9Puefdp3O32LLZjf6TW9U7fT69s9cnk9-91ir-Wh7eap1-mby-u43a7nee9_AWtXLOs)
 
 **HTTP/3 Over QUIC:**
 
@@ -555,71 +222,7 @@ Binary framing replaces HTTP/1.1's text-based protocol with efficient binary fra
 
 Header compression using HPACK significantly reduces overhead. HTTP headers are verbose and repetitive, with common headers like Cookie, User-Agent, and Accept appearing in every request. HPACK maintains compression contexts tracking previously sent headers, referencing them by index in subsequent requests. For typical web traffic, HPACK reduces header sizes by 70-90%, improving performance especially on mobile networks.
 
-```plantuml
-@startuml
-!theme plain
-
-title HTTP/2 Multiplexing and Stream Processing
-
-participant Client
-box "Azure Front Door Edge Server" #LightBlue
-    participant "HTTP/2 Mux" as Mux
-    participant "Stream 1\nHandler" as S1
-    participant "Stream 3\nHandler" as S3
-    participant "Stream 5\nHandler" as S5
-end box
-participant Backend
-
-== Parallel Request Processing ==
-
-Client -> Mux: HEADERS frame [Stream 1]\nGET /api/users
-activate S1
-Mux -> S1: Process request
-S1 -> Backend: Forward request
-
-Client -> Mux: HEADERS frame [Stream 3]\nGET /api/data
-activate S3
-Mux -> S3: Process request
-S3 -> Backend: Forward request
-
-Client -> Mux: HEADERS frame [Stream 5]\nPOST /api/update\n+ DATA frames
-activate S5
-Mux -> S5: Process request
-S5 -> Backend: Forward request
-
-== Interleaved Response Delivery ==
-
-Backend -> S3: Response ready (fast)
-S3 -> Mux: HEADERS frame [Stream 3]
-Mux -> Client: HEADERS [Stream 3]\n+ DATA frames
-
-Backend -> S5: Response ready
-S5 -> Mux: HEADERS frame [Stream 5]
-Mux -> Client: HEADERS [Stream 5]\n+ DATA frames
-deactivate S5
-
-note right
-  Stream 5 completes
-  before Stream 1
-  despite later start
-end note
-
-Backend -> S1: Response ready (slow)
-S1 -> Mux: HEADERS frame [Stream 1]
-Mux -> Client: HEADERS [Stream 1]\n+ DATA frames
-deactivate S1
-deactivate S3
-
-note over Client, Backend
-  HTTP/2 multiplexing allows:
-  - Multiple concurrent requests
-  - Independent stream processing
-  - Out-of-order response delivery
-  - No head-of-line blocking
-end note
-
-@enduml
-```
+[![](https://mermaid.ink/img/pako:eNqtlcFy2jAQhl9Fo1MzhVDFMQRPJzM0kCaHJkzMqaUHYa3BE1tyJTmQZPLuXWObGhwyPpQDg7X_rr79JS-vNFACqEcN_MlABjCO-FLzZC4JflKubRREKZeWXMURSFusL9SGjF4yDeRaK4yNldJkIpZAfNBPoAvVYYUf2YZwQ25ms2nvLH96X-azXOVbDTwh7OtC9y5vuBTxsbK-U9M7LfRuTe829SBFs_tvPHjcBYrvO2WBKOy2tKZTajwy5ZrHMcTkITfVWDLVKgBjIrmsFyjSupeXaIVHbiaj8eTBJyG6D-RX1f_vLeD3yYz0eBr1MgPaFOk8sNETRwafFQtYBov5zKv2I7rYvwj7DKM7xmul11yLfUl7LueAS3DLD7GcPSznGJbzH7HcAmt671d-pUgG28XPZDyajYqEhoXuHqt7jNVtyXr8btxKCzoG_gQCr4dJlTRAxhBHKH6ulygzSut2UmxTPJNPITf2pGbgh0dV763g-ac9ONB3TGrguIc4NXM-PJs2HO5RDgGN46qZraPlyhIVkhyvqkUClaQxWDDbogsIFc6svdEisJMI82Osq4mx-M4faZs1T8HEan1Se7s-fJHbdM9adc-aS06721fO3iSLbYTGbHAiERxVam287cZd5CtCaJ0MMq0xvbrgppTcSgEplstDpuBOdwOu1NxntqvCrtICKXRlmyjveSm6U2SFRubCOJJAFrEKHrEG7dCljgT1rM6gQxPQCc8f6Wve35zaFSQwpx7-FBByJJ7TuXzDNJzVP5VKqkytsuWKeiGPDT4Vs6D8g9ut6rwTfaUyaann9Lc1qPdKN9RjA3bKzlx3OBywi6FzPuzQZ-qd908HF855f8j6GBr02VuHvmw3_XJ6MXDf_gJRy1b6?type=png)](https://mermaid.live/edit#pako:eNqtlcFy2jAQhl9Fo1MzhVDFMQRPJzM0kCaHJkzMqaUHYa3BE1tyJTmQZPLuXWObGhwyPpQDg7X_rr79JS-vNFACqEcN_MlABjCO-FLzZC4JflKubRREKZeWXMURSFusL9SGjF4yDeRaK4yNldJkIpZAfNBPoAvVYYUf2YZwQ25ms2nvLH96X-azXOVbDTwh7OtC9y5vuBTxsbK-U9M7LfRuTe829SBFs_tvPHjcBYrvO2WBKOy2tKZTajwy5ZrHMcTkITfVWDLVKgBjIrmsFyjSupeXaIVHbiaj8eTBJyG6D-RX1f_vLeD3yYz0eBr1MgPaFOk8sNETRwafFQtYBov5zKv2I7rYvwj7DKM7xmul11yLfUl7LueAS3DLD7GcPSznGJbzH7HcAmt671d-pUgG28XPZDyajYqEhoXuHqt7jNVtyXr8btxKCzoG_gQCr4dJlTRAxhBHKH6ulygzSut2UmxTPJNPITf2pGbgh0dV763g-ac9ONB3TGrguIc4NXM-PJs2HO5RDgGN46qZraPlyhIVkhyvqkUClaQxWDDbogsIFc6svdEisJMI82Osq4mx-M4faZs1T8HEan1Se7s-fJHbdM9adc-aS06721fO3iSLbYTGbHAiERxVam287cZd5CtCaJ0MMq0xvbrgppTcSgEplstDpuBOdwOu1NxntqvCrtICKXRlmyjveSm6U2SFRubCOJJAFrEKHrEG7dCljgT1rM6gQxPQCc8f6Wve35zaFSQwpx7-FBByJJ7TuXzDNJzVP5VKqkytsuWKeiGPDT4Vs6D8g9ut6rwTfaUyaann9Lc1qPdKN9RjA3bKzlx3OBywi6FzPuzQZ-qd908HF855f8j6GBr02VuHvmw3_XJ6MXDf_gJRy1b6)
 
 ### Request and Response Processing Pipeline
 
