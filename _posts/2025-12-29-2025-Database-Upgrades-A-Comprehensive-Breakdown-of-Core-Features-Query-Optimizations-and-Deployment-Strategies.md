@@ -16,18 +16,7 @@ The database landscape shifted significantly in 2025. From PostgreSQL's revoluti
 
 PostgreSQL 18 dropped in September 2025, and the headline feature is a complete reimagining of how the database handles I/O operations. The new asynchronous I/O (AIO) subsystem represents years of work to break free from PostgreSQL's traditional synchronous model.
 
-```mermaid
-flowchart TD
-    A[Query Request] --> B{I/O Method}
-    B -->|Legacy Sync| C[Block on Read]
-    B -->|New AIO| D[Async Read Request]
-    C --> E[Wait for Disk]
-    D --> F[Continue Processing]
-    E --> G[Resume Query]
-    F --> H[Handle Callback]
-    H --> G
-    G --> I[Return Results]
-```
+[![](https://mermaid.ink/img/pako:eNpNj9tOwkAQhl9lM9eAVg6lvTCBllOiomhiYsvF2k5LQ7uLewhW4N1dtnjYq_3zff9M5gAJTxF8yEq-TzZUKPISxoyYN4qeNIqarPBDo1Rr0m7fkvFhcbUk96g2PD013vgMjneY06QmzzVLjiSIxiVPtoQz06bp-r_4gHsyWiyPJIxG0tjW-F3SmIHdNYleaaFIxgUJC7m9sNCyaRRwpgqmkTwKnqCUBcsvxsQas2iFUldI7BUXNLVoHs0pS0skAS3Ld5r8jJ43xSbMbFiYKUqL8x1Sl0quoQW5KFLwldDYggpFRc8RDudaDGqDFcbgm2-KGTWdGGJ2MrUdZW-cVz9NwXW-AT-jpTRJ71KqMCxoLuifgixFEXDNFPienQD-AT7Bd1yn49z0-57nOkOv2zOwBr836LjDbm_gOQOD3IFzasGXXXndGbr90zfT8pbB?type=png)](https://mermaid.live/edit#pako:eNpNj9tOwkAQhl9lM9eAVg6lvTCBllOiomhiYsvF2k5LQ7uLewhW4N1dtnjYq_3zff9M5gAJTxF8yEq-TzZUKPISxoyYN4qeNIqarPBDo1Rr0m7fkvFhcbUk96g2PD013vgMjneY06QmzzVLjiSIxiVPtoQz06bp-r_4gHsyWiyPJIxG0tjW-F3SmIHdNYleaaFIxgUJC7m9sNCyaRRwpgqmkTwKnqCUBcsvxsQas2iFUldI7BUXNLVoHs0pS0skAS3Ld5r8jJ43xSbMbFiYKUqL8x1Sl0quoQW5KFLwldDYggpFRc8RDudaDGqDFcbgm2-KGTWdGGJ2MrUdZW-cVz9NwXW-AT-jpTRJ71KqMCxoLuifgixFEXDNFPienQD-AT7Bd1yn49z0-57nOkOv2zOwBr836LjDbm_gOQOD3IFzasGXXXndGbr90zfT8pbB)
 
 The diagram shows how AIO changes query execution. Instead of blocking every time you need data from disk, the database can issue the read request and move on to other work. When the data arrives, a callback handles it. This matters tremendously for read-heavy workloads, where benchmarks show 2-3x performance improvements, with some workloads hitting 3x faster execution.
 
@@ -41,18 +30,7 @@ SELECT * FROM customers WHERE city = 'Boston' AND purchase_amount > 1000;
 
 If your index is on (country, city, purchase_amount), skip scan will traverse the index, hopping from one country to the next while looking for 'Boston', avoiding the need to scan the entire table. This dramatically improves performance on large datasets where you can't always provide conditions on every prefix column.
 
-```mermaid
-graph LR
-    A[B-tree Index Root] --> B[USA Branch]
-    A --> C[UK Branch]
-    A --> D[Canada Branch]
-    B --> E[USA: Boston]
-    C --> F[UK: Boston]
-    D --> G[Canada: Boston]
-    E --> H[Matching Rows]
-    F --> H
-    G --> H
-```
+[![](https://mermaid.ink/img/pako:eNptkMtugzAQRX_FmjWgUt5eVAqQpFXbTapsCllY4ABSsJExalrEv9cYWqlRvfKdM3PnMULBSwoYKkG6Gr0ccobU22SxKQWl6ImV9IoOnMsTMs0HFGfHtw2KBWFFfVpzNUiy4_N_8TRLCCMl-ctizbazGUYx7yVnK0k02Sm3G5BqsF_tbuBWw8fslciiblilJv7oV7Zb2CL2iwBDLdyUgKUYqAEtFS2ZJYxzWg6ypi3NAatvSc9kuMgccjapso6wd87bn0rBh6oGfCaXXqmhK4mkaUPUNdvfqKDqiCLhA5OAbUd7AB7hqlRgW_a950VRYIeR40YGfAJ2fSsIHdePbF-hwLcnA7500zsrDLzpG-zdfyE?type=png)](https://mermaid.live/edit#pako:eNptkMtugzAQRX_FmjWgUt5eVAqQpFXbTapsCllY4ABSsJExalrEv9cYWqlRvfKdM3PnMULBSwoYKkG6Gr0ccobU22SxKQWl6ImV9IoOnMsTMs0HFGfHtw2KBWFFfVpzNUiy4_N_8TRLCCMl-ctizbazGUYx7yVnK0k02Sm3G5BqsF_tbuBWw8fslciiblilJv7oV7Zb2CL2iwBDLdyUgKUYqAEtFS2ZJYxzWg6ypi3NAatvSc9kuMgccjapso6wd87bn0rBh6oGfCaXXqmhK4mkaUPUNdvfqKDqiCLhA5OAbUd7AB7hqlRgW_a950VRYIeR40YGfAJ2fSsIHdePbF-hwLcnA7500zsrDLzpG-zdfyE)
 
 The diagram illustrates how skip scan navigates multiple branches of a B-tree to find all instances of 'Boston' across different countries, without scanning every entry.
 
@@ -91,16 +69,7 @@ SET GLOBAL replicate_encrypt=ON;
 
 This encrypts replication traffic automatically, addressing a security gap where sensitive data could travel unencrypted between primary and replica servers.
 
-```mermaid
-sequenceDiagram
-    participant Primary
-    participant Replica
-    Primary->>Replica: Establish Connection (TLS)
-    Replica-->>Primary: Verify Certificate
-    Primary->>Replica: Encrypted Binlog Events
-    Replica->>Replica: Apply Changes
-    Note over Primary,Replica: All replication traffic encrypted by default
-```
+[![](https://mermaid.ink/img/pako:eNp1UVtPwjAU_ivNedJkECewsT6QKPJmjFHjg9lL2c62Jl1bzzriJPx3CxTUGPvU73y3XrZQmBKBQ4fvPeoC76SoSbS5Zn5ZQU4W0grt2CPJVtDwl3hCq2QhjkRQjRaLMOZs1TmxVrJr2NJojYWTRrOLl_vny6MlCEfeE9ycvSLJamBL9DWVJx3-H68LGqzDkt1KrUzNVhvUrvud_UN_Y63yyY3QNQbVg3HIzAbplB99q5VidASHczsSlT8Qw3PremAlVqJXDiKoSZbAHfUYQYvUij2E7b4mB9dgizlwvw2OHHK98zb_jm_GtCcnmb5ugFdCdR71tvT3D_9ynhLqEmlpeu2Ax-khA_gWPvYoHsfXs1mWpfE8m0yzCAbg02SczifTJIsTT6VJvIvg81B6NZ6ns90XhZ2thw?type=png)](https://mermaid.live/edit#pako:eNp1UVtPwjAU_ivNedJkECewsT6QKPJmjFHjg9lL2c62Jl1bzzriJPx3CxTUGPvU73y3XrZQmBKBQ4fvPeoC76SoSbS5Zn5ZQU4W0grt2CPJVtDwl3hCq2QhjkRQjRaLMOZs1TmxVrJr2NJojYWTRrOLl_vny6MlCEfeE9ycvSLJamBL9DWVJx3-H68LGqzDkt1KrUzNVhvUrvud_UN_Y63yyY3QNQbVg3HIzAbplB99q5VidASHczsSlT8Qw3PremAlVqJXDiKoSZbAHfUYQYvUij2E7b4mB9dgizlwvw2OHHK98zb_jm_GtCcnmb5ugFdCdR71tvT3D_9ynhLqEmlpeu2Ax-khA_gWPvYoHsfXs1mWpfE8m0yzCAbg02SczifTJIsTT6VJvIvg81B6NZ6ns90XhZ2thw)
 
 MySQL 9.4 in July required GCC 11 or newer for compilation, dropping support for ARM RHEL7 platforms. This signals a move toward modern compiler features and abandoning older platform support.
 
@@ -128,16 +97,7 @@ The versioning system changed to year.quarter format. Version 23.26.0 was releas
 
 Upgrading from 23ai to 26ai is straightforward: apply the October 2025 release update. No database upgrade or application recertification needed. The architecture remains identical; Oracle simply added AI functionality on top of the existing 23ai codebase.
 
-```mermaid
-graph TD
-    A[Oracle Database 23ai] -->|October 2025 RU| B[Oracle AI Database 26ai]
-    B --> C[AI Vector Search]
-    B --> D[AI Agents]
-    B --> E[ML Query Optimization]
-    C --> F[Multimodal Search]
-    D --> G[Private Agent Factory]
-    E --> H[Kernel-Level ML Models]
-```
+[![](https://mermaid.ink/img/pako:eNpVkE9vgkAQxb_KZs5oBAVkD01UtG2qsf8PBQ8jjEICC1kWU6t-9y6oTd3TzrzfezOZA0RFTMBhK7FM2LsfCqbfKFhKjDJiPipcY0XM6mO6Yp3O3XEZqWJNklk9y2avH0c2vsKjx3-8o_lz2LixsUmg5U_SZsneCGWU3Mh-I4-2JFR1058Gizl7qUnu2bJUaZ7-oEoLcWEmLTMLFnWmtSLG7Dbbb_X74FmmO1R0HsBm2GyxvzDTlnkInkgKyjpz2lHG9NCFPkxWrcDQt0lj4ErWZEBOMsemhENjD0EllFMIXH9j2qBeJIRQnLStRPFVFPnVKYt6mwDfYFbpqi5jvZCfoj58_teVJGKSk6IWCrhlthnAD_AN3HTNrmnZtue55tDrDzwD9sAHTtcd9geOZzpach3zZMBPO7TXHbr26Rdk1ZIw?type=png)](https://mermaid.live/edit#pako:eNpVkE9vgkAQxb_KZs5oBAVkD01UtG2qsf8PBQ8jjEICC1kWU6t-9y6oTd3TzrzfezOZA0RFTMBhK7FM2LsfCqbfKFhKjDJiPipcY0XM6mO6Yp3O3XEZqWJNklk9y2avH0c2vsKjx3-8o_lz2LixsUmg5U_SZsneCGWU3Mh-I4-2JFR1058Gizl7qUnu2bJUaZ7-oEoLcWEmLTMLFnWmtSLG7Dbbb_X74FmmO1R0HsBm2GyxvzDTlnkInkgKyjpz2lHG9NCFPkxWrcDQt0lj4ErWZEBOMsemhENjD0EllFMIXH9j2qBeJIRQnLStRPFVFPnVKYt6mwDfYFbpqi5jvZCfoj58_teVJGKSk6IWCrhlthnAD_AN3HTNrmnZtue55tDrDzwD9sAHTtcd9geOZzpach3zZMBPO7TXHbr26Rdk1ZIw)
 
 AI Vector Search is now deeply integrated at the kernel level. You can perform unified hybrid vector search combining vector similarity with relational, JSON, graph, and spatial queries. This matters for RAG systems where you need to search across different data types simultaneously.
 
@@ -172,16 +132,7 @@ ORDER BY VECTOR_SIMILARITY(embedding, @query_vector);
 
 This brings vector search directly into T-SQL, eliminating the need for separate vector databases in many scenarios.
 
-```mermaid
-graph LR
-    A[Application] -->|Query with Vector| B[SQL Server 2025]
-    B --> C[Vector Index DiskANN]
-    C --> D[Find Nearest Neighbors]
-    D --> E[Return Matched Documents]
-    B --> F[Traditional SQL Index]
-    F --> G[Filter by Metadata]
-    G --> E
-```
+[![](https://mermaid.ink/img/pako:eNpVkFFvgjAUhf9Kc5_RCApIH5aoTLNETdRlDwMfKlylGbSklE2n_vcVZEvWl9vb-52ek3uFRKYIFE6KlRlZbmNBzJlEk7LMecI0l2JPer2n26ZGdSFfXGfkDRMt1Y1Mo91mSXaoPlERZ-C4-4d62gjILHpw5EWkeCYhrz4m63WHzFokjOZcpGSNTGGlTeWn7CBV1UFhCz1HW9S1EmTFdJJhSkKZ1AUKXf2zm0eviqW8Ccxy0gRrfTtm3jIL45drE_ZwISvULGWadcDi4QWW2QRPgWpVowUFqoI1LVwbLAadYYExUHNN8cjqXMcQi7uRlUy8S1n8KpWsTxnQI8sr09WlscKQM7Pm4u9VoUmoZrIWGqjjtn8AvcIZqO3bfdtx3SDw7XEwHAUWXICOvL4_Ho68wPbMyPfsuwXfremgP_bd-w8enI37?type=png)](https://mermaid.live/edit#pako:eNpVkFFvgjAUhf9Kc5_RCApIH5aoTLNETdRlDwMfKlylGbSklE2n_vcVZEvWl9vb-52ek3uFRKYIFE6KlRlZbmNBzJlEk7LMecI0l2JPer2n26ZGdSFfXGfkDRMt1Y1Mo91mSXaoPlERZ-C4-4d62gjILHpw5EWkeCYhrz4m63WHzFokjOZcpGSNTGGlTeWn7CBV1UFhCz1HW9S1EmTFdJJhSkKZ1AUKXf2zm0eviqW8Ccxy0gRrfTtm3jIL45drE_ZwISvULGWadcDi4QWW2QRPgWpVowUFqoI1LVwbLAadYYExUHNN8cjqXMcQi7uRlUy8S1n8KpWsTxnQI8sr09WlscKQM7Pm4u9VoUmoZrIWGqjjtn8AvcIZqO3bfdtx3SDw7XEwHAUWXICOvL4_Ho68wPbMyPfsuwXfremgP_bd-w8enI37)
 
 The sp_invoke_external_rest_endpoint stored procedure lets you call external REST APIs directly from T-SQL. This enables calling AI services like ChatGPT without leaving the database:
 
@@ -230,19 +181,7 @@ Snowflake Summit 2025, held in June in San Francisco, marked a transformation in
 
 The Standard Warehouse Gen2 became generally available, delivering 2.1x faster analytics performance compared to the previous generation. Benchmarks showed 1.9x faster performance compared to Managed Spark on equivalent workloads. This came from next-generation hardware and query engine optimizations, including improved join algorithms and predicate pushdown.
 
-```mermaid
-flowchart TD
-    A[Query Submission] --> B[Adaptive Compute]
-    B -->|Auto-size Cluster| C{Workload Type}
-    C -->|Analytics| D[Gen2 Standard Warehouse]
-    C -->|ML/AI| E[Snowpark Containers]
-    C -->|Stream Processing| F[Snowpipe Streaming]
-    D --> G[Resource Optimization]
-    E --> G
-    F --> G
-    G --> H[Cost Savings 10-15%]
-    H --> I[Query Results]
-```
+[![](https://mermaid.ink/img/pako:eNpVkN1u4jAQhV_FsrR3wDYUCMnFSjS0tNKu9ieVKjXhYjYewGpiR2O7XSC8-5qYrrq-8plzvhmPj7zSAnnKN7V-q3ZAlj0uS8X8WRQ_HdKe5e53I42RWq3ZcPiF3RQLAa2Vr8gy3bTO4joAN2e7Wzirh0YevFs7Y5E6lh2fNL3UGgR73Ld4CvEsxBXUeysr07FlsUI1ZrkFJYAEewLCnXbmvX8Avn39vHjo2G2RK_3WAr34VygLUiGZ_4K5JYSG_SBdoX--2nbsLkCyRRZcX70wy363VfELjXZUIfvuV2zkAex58ZC5DZkg7j6KVS_ui0wby3J49X0Ni66G0fTThb3vEw-XP_VTXG3Nmg_4lqTgqSWHA94gNXCW_HimSm532GDJU38VuAHPlLxUJ4-1oJ61bt5J0m674-kGauOVawVYXErYEjT_qoRKIGXaKcvTcdL34OmR_-FpFEejaDydJkkczZPriTf3PJ3MRvH8ejJLopm34ll0GvBDP_RqNI-np7_bKLRz?type=png)](https://mermaid.live/edit#pako:eNpVkN1u4jAQhV_FsrR3wDYUCMnFSjS0tNKu9ieVKjXhYjYewGpiR2O7XSC8-5qYrrq-8plzvhmPj7zSAnnKN7V-q3ZAlj0uS8X8WRQ_HdKe5e53I42RWq3ZcPiF3RQLAa2Vr8gy3bTO4joAN2e7Wzirh0YevFs7Y5E6lh2fNL3UGgR73Ld4CvEsxBXUeysr07FlsUI1ZrkFJYAEewLCnXbmvX8Avn39vHjo2G2RK_3WAr34VygLUiGZ_4K5JYSG_SBdoX--2nbsLkCyRRZcX70wy363VfELjXZUIfvuV2zkAex58ZC5DZkg7j6KVS_ui0wby3J49X0Ni66G0fTThb3vEw-XP_VTXG3Nmg_4lqTgqSWHA94gNXCW_HimSm532GDJU38VuAHPlLxUJ4-1oJ61bt5J0m674-kGauOVawVYXErYEjT_qoRKIGXaKcvTcdL34OmR_-FpFEejaDydJkkczZPriTf3PJ3MRvH8ejJLopm34ll0GvBDP_RqNI-np7_bKLRz)
 
 Adaptive Compute entered private preview, introducing automatic resource sizing and sharing. Instead of manually configuring warehouse sizes, Adaptive Compute analyzes query patterns and adjusts compute resources dynamically. It suspends idle nodes automatically and scales up during peak loads. Teams using Adaptive Compute in early testing reported 10% immediate cost reductions, with further optimizations pushing savings toward 15% or more.
 
@@ -250,19 +189,7 @@ State-aware orchestration works hand-in-hand with Adaptive Compute. The system t
 
 Snowflake Intelligence is the company's entry into agentic AI. It's a conversational interface where users ask natural language questions like "Show me ticket sales for this month's festival." Behind the scenes, Snowflake Intelligence queries Semantic Views, which are metadata structures defining business logic, metrics, and relationships. The system respects user permissions and generates SQL automatically.
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant Intelligence
-    participant SemanticView
-    participant Warehouse
-    User->>Intelligence: Natural Language Query
-    Intelligence->>SemanticView: Resolve Entities & Metrics
-    SemanticView-->>Intelligence: Metadata & Logic
-    Intelligence->>Warehouse: Generate SQL
-    Warehouse-->>Intelligence: Query Results
-    Intelligence->>User: Formatted Answer
-```
+[![](https://mermaid.ink/img/pako:eNptUU1rwzAM_StGh53Ssixt0vhQGPti0A26sQ1GLiJRXUNid_5Y15X-9zntWgKpL7b09N6T5C2UuiLgYOnLkyrpVqIw2BSKhbNC42QpV6gce7Nk-tlH5aiupWipffSVmnDJ8l3Suo9-oKGl9vaf2BoMptOuImfP6LzBms1QCY-C2NyT2RwI3cpA7Jpx9kJW19_E7kLKSbLsgj2RM7K0B3K3etCzDaVYocPAmmkhy7OGp_45eyBFBh2x1_nsUHsC--L7EdoGfe3sWeV2FZzda9Ogc1Sxa2XXZCACYWQF3BlPETQU4DaEbStSgFtSQwXw8KxogUG9gELtAi2s-1Pr5sg02osl8AXWNkR-FSY9_vspa0hVZG60Vw54kuw1gG_hB3icxcP4ajzO8yye5Mkoj2ADfJQOs0kySvM4DVCWxrsIfveml8NJNt79AYSYz8k?type=png)](https://mermaid.live/edit#pako:eNptUU1rwzAM_StGh53Ssixt0vhQGPti0A26sQ1GLiJRXUNid_5Y15X-9zntWgKpL7b09N6T5C2UuiLgYOnLkyrpVqIw2BSKhbNC42QpV6gce7Nk-tlH5aiupWipffSVmnDJ8l3Suo9-oKGl9vaf2BoMptOuImfP6LzBms1QCY-C2NyT2RwI3cpA7Jpx9kJW19_E7kLKSbLsgj2RM7K0B3K3etCzDaVYocPAmmkhy7OGp_45eyBFBh2x1_nsUHsC--L7EdoGfe3sWeV2FZzda9Ogc1Sxa2XXZCACYWQF3BlPETQU4DaEbStSgFtSQwXw8KxogUG9gELtAi2s-1Pr5sg02osl8AXWNkR-FSY9_vspa0hVZG60Vw54kuw1gG_hB3icxcP4ajzO8yye5Mkoj2ADfJQOs0kySvM4DVCWxrsIfveml8NJNt79AYSYz8k)
 
 Cortex AI SQL operators for multimodal analysis arrived in public preview. You can now analyze text, images, and audio directly in SQL queries without moving data out of Snowflake:
 
@@ -298,19 +225,7 @@ The Snowflake Marketplace added Agentic Native Apps and Cortex Knowledge Extensi
 
 CockroachDB marked its 10th anniversary in 2025 with version 25.2, released in June. This milestone release delivered 41% performance gains over version 24.3, measured across nine standard workloads. The improvements came from over 100 optimizations, both large and small.
 
-```mermaid
-graph TD
-    A[CockroachDB 25.2] --> B[41% Performance Gains]
-    B --> C[Buffered Writes]
-    B --> D[Generic Query Plans]
-    B --> E[Vector Indexing]
-    C --> F[Reduced Network Round Trips]
-    D --> G[Plan Reuse for High-Volume Apps]
-    E --> H[AI-Ready Similarity Search]
-    A --> I[Enhanced Security]
-    I --> J[Row-Level Security]
-    I --> K[Configurable Cipher Suites]
-```
+[![](https://mermaid.ink/img/pako:eNptUVtP2zAU_itHlvbWVEtvafIwqU1K6TZNEBBIc3gw9klikdiRGw9K1f-O4xWkofnpHH8XH3_nSLgWSBJSGdbVcJsVCtxZ0VTzJ6MZr7M1TObjyQMEwTdY01n4Ba7QlNq0THGELZNq__BXtfaclK5tWaJBAfdG9vgvmtEtKjSSw7VFc4Crhn3Sb-gd8l4b2CmBL1JVZzT16AXNUVjuzH9h_6zNE-TaKgG3RnbvPplnbungDTnaPYKbFy5lVQd3urEtwqr7YG88-5KudkGOTBzgRrayYW50VyIzvD4TV564oxtVD18XDuV2oJ3xnce_01w_Bz_xDzb_J_xw2apSVtawxwYhlV2NBm6sj4qM3CakIElvLI5Iiy7moSXHwaIgfY0tFiRxpcCS2aYvSKFOTtYx9Vvr9l1ptK1qkpSs2bvOdoL1mEnm1tx-3Bp0CZvU5deTZBp5D5IcyQtJwigch5P5PI6jcBlPZ_GIHEgyW4yj5XS2iMOFg6JFeBqRV__o1_Eymp_eAG11tn4?type=png)](https://mermaid.live/edit#pako:eNptUVtP2zAU_itHlvbWVEtvafIwqU1K6TZNEBBIc3gw9klikdiRGw9K1f-O4xWkofnpHH8XH3_nSLgWSBJSGdbVcJsVCtxZ0VTzJ6MZr7M1TObjyQMEwTdY01n4Ba7QlNq0THGELZNq__BXtfaclK5tWaJBAfdG9vgvmtEtKjSSw7VFc4Crhn3Sb-gd8l4b2CmBL1JVZzT16AXNUVjuzH9h_6zNE-TaKgG3RnbvPplnbungDTnaPYKbFy5lVQd3urEtwqr7YG88-5KudkGOTBzgRrayYW50VyIzvD4TV564oxtVD18XDuV2oJ3xnce_01w_Bz_xDzb_J_xw2apSVtawxwYhlV2NBm6sj4qM3CakIElvLI5Iiy7moSXHwaIgfY0tFiRxpcCS2aYvSKFOTtYx9Vvr9l1ptK1qkpSs2bvOdoL1mEnm1tx-3Bp0CZvU5deTZBp5D5IcyQtJwigch5P5PI6jcBlPZ_GIHEgyW4yj5XS2iMOFg6JFeBqRV__o1_Eymp_eAG11tn4)
 
 Buffered writes, now in preview, address a problem with ORM-generated queries that tend to be "chatty." These read and write data across distributed nodes inefficiently. Buffered writes keep all writes in the local SQL coordinator until transaction commit. If you read from something you just wrote, it doesn't go back out to the network. This dramatically reduces latency for write-heavy workloads, with some benchmarks showing 50% throughput improvements.
 
@@ -382,17 +297,7 @@ CockroachDB's Performance Under Adversity benchmark simulates real-world failure
 
 MongoDB's biggest move in 2025 was acquiring Voyage AI in February. Voyage AI pioneered state-of-the-art embedding and reranking models, and integrating this technology directly into MongoDB Atlas addresses a critical AI challenge: retrieval accuracy.
 
-```mermaid
-graph TD
-    A[MongoDB Atlas] --> B[Vector Search]
-    B --> C[Voyage AI Embeddings]
-    C --> D[High-Quality Vectors]
-    D --> E[Accurate Retrieval]
-    E --> F[Reduced Hallucinations]
-    A --> G[Operational Data]
-    G --> E
-    F --> H[Trustworthy AI Apps]
-```
+[![](https://mermaid.ink/img/pako:eNo9kM1uwjAQhF_F2jOgpkBCcqgUCD89VFUp4tCEwzZekkiJHTl22xTx7jUG6pNn59tZe0-QS04QQaGwLdkuyQSzJ05fpChkMmexrrE7sOHwic3TPeVaKvZOqPLycEXnzluke9ljQSx-ZsvmkzivRNHdkIVDknRTFeXwzWBd6Z5ds-5I4pBlGue5UaiJbUmrir6wvgFLB6zSLXGTE2cbrGuTVwJ1JcU9JXbQOn1tSTkDa5agxpu9vg65ipUTm3SnTKe_pdJlf3l83LbdAQZ2HxWHSCtDA2hINXiRcLr0ZqBLaiiDyF45HdHUOoNMnG1bi-JDyubeqaQpSoiOWHdWmZbbryUV2mU3_1VFgpNaSCM0RBPPZUB0gh-IvMAbeY_TaRgG3iwcT8IB9JbxR8FsPPFDz7dW4HvnAfy6oQ-jWTA9_wEf_Y9g?type=png)](https://mermaid.live/edit#pako:eNo9kM1uwjAQhF_F2jOgpkBCcqgUCD89VFUp4tCEwzZekkiJHTl22xTx7jUG6pNn59tZe0-QS04QQaGwLdkuyQSzJ05fpChkMmexrrE7sOHwic3TPeVaKvZOqPLycEXnzluke9ljQSx-ZsvmkzivRNHdkIVDknRTFeXwzWBd6Z5ds-5I4pBlGue5UaiJbUmrir6wvgFLB6zSLXGTE2cbrGuTVwJ1JcU9JXbQOn1tSTkDa5agxpu9vg65ipUTm3SnTKe_pdJlf3l83LbdAQZ2HxWHSCtDA2hINXiRcLr0ZqBLaiiDyF45HdHUOoNMnG1bi-JDyubeqaQpSoiOWHdWmZbbryUV2mU3_1VFgpNaSCM0RBPPZUB0gh-IvMAbeY_TaRgG3iwcT8IB9JbxR8FsPPFDz7dW4HvnAfy6oQ-jWTA9_wEf_Y9g)
 
 The integration brings auto-embedding services to Atlas Vector Search. Instead of generating embeddings externally and storing them in MongoDB, the database handles embedding generation automatically. Native reranking follows, allowing developers to boost retrieval accuracy with minimal code changes.
 
@@ -414,26 +319,7 @@ Redis 8 became generally available in May 2025, delivering over 30 performance i
 
 The Redis Query Engine gained horizontal and vertical scaling capabilities that were previously exclusive to Redis Cloud. Horizontal scaling enables querying in clustered databases, handling very large datasets with higher read and write throughput. Vertical scaling adds more processing power through the Query Performance Factor (QPF), unlocking up to 16x more throughput.
 
-```mermaid
-flowchart LR
-    A[Query Request] --> B[Redis Query Engine]
-    B --> C{Scaling Type}
-    C -->|Horizontal| D[Distribute Across Shards]
-    C -->|Vertical| E[Parallel Processing QPF]
-    D --> F[Shard 1]
-    D --> G[Shard 2]
-    D --> H[Shard N]
-    E --> I[Thread 1]
-    E --> J[Thread 2]
-    E --> K[Thread N]
-    F --> L[Aggregate Results]
-    G --> L
-    H --> L
-    I --> L
-    J --> L
-    K --> L
-    L --> M[Return to Client]
-```
+[![](https://mermaid.ink/img/pako:eNpVkU9v4jAQxb-KNWeKNhQIyWElyp_Slq4orXpowsFNhmDJsdmxoy6lfPc6CdkGn_x-b96MRz5ColOEELZSfyQ7TpYt17Fi7oyjpwLpwNb4t0BjN-zq6je7idaYCsNqa6YyoXBT199UBZPjc8KlUBl7OezxVFuT0vpaaBKfWlkuv9g0mgpjSbwXFtk4IW0Me3bjU7NpR16RrEjKwCxaceJSomQr0gkaU854Ws3P9dNq-jyqmjDvgt6eae-CLs70z5nOKnoXvewI-U-LGt83uHeBHxrcNJlXeBmNs4ww4265NZpC2mat29qvxaIt7trivi0e2mJZiUf3DbYgxaxmEylQ2Q10ICORQmipwA7kSDkvJRzLYAx2hznGELprilvu3hRDrE4utufqTeu8SZIush2EWy6NU8U-dVtMBc-I5_8poUqRJrpQFsL-oOoB4RH-Qej5XtfrDQZB4Huj4LofdODgaoZdf3TdHwbe0Fn-0Dt14LMa-qs78genbyJLvxg?type=png)](https://mermaid.live/edit#pako:eNpVkU9v4jAQxb-KNWeKNhQIyWElyp_Slq4orXpowsFNhmDJsdmxoy6lfPc6CdkGn_x-b96MRz5ColOEELZSfyQ7TpYt17Fi7oyjpwLpwNb4t0BjN-zq6je7idaYCsNqa6YyoXBT199UBZPjc8KlUBl7OezxVFuT0vpaaBKfWlkuv9g0mgpjSbwXFtk4IW0Me3bjU7NpR16RrEjKwCxaceJSomQr0gkaU854Ws3P9dNq-jyqmjDvgt6eae-CLs70z5nOKnoXvewI-U-LGt83uHeBHxrcNJlXeBmNs4ww4265NZpC2mat29qvxaIt7trivi0e2mJZiUf3DbYgxaxmEylQ2Q10ICORQmipwA7kSDkvJRzLYAx2hznGELprilvu3hRDrE4utufqTeu8SZIush2EWy6NU8U-dVtMBc-I5_8poUqRJrpQFsL-oOoB4RH-Qej5XtfrDQZB4Huj4LofdODgaoZdf3TdHwbe0Fn-0Dt14LMa-qs78genbyJLvxg)
 
 The diagram shows how Redis scales queries both horizontally across shards and vertically using multiple threads. This is how Redis achieved 16x query performance improvements.
 
@@ -471,20 +357,7 @@ Couchbase 8.0, released in October 2025, transformed the database into a compreh
 
 The headline is Hyperscale Vector Indexing (HVI), which supports billion-scale vector search with millisecond latency. Built on the DiskANN nearest-neighbor search algorithm using the Vamana directed graph construction algorithm, HVI provides flexibility to operate across partitioned disks for distributed processing and run in-memory for smaller datasets.
 
-```mermaid
-graph TD
-    A[Couchbase 8.0] --> B[Hyperscale Vector Index]
-    A --> C[Composite Vector Index]
-    A --> D[Search Vector Index]
-    B --> E[Billion-Scale Vectors]
-    B --> F[28ms Latency at 66% Recall]
-    B --> G[19,000 QPS]
-    C --> H[Pre-filtered Queries]
-    D --> I[Hybrid Search]
-    E --> J[RAG Applications]
-    H --> J
-    I --> J
-```
+[![](https://mermaid.ink/img/pako:eNp9kcluwjAQhl_FGqm3JEpYsh0qAaFA1QNL1UMTDiYZiCUnjhxHgiLevSaBqkhVffL4_37PdoZUZAghHCStcvIeJSXRZxRPRJPmO1oj8S17S0zzmYzj-alCWaeUI_nAVAlJFmWGx-3N1FITbS0qUTP1DxTFG6Qyzf8ixi0xjceMcyZKc_MrX_3AvMQ9v6jJG1VYpidCFXHdJ7JGbeAP4Cx2AsO2bbJabm7CpBXm8VKiuWdcocSMrBqUDO9JohZZ6K53kmWkq_imTVvtNV6PZmRUVZylVOli79Z5J3fBogvA0ENmGYRKNmhAgbKg1xDOVywBlWOBCYT6muGeNlwlkJQXbato-SlEcXdK0RxyCPeU1zpqqkz3HzGqN1j8vErUE5V6iaWCcBC0f0B4hiOEjudYTm84DALP8YP-VTxpxrU8vz9wA8fVkuc6FwO-2qS25XvDyzcNB6T1?type=png)](https://mermaid.live/edit#pako:eNp9kcluwjAQhl_FGqm3JEpYsh0qAaFA1QNL1UMTDiYZiCUnjhxHgiLevSaBqkhVffL4_37PdoZUZAghHCStcvIeJSXRZxRPRJPmO1oj8S17S0zzmYzj-alCWaeUI_nAVAlJFmWGx-3N1FITbS0qUTP1DxTFG6Qyzf8ixi0xjceMcyZKc_MrX_3AvMQ9v6jJG1VYpidCFXHdJ7JGbeAP4Cx2AsO2bbJabm7CpBXm8VKiuWdcocSMrBqUDO9JohZZ6K53kmWkq_imTVvtNV6PZmRUVZylVOli79Z5J3fBogvA0ENmGYRKNmhAgbKg1xDOVywBlWOBCYT6muGeNlwlkJQXbato-SlEcXdK0RxyCPeU1zpqqkz3HzGqN1j8vErUE5V6iaWCcBC0f0B4hiOEjudYTm84DALP8YP-VTxpxrU8vz9wA8fVkuc6FwO-2qS25XvDyzcNB6T1)
 
 Independent benchmarks showed HVI delivering up to 19,000 queries per second with 28ms latency when adjusted for 66% recall accuracy. Compared to a leading cloud database, Couchbase ran over 3,000 times faster. When tuned for high recall accuracy (93% on modest hardware), Couchbase handled 350 times more queries per second.
 
@@ -542,18 +415,7 @@ Dynamic rebalancing allows adjusting non-KV services without adding or removing 
 
 ScyllaDB 2025.1, released in April 2025, is the first source-available release combining both Enterprise and Open Source features under a single license. The major change is enabling Tablets by default for all new keyspaces.
 
-```mermaid
-graph TD
-    A[ScyllaDB 2025.1] --> B[Tablets Enabled]
-    B --> C[Dynamic Data Distribution]
-    B --> D[Faster Scaling]
-    B --> E[Mixed Instance Sizes]
-    C --> F[5GB Tablet Target Size]
-    D --> G[Near-Instant Bootstrap]
-    E --> H[Cost Optimization]
-    F --> I[Split at 10GB]
-    F --> J[Merge at 2.5GB]
-```
+[![](https://mermaid.ink/img/pako:eNpVkU1vwjAMhv9K5DNUFGhLe5i0UmBM2naA01IOpg0lUptUqSvxIf770sKmkYvtvI_tV8kVMp0LiKAwWB_ZNkkVs-eVb7JzWWISs_Fo7Dnujg2HLyzmW9yXghq2UF2S7-543KtznpwVVjJjCRKyRDZk5L4lqdUTl_AlNiQM22RYSlU8iQv-IU8iZ2vVEKpMsI28iOaBzHtkyb1VzO5ObDCFDR31gJIeWvFPgWZ4H0Ms1pqsHawf0KKH3vhcN8S-apKVvOA_p8teX_NNXUpiSMwdreIn7Z1_CLu608aONbSDgX1EmUNEphUDqISpsCvh2rWlQEdRiRQim-bigG1JKaTqZttqVN9aV7-dRrfFEaIDlo2t2jpHEolE-0PV360RKhdmrltFEHmTfgZEVzhB5Aau4449LwwDdxZOpuEAzhBNfSeYTaZ-6PpWCnz3NoBLv3TkzALv9gPeVp1U?type=png)](https://mermaid.live/edit#pako:eNpVkU1vwjAMhv9K5DNUFGhLe5i0UmBM2naA01IOpg0lUptUqSvxIf770sKmkYvtvI_tV8kVMp0LiKAwWB_ZNkkVs-eVb7JzWWISs_Fo7Dnujg2HLyzmW9yXghq2UF2S7-543KtznpwVVjJjCRKyRDZk5L4lqdUTl_AlNiQM22RYSlU8iQv-IU8iZ2vVEKpMsI28iOaBzHtkyb1VzO5ObDCFDR31gJIeWvFPgWZ4H0Ms1pqsHawf0KKH3vhcN8S-apKVvOA_p8teX_NNXUpiSMwdreIn7Z1_CLu608aONbSDgX1EmUNEphUDqISpsCvh2rWlQEdRiRQim-bigG1JKaTqZttqVN9aV7-dRrfFEaIDlo2t2jpHEolE-0PV360RKhdmrltFEHmTfgZEVzhB5Aau4449LwwDdxZOpuEAzhBNfSeYTaZ-6PpWCnz3NoBLv3TkzALv9gPeVp1U)
 
 Tablets replace the legacy vNodes approach, which statically distributed tables across nodes based on the token ring. Tablets dynamically assign tables to a subset of nodes based on size, enabling much faster scaling and topology changes.
 
@@ -589,17 +451,7 @@ The Cassandra Summit in 2025 highlighted open-source innovations and integration
 
 Neo4j transitioned to calendar versioning in January 2025, with versions following a YYYY.MM format. The 2025.01 release in January required Java 21, dropping support for Java 17. This aligns with Java's LTS release cycle and brings access to modern language features.
 
-```mermaid
-graph TD
-    A[Neo4j 5.x] -->|Upgrade| B[Neo4j 2025.01]
-    B --> C[Java 21 Required]
-    B --> D[Block Format Default]
-    B --> E[Cypher 25 Introduced]
-    E --> F[Walk Semantics]
-    E --> G[Query Versioning]
-    C --> H[Modern JVM Features]
-    D --> I[Better Performance]
-```
+[![](https://mermaid.ink/img/pako:eNpVUNtugkAQ_ZXNPCNxUUB4aFJEW01serVJwYcNjEqFXbruNlr137viJXGfduZc5szsIBM5QggLyeoleY9TTsy7T55QdL-Ja29mpNW623_UhpDjnkRnxGk7rt2msxM_OpJIPxmzX0YcSl7xRxcS8xs4TqJSZCsyFLJiisQ4Z7pUN5RB0t_WS5TEccmIKylynV1dBg1lmHyyckXesGJcFdn6BnxIXjTKLZmiXBeCF3xxhvsN_JhMzLaSk_F0QobIlJZ4MYgbxiiJUCkT4Bnl_JiTZzgDy5ynyCFUUqMFFZr-sYTdUZqCWmKFKYTmm5-WSiHlByOrGf8SoroopdCLJYRzVq5NpeucKYwLZk5bXbsSuYnYF5orCF2_8YBwBxsIqU9t6rhuEPi0F3S6gQVbCLue7fc6XS-gnoF8jx4s-GuGtu2e7x7-AQ5EkhA?type=png)](https://mermaid.live/edit#pako:eNpVUNtugkAQ_ZXNPCNxUUB4aFJEW01serVJwYcNjEqFXbruNlr137viJXGfduZc5szsIBM5QggLyeoleY9TTsy7T55QdL-Ja29mpNW623_UhpDjnkRnxGk7rt2msxM_OpJIPxmzX0YcSl7xRxcS8xs4TqJSZCsyFLJiisQ4Z7pUN5RB0t_WS5TEccmIKylynV1dBg1lmHyyckXesGJcFdn6BnxIXjTKLZmiXBeCF3xxhvsN_JhMzLaSk_F0QobIlJZ4MYgbxiiJUCkT4Bnl_JiTZzgDy5ynyCFUUqMFFZr-sYTdUZqCWmKFKYTmm5-WSiHlByOrGf8SoroopdCLJYRzVq5NpeucKYwLZk5bXbsSuYnYF5orCF2_8YBwBxsIqU9t6rhuEPi0F3S6gQVbCLue7fc6XS-gnoF8jx4s-GuGtu2e7x7-AQ5EkhA)
 
 Neo4j 2025.06 introduced Cypher 25, a new version of the Cypher query language. Cypher versions are now decoupled from Neo4j server versions. Databases created or migrated to 2025.06+ continue using Cypher 5 by default unless explicitly configured otherwise.
 
@@ -633,21 +485,7 @@ TLS CBC ciphers (cipher block chaining) are no longer available by default due t
 
 InfluxDB 3 Core and Enterprise reached general availability in April 2025, marking a complete rewrite of the InfluxDB engine. Built in Rust using Apache Arrow, DataFusion, Parquet, and Flight, the new architecture delivers significant performance and flexibility improvements.
 
-```mermaid
-graph TD
-    A[InfluxDB 3 Architecture] --> B[Apache Arrow]
-    A --> C[DataFusion SQL Engine]
-    A --> D[Parquet Storage]
-    A --> E[Flight Protocol]
-    B --> F[In-Memory Columnar Format]
-    C --> G[Vectorized Query Execution]
-    D --> H[Efficient Columnar Storage]
-    E --> I[Fast Data Transfer]
-    F --> J[Zero-Copy Data Sharing]
-    G --> K[Parallel Processing]
-    H --> L[High Compression]
-    I --> M[Low Network Overhead]
-```
+[![](https://mermaid.ink/img/pako:eNpVkk1z2jAQhv-KRmdg6kJs7ENnwB-BljTJkOkhMgeNvf6Y2pK7lgqE4b9XVt2k7Emr99nVu5IuNJM50ICWyLuKvESpICZWbCuKRp-iNZmTFWZVrSBTGuFAptMvZM1WHc8qMBLK42GssVLIIq54ovtaCrJ_3pFYlLWAGyZiTxx_aVBkryTy8laNWdLUZaXIE0olM9mM6tqqiXE2fYBW4pmEstGt4EgSiS1XIxda7p79MI4l1m-Qk2cNBo9PkGllfI1gZMENi4uizmoQ6qPhra_YgluW8F6RYTzyglz0BeAIJBb4yl4B5TSU3fkvta841qIcoXsLfRtm500DzTBfBn3_QWwssWMbM77x0nY4yO9-t1Z-YDt5JN9BHSX-JI-_ASvg-YFOzBPWOQ0UapjQFsyNDCm9DMUpVRW0kNLALHMouG5USlNxNWUdF69Stv8qUeqyokHBm95kusu5gqjm5n-077sIIgcMpRaKBq5je9DgQk80cDxn5ny-u_N9z1n684U_oWcaLNyZt5wvXN9xjeS5znVC3-yhn2ZLb-H_H9c_nh7MXQ?type=png)](https://mermaid.live/edit#pako:eNpVkk1z2jAQhv-KRmdg6kJs7ENnwB-BljTJkOkhMgeNvf6Y2pK7lgqE4b9XVt2k7Emr99nVu5IuNJM50ICWyLuKvESpICZWbCuKRp-iNZmTFWZVrSBTGuFAptMvZM1WHc8qMBLK42GssVLIIq54ovtaCrJ_3pFYlLWAGyZiTxx_aVBkryTy8laNWdLUZaXIE0olM9mM6tqqiXE2fYBW4pmEstGt4EgSiS1XIxda7p79MI4l1m-Qk2cNBo9PkGllfI1gZMENi4uizmoQ6qPhra_YgluW8F6RYTzyglz0BeAIJBb4yl4B5TSU3fkvta841qIcoXsLfRtm500DzTBfBn3_QWwssWMbM77x0nY4yO9-t1Z-YDt5JN9BHSX-JI-_ASvg-YFOzBPWOQ0UapjQFsyNDCm9DMUpVRW0kNLALHMouG5USlNxNWUdF69Stv8qUeqyokHBm95kusu5gqjm5n-077sIIgcMpRaKBq5je9DgQk80cDxn5ny-u_N9z1n684U_oWcaLNyZt5wvXN9xjeS5znVC3-yhn2ZLb-H_H9c_nh7MXQ)
 
 InfluxDB 3 Core is open source under MIT/Apache 2 license, designed for real-time applications with recent data (72-hour focus). InfluxDB 3 Enterprise extends Core with enterprise-grade features: multi-region durability, read replicas, automatic failover, and enhanced security.
 
@@ -682,19 +520,7 @@ CREATE TABLE trades (
 
 The existing TIMESTAMP type remains unchanged at microsecond precision. You can use TIMESTAMP_NS anywhere you would use a regular timestamp: in filters, ordering, joins, or aggregates. SAMPLE BY, ASOF JOIN, and window functions all support nanosecond timestamps.
 
-```mermaid
-flowchart TD
-    A[Time-Series Data] --> B{Precision Required}
-    B -->|Millisecond| C[DATE Type]
-    B -->|Microsecond| D[TIMESTAMP Type]
-    B -->|Nanosecond| E[TIMESTAMP_NS Type]
-    C --> F[±2.9M Years Range]
-    D --> G[±290K Years Range]
-    E --> H[±2262 Years Range]
-    F --> I[Query Execution]
-    G --> I
-    H --> I
-```
+[![](https://mermaid.ink/img/pako:eNpt0N1ugjAUB_BXac41EkEF4WKJCn5k0WzKzQZmaeCoTaB1BTId-lB7hT3Z-Jhuy-xV_z2_c9q0gFBECDZsYvEW7qjMiOcEnJRr4HsswdYKJcOUODSja9Jq3ZFh8SAxZCkTnCzxNWcSo3PTMqzAac7imKUYCh6dyMh3Bp5LvOMe139RKMUFOb43m7srbzB_-C8XlF-h-wNfFqvfdlS_bex_fuiqNSdPSGVKlpRvL8CpwaQCVvv-BnBrMK2Abug3wLgGM_8xR3kk7gHDPCs_4bs6aapNmDYBFNhKFoGdyRwVSFAmtIpQVCyAbIcJBmCX2wg3NI-zAAJ-Ltv2lD8LkVw6pci3O7A3NE7LlO8jmqHD6FbS5HoqkUcoRyLnGdhGr54BdgEHsDVTUzW917MsU-tbna6lwBHsrqGa_U7XsDSjLJmGdlbgvb60rfbN3vkL_VKlQA?type=png)](https://mermaid.live/edit#pako:eNpt0N1ugjAUB_BXac41EkEF4WKJCn5k0WzKzQZmaeCoTaB1BTId-lB7hT3Z-Jhuy-xV_z2_c9q0gFBECDZsYvEW7qjMiOcEnJRr4HsswdYKJcOUODSja9Jq3ZFh8SAxZCkTnCzxNWcSo3PTMqzAac7imKUYCh6dyMh3Bp5LvOMe139RKMUFOb43m7srbzB_-C8XlF-h-wNfFqvfdlS_bex_fuiqNSdPSGVKlpRvL8CpwaQCVvv-BnBrMK2Abug3wLgGM_8xR3kk7gHDPCs_4bs6aapNmDYBFNhKFoGdyRwVSFAmtIpQVCyAbIcJBmCX2wg3NI-zAAJ-Ltv2lD8LkVw6pci3O7A3NE7LlO8jmqHD6FbS5HoqkUcoRyLnGdhGr54BdgEHsDVTUzW917MsU-tbna6lwBHsrqGa_U7XsDSjLJmGdlbgvb60rfbN3vkL_VKlQA)
 
 Continuous profiling integrates async-profiler for low-overhead performance diagnostics. Capture CPU and memory flame graphs continuously or on demand:
 
@@ -757,21 +583,7 @@ The TimescaleDB Summit in 2025 focused on open-source community innovations and 
 
 Apache Iceberg cemented its position as the leading open table format in 2025. The format enables ACID transactions, schema evolution, and time travel on data lakes, bridging the gap between data lakes and warehouses.
 
-```mermaid
-graph TB
-    A[Apache Iceberg Architecture] --> B[Catalog]
-    A --> C[Metadata Files]
-    A --> D[Manifest Files]
-    A --> E[Data Files Parquet/ORC/Avro]
-    B --> F[Current Metadata Pointer]
-    C --> G[Table Schema]
-    C --> H[Partition Spec]
-    C --> I[Snapshot History]
-    D --> J[File Locations]
-    D --> K[Column Statistics]
-    D --> L[Partition Info]
-    E --> M[Actual Data]
-```
+[![](https://mermaid.ink/img/pako:eNptkcFu2zAMhl9F0DlN5zaxYx8KOE67Zmuwoulpcg6szcQCbMmTqWFdkHcfbaRBDUwnid__kyJ5lIUtUSby4KCtxOsyN4JPqtIWigrFusA3dAeRuqLShAV5hztxdXUnlioDgtoedmfLEM3UBglKJuJB19iN4EptwOg9dvQfeK9WF5d4BvfLI13_eMmu09_OnpXLQfmgMu8cGhKXWs9WG0J3lmWD7Kt6hbcaxZb7aGCEHhUXIE3aGrFtsRjBtdoaaLvKknjUHVn3fsarAX9T_RfFky2g93cj-F1ltvYNZyWmHelizJ8-FV6b_Udf9wPcqJTnC7XoB7GTE96JLmVCzuNENuga6J_y2HtySdwV5jLha4l78DXlMjcntrVgflrbfDid9YdKJnuoO375lgeGKw288OYS5WmW6DLrDckkjIccMjnKPzIJomAa3MzncRwFi_h2xvBdJrNwGi1uZ2EchIyiMDhN5N-h6JfpIpqf_gE3d7f9?type=png)](https://mermaid.live/edit#pako:eNptkcFu2zAMhl9F0DlN5zaxYx8KOE67Zmuwoulpcg6szcQCbMmTqWFdkHcfbaRBDUwnid__kyJ5lIUtUSby4KCtxOsyN4JPqtIWigrFusA3dAeRuqLShAV5hztxdXUnlioDgtoedmfLEM3UBglKJuJB19iN4EptwOg9dvQfeK9WF5d4BvfLI13_eMmu09_OnpXLQfmgMu8cGhKXWs9WG0J3lmWD7Kt6hbcaxZb7aGCEHhUXIE3aGrFtsRjBtdoaaLvKknjUHVn3fsarAX9T_RfFky2g93cj-F1ltvYNZyWmHelizJ8-FV6b_Udf9wPcqJTnC7XoB7GTE96JLmVCzuNENuga6J_y2HtySdwV5jLha4l78DXlMjcntrVgflrbfDid9YdKJnuoO375lgeGKw288OYS5WmW6DLrDckkjIccMjnKPzIJomAa3MzncRwFi_h2xvBdJrNwGi1uZ2EchIyiMDhN5N-h6JfpIpqf_gE3d7f9)
 
 The metadata layer is what makes Iceberg powerful. A catalog (Hive Metastore, AWS Glue, REST catalog) stores a pointer to the current metadata file. That metadata file contains the table schema, partition specification, and snapshot history. Manifest files list the actual data files and their statistics, enabling aggressive file pruning.
 
@@ -848,19 +660,7 @@ SELECT * FROM COLUMN_LINEAGE('sales_view');
 
 The function returns a graph showing which base tables and columns contribute to each column in the view. This operates at the database kernel level, not application metadata, ensuring accuracy even for complex multi-level views.
 
-```mermaid
-graph LR
-    A[Calculation View] --> B[Column: total_revenue]
-    B --> C[Base Table: orders]
-    B --> D[Base Table: line_items]
-    C --> E[Column: order_id]
-    C --> F[Column: customer_id]
-    D --> G[Column: price]
-    D --> H[Column: quantity]
-    G --> I[Multiplication]
-    H --> I
-    I --> B
-```
+[![](https://mermaid.ink/img/pako:eNpVkU1vwjAMQP9K5HNB6ygtzWHSKBsgbZdp2mEtQllrIFKadGmyL8R_X0ihAp_ivGc7cvZQqgqBwlazZkeeXgpJXNznGROlFcxwJckbx-8VGQzuyDTPlLC1pMQow8Ra4xdKi6uuauqdLJ-yFskr-xBIidIV6vZKmF0Jgktcc4P1Wcq89NBP8h3WvLrCjz0ubWtUfWnMvDHvjUbzEq_YomeflknDze8Jzz1e5s9WGN4IXvoFnOCig12y7PYBgdscr4AabTEA946aHVPYH7UCzA5rLIC6Y4Ub5toWUMiDK2uYfFeqPldqZbc7oBsmWpfZpmIGZ5y5b6n7W43SrSJTVhqgycj3ALqHH6BhEg7D2_E4TZNwko6iNIBfoFE8TCajKE7D2KEkDg8B_PmhN8NJEqWXcfgHkOeekw?type=png)](https://mermaid.live/edit#pako:eNpVkU1vwjAMQP9K5HNB6ygtzWHSKBsgbZdp2mEtQllrIFKadGmyL8R_X0ihAp_ivGc7cvZQqgqBwlazZkeeXgpJXNznGROlFcxwJckbx-8VGQzuyDTPlLC1pMQow8Ra4xdKi6uuauqdLJ-yFskr-xBIidIV6vZKmF0Jgktcc4P1Wcq89NBP8h3WvLrCjz0ubWtUfWnMvDHvjUbzEq_YomeflknDze8Jzz1e5s9WGN4IXvoFnOCig12y7PYBgdscr4AabTEA946aHVPYH7UCzA5rLIC6Y4Ub5toWUMiDK2uYfFeqPldqZbc7oBsmWpfZpmIGZ5y5b6n7W43SrSJTVhqgycj3ALqHH6BhEg7D2_E4TZNwko6iNIBfoFE8TCajKE7D2KEkDg8B_PmhN8NJEqWXcfgHkOeekw)
 
 The diagram shows how lineage tracking reveals that total_revenue depends on price and quantity from line_items, joined with order metadata. This transparency is essential for regulatory compliance and troubleshooting data quality issues.
 
@@ -892,16 +692,7 @@ WHERE z.zone_type = 'residential';
 
 The GIST index allows the database to quickly eliminate geometries that don't intersect, avoiding expensive geometry intersection calculations on the entire dataset.
 
-```mermaid
-flowchart TD
-    A[Spatial Query] --> B[GIST Index Scan]
-    B --> C[Bounding Box Filter]
-    C --> D[Candidate Geometries]
-    D --> E[Exact Intersection Test]
-    E --> F[Result Set]
-    C -->|Prune 95%| G[Non-overlapping Geometries]
-    G --> H[Skipped]
-```
+[![](https://mermaid.ink/img/pako:eNplkFFPgzAQx79Kc4lvbBE3YPTBRGDDvRiVPVn20MCNNUJLStHNue9uwWlMvKe73u9__-udoFAlAoVdrd6LPdeGbJJcEht3LGu5EbwmTz3q45ZMJrckYuk625C1LPFAsoLL7Tccjd2YRaqXpZAVidSBrERtUF-IeCQSFnMLlNwgSVE1aLTA7oIkI7JkywMvjPWw4g4LI5QkG-zMhVqO1Io9Y9fXhmRo_jp8PupeIgm9q0-SsgclJ-oNdc3bdtjqn2U6Drtn2atoWyy34EClRQnU6B4daFA3fCjhNPA5mD02mAO1aYk7bhfIIZdnK2u5fFGq-VFq1Vd7oDted7bq2-HHieCV5s3vq0Z7Rh3bkxmgQTDOAHqCA1A3cKfujeeFYeAuwtk8dOAIdO5Pg8Vs7oeub1uB754d-BhNr6eLwDt_AcS5j1c?type=png)](https://mermaid.live/edit#pako:eNplkFFPgzAQx79Kc4lvbBE3YPTBRGDDvRiVPVn20MCNNUJLStHNue9uwWlMvKe73u9__-udoFAlAoVdrd6LPdeGbJJcEht3LGu5EbwmTz3q45ZMJrckYuk625C1LPFAsoLL7Tccjd2YRaqXpZAVidSBrERtUF-IeCQSFnMLlNwgSVE1aLTA7oIkI7JkywMvjPWw4g4LI5QkG-zMhVqO1Io9Y9fXhmRo_jp8PupeIgm9q0-SsgclJ-oNdc3bdtjqn2U6Drtn2atoWyy34EClRQnU6B4daFA3fCjhNPA5mD02mAO1aYk7bhfIIZdnK2u5fFGq-VFq1Vd7oDted7bq2-HHieCV5s3vq0Z7Rh3bkxmgQTDOAHqCA1A3cKfujeeFYeAuwtk8dOAIdO5Pg8Vs7oeub1uB754d-BhNr6eLwDt_AcS5j1c)
 
 GPU-accelerated queries entered preview, enabling 10x faster spatial operations on large datasets. PostGIS offloads computations like buffer generation, intersection tests, and distance calculations to GPU shaders. This parallelism dramatically speeds up GIS workloads:
 
@@ -929,22 +720,7 @@ The system stores assets and transactions in a distributed database (MongoDB or 
 
 Use cases in 2025 centered on supply chain provenance, intellectual property registries, and compliance audit trails. The immutability guarantee means once data is written, it cannot be altered or deleted, providing a permanent record.
 
-```mermaid
-sequenceDiagram
-    participant Client
-    participant Node1
-    participant Node2
-    participant Node3
-    Client->>Node1: Submit Transaction
-    Node1->>Node1: Validate & Sign
-    Node1->>Node2: Broadcast Vote
-    Node1->>Node3: Broadcast Vote
-    Node2->>Node2: Validate & Sign
-    Node3->>Node3: Validate & Sign
-    Node2-->>Node1: Vote Result
-    Node3-->>Node1: Vote Result
-    Node1->>Client: Transaction Committed
-```
+[![](https://mermaid.ink/img/pako:eNqFkj1vwyAQhv8KuqGTExXb8QdDhqZzh6bKUHmh5uIgGXAxSG2j_Pdiu20ixVGZ4L33njsOjlAbgcCgx3ePusZHyRvLVaVJWB23Ttay49qRTStRu2v9KeTTeTmel5NJnoCL9XokMLL1b0o68mK57nntpNGTbwyfbTveSsEdkjuylc2MJ2bkwRouat47sjMOry3JbUt8ptyslJwxNz3x4qLlUIE8Y-9bdwn5xzA0O82IXQ6FbIwKc3IoIILGSgHMWY8RKLSKD0c4DpAK3AEVVsDCVuCeD3Co9Cmkhad4NUb9ZlrjmwOwPW_7cPLdcKGff_CnWtQC7cZ47YAVdGQAO8IHMJrTJY1Xq7LMaVEmaRnBJ7A0W-ZFkmYlzUIoz-gpgq-x6P2yyFenb-zMyVA?type=png)](https://mermaid.live/edit#pako:eNqFkj1vwyAQhv8KuqGTExXb8QdDhqZzh6bKUHmh5uIgGXAxSG2j_Pdiu20ixVGZ4L33njsOjlAbgcCgx3ePusZHyRvLVaVJWB23Ttay49qRTStRu2v9KeTTeTmel5NJnoCL9XokMLL1b0o68mK57nntpNGTbwyfbTveSsEdkjuylc2MJ2bkwRouat47sjMOry3JbUt8ptyslJwxNz3x4qLlUIE8Y-9bdwn5xzA0O82IXQ6FbIwKc3IoIILGSgHMWY8RKLSKD0c4DpAK3AEVVsDCVuCeD3Co9Cmkhad4NUb9ZlrjmwOwPW_7cPLdcKGff_CnWtQC7cZ47YAVdGQAO8IHMJrTJY1Xq7LMaVEmaRnBJ7A0W-ZFkmYlzUIoz-gpgq-x6P2yyFenb-zMyVA)
 
 The federation consensus requires a supermajority of nodes to approve each transaction. This provides Byzantine fault tolerance while maintaining database-like performance (thousands of transactions per second).
 
@@ -1133,15 +909,7 @@ UPDATE documents SET content = 'Version B' WHERE id = 'doc1';
 -- Conflict resolution happens automatically based on LWW timestamps
 ```
 
-```mermaid
-graph TD
-    A[Device A Offline] -->|Modify doc1| B[Local SQLite]
-    C[Device B Offline] -->|Modify doc1| D[Local SQLite]
-    B -->|Come Online| E[Sync Server]
-    D -->|Come Online| E
-    E --> F[CRDT Merge]
-    F -->|Resolved State| G[Both Devices Updated]
-```
+[![](https://mermaid.ink/img/pako:eNp9kE9vgkAQxb_KZM5oSpV_e2gioL1oTKW9FDxs2EFIgDXrYmrV794Fa0-mc5qZ935vN3PGXApChjvF9yW8x1kLpmZpTMcqJ5jBuijqqqUtjEYvl5UUVXECIXP7AmG6lDmvIXlbVpq2NzK6k-E_ZPyIDAdfJBuCdduDF5inyanNISF1JPVrix_Ybsq8V2CRRpv4HVakdvfkxYBs6CDrIwlINNeGek1DqUu4ffcAH3th1mKLlrlFJZBp1ZGFDamG9yOe-7AMdUkNZchMK6jgXa0zzNqrwfa8_ZSyuZNKdrsSWcHrg5m6IT6uuDl087dV1ApSkexajcx3hgxkZ_xCZnv22H52nCDwbD-YTAMLT8im7tjzJ1M3sF0jea59tfB7ePRp7HvO9QcfFZDV?type=png)](https://mermaid.live/edit#pako:eNp9kE9vgkAQxb_KZM5oSpV_e2gioL1oTKW9FDxs2EFIgDXrYmrV794Fa0-mc5qZ935vN3PGXApChjvF9yW8x1kLpmZpTMcqJ5jBuijqqqUtjEYvl5UUVXECIXP7AmG6lDmvIXlbVpq2NzK6k-E_ZPyIDAdfJBuCdduDF5inyanNISF1JPVrix_Ybsq8V2CRRpv4HVakdvfkxYBs6CDrIwlINNeGek1DqUu4ffcAH3th1mKLlrlFJZBp1ZGFDamG9yOe-7AMdUkNZchMK6jgXa0zzNqrwfa8_ZSyuZNKdrsSWcHrg5m6IT6uuDl087dV1ApSkexajcx3hgxkZ_xCZnv22H52nCDwbD-YTAMLT8im7tjzJ1M3sF0jea59tfB7ePRp7HvO9QcfFZDV)
 
 The CRDT ensures that regardless of sync order, all devices converge to the same final state. This is essential for mobile apps, IoT devices, and distributed systems that operate in intermittent connectivity environments.
 
@@ -1208,16 +976,7 @@ CREATE TABLE model_predictions (
 
 The Flink SQL creates a streaming pipeline reading from Kafka, applying ML models, and writing predictions back to Kafka in real time.
 
-```mermaid
-flowchart LR
-    A[Kafka: Raw Events] --> B[Flink Streaming]
-    B --> C[Feature Engineering]
-    C --> D[ML Model Inference]
-    D --> E[Kafka: Predictions]
-    D --> F[Model State Store]
-    F -->|Update| D
-    E --> G[Downstream Systems]
-```
+[![](https://mermaid.ink/img/pako:eNpVj81uwjAQhF_F2jOgpkB-fKhUSFJVBakC9dKEg5VsgkVsI8cppcC71zGlVX2wvDvz7axPUKgSgULVqEOxZdqQxSqXxJ7H7IVVO0bJih1I8oHStBsyHD6QWZY2XO7I2mhkgst6cwVmTp1nKTLTaSSJrLlE1H-OuXPE2XJBlja2Ic-yQo2ywB9D7AzJLflVY8kLw5Vs_xnS7IqvDTNob6VvA9JeP7_tSyucSXxtJg56ymJ1kK1bmqyPrUHRbmAAteYlUKM7HIBALVhfwqlHczBbFJgDtc8SK9Y1JodcXiy2Z_JdKXEjterqLdCKNa2tOrdAzFmtmfjt2p-WqOeqkwZoGLkZQE_wCdQLvJF3P51GUeCF0XhixSPQiT8KwvHEjzzfSoHvXQbw5ULvRmEwvXwDQD-Jng?type=png)](https://mermaid.live/edit#pako:eNpVj81uwjAQhF_F2jOgpkB-fKhUSFJVBakC9dKEg5VsgkVsI8cppcC71zGlVX2wvDvz7axPUKgSgULVqEOxZdqQxSqXxJ7H7IVVO0bJih1I8oHStBsyHD6QWZY2XO7I2mhkgst6cwVmTp1nKTLTaSSJrLlE1H-OuXPE2XJBlja2Ic-yQo2ywB9D7AzJLflVY8kLw5Vs_xnS7IqvDTNob6VvA9JeP7_tSyucSXxtJg56ymJ1kK1bmqyPrUHRbmAAteYlUKM7HIBALVhfwqlHczBbFJgDtc8SK9Y1JodcXiy2Z_JdKXEjterqLdCKNa2tOrdAzFmtmfjt2p-WqOeqkwZoGLkZQE_wCdQLvJF3P51GUeCF0XhixSPQiT8KwvHEjzzfSoHvXQbw5ULvRmEwvXwDQD-Jng)
 
 Flink maintains model state in RocksDB, a persistent key-value store. As the model makes predictions, it can update weights incrementally, implementing online learning:
 
@@ -1277,20 +1036,7 @@ Feature stores like Feast integrated with Flink in 2025, providing consistent fe
 
 Pinecone introduced Dedicated Read Nodes (DRN) in December 2025 (public preview). DRN addresses workloads requiring consistent high throughput with predictable costs at scale. Examples include billion-vector semantic search, real-time recommendation systems, and user-facing AI assistants with strict service-level objectives.
 
-```mermaid
-graph TD
-    A[Client Application] --> B{Workload Type}
-    B -->|Bursty/Variable| C[On-Demand Mode]
-    B -->|Sustained/High-QPS| D[Dedicated Read Nodes]
-    C --> E[Shared Resources]
-    C --> F[Pay Per Request]
-    D --> G[Reserved Capacity]
-    D --> H[Predictable Latency]
-    G --> I[Data Stays Warm in Memory/SSD]
-    H --> J[No Cold Starts]
-    I --> J
-    J --> K[Consistent P50/P99 Latency]
-```
+[![](https://mermaid.ink/img/pako:eNpdkUtz0zAUhf-KRus8avJw7AUzjQ1NCy2m7tAZ5C4u1m2swZaMHh1Mkv9e2Uk6gFa6-s7ROSPtaKk40phuNbQVeUgLSfy6ZEktUFpy2ba1KMEKJZ_IePyerHePSv-sFXDy0LV4OOrXPduvnTa2m34DLeBHjXuSsC9ynGIDkpNbn_P0tzp3xoKQyKcbsa3GX7N8T1KWIu_zkJN79Bl33mVOtmQo8IHlFeiBG-V0-R_-yDLoSIba818OjT3RdKBXzLtQv3h7Ai2Uwnb_8A3LdF_A9v3JZ99DlmfF1aC4ZilYILmFzpBH0A0Rktxio3Q3zfP0pN0M2ht2p0iiat7LtT0XvT7C43AzDJ9YoqQRxvZvni0uplkUvcXTkf8dwWlstcMRbVA30I90119RUFthgwWN_ZbjM7jaFrSQB29rQX5Xqjk7tXLbisbPUBs_uZb7gFSA__rm7VSj5KgT5aSlcTQb7qDxjv6mcRAGk-DdYhFFYbCKZvNoRDsaz5eTcDWbL6Ng6VG4DA4j-mcIvZiswsXhFfwzvJU?type=png)](https://mermaid.live/edit#pako:eNpdkUtz0zAUhf-KRus8avJw7AUzjQ1NCy2m7tAZ5C4u1m2swZaMHh1Mkv9e2Uk6gFa6-s7ROSPtaKk40phuNbQVeUgLSfy6ZEktUFpy2ba1KMEKJZ_IePyerHePSv-sFXDy0LV4OOrXPduvnTa2m34DLeBHjXuSsC9ynGIDkpNbn_P0tzp3xoKQyKcbsa3GX7N8T1KWIu_zkJN79Bl33mVOtmQo8IHlFeiBG-V0-R_-yDLoSIba818OjT3RdKBXzLtQv3h7Ai2Uwnb_8A3LdF_A9v3JZ99DlmfF1aC4ZilYILmFzpBH0A0Rktxio3Q3zfP0pN0M2ht2p0iiat7LtT0XvT7C43AzDJ9YoqQRxvZvni0uplkUvcXTkf8dwWlstcMRbVA30I90119RUFthgwWN_ZbjM7jaFrSQB29rQX5Xqjk7tXLbisbPUBs_uZb7gFSA__rm7VSj5KgT5aSlcTQb7qDxjv6mcRAGk-DdYhFFYbCKZvNoRDsaz5eTcDWbL6Ng6VG4DA4j-mcIvZiswsXhFfwzvJU)
 
 DRN allocates exclusive compute and memory resources for query operations. Data stays warm in memory and on local SSD storage, avoiding latency spikes from cold data fetches. There are no noisy neighbors or shared queues.
 
@@ -1341,21 +1087,7 @@ This eliminates the need to maintain separate vector and relational databases, s
 
 Google Cloud maintained its position as a Leader in the 2025 Gartner Magic Quadrant for Cloud Database Management Systems for the sixth consecutive year. For the third year running, Google was positioned furthest in vision.
 
-```mermaid
-quadrantChart
-    title 2025 Gartner CDBMS Magic Quadrant
-    x-axis Low Execution --> High Execution
-    y-axis Limited Vision --> Complete Vision
-    quadrant-1 Leaders
-    quadrant-2 Visionaries
-    quadrant-3 Niche Players
-    quadrant-4 Challengers
-    Google Cloud: [0.85, 0.95]
-    AWS: [0.90, 0.75]
-    Microsoft Azure: [0.88, 0.80]
-    Oracle: [0.82, 0.85]
-    IBM: [0.70, 0.72]
-```
+[![](https://mermaid.ink/img/pako:eNplkF1vmzAUhv_K0bkmEZAQwBeVWjp1k5puU6VW6uiFBSdgydiZsdWkUf77HD5aqePKft7ntX04YaVrQoZ_Ha8NV7ZoubGlAv9ZYSVBHMYJ3HmoyEBxe7N9hC1vRAW_p8YoHxb8IHq412_w7UCVs0IrWCyu4Lto2k80ysdJFp2wVMOT6Ge70N1ekqWJjfr8tkUE98RrMv0XHk86N4K-Zit4EFVL8Evy4__NNfiBpSTVfGR3Wjd-7kJqVzP4Ey6zJIBwmSevY379_DjgPLzgdMZbURnd652F63dnaGxmFyULJ-Wn4ZWcknhI5vKPm-2A0_HM-BUDbIyokVnjKMCOTMcvWzxdCiXaljoqkfllTTvupC2xVGdf23P1onU3N412TYtsx2Xvd25fc0u3gjeGdx_UkPI_tdBOWWR5OpyB7IQHZFEaLaM4SfI8jbJ8tc4DPCJbb5Zptlpv8mjjo3QTnQN8Hy71M6XJ-R9PaLeG?type=png)](https://mermaid.live/edit#pako:eNplkF1vmzAUhv_K0bkmEZAQwBeVWjp1k5puU6VW6uiFBSdgydiZsdWkUf77HD5aqePKft7ntX04YaVrQoZ_Ha8NV7ZoubGlAv9ZYSVBHMYJ3HmoyEBxe7N9hC1vRAW_p8YoHxb8IHq412_w7UCVs0IrWCyu4Lto2k80ysdJFp2wVMOT6Ge70N1ekqWJjfr8tkUE98RrMv0XHk86N4K-Zit4EFVL8Evy4__NNfiBpSTVfGR3Wjd-7kJqVzP4Ey6zJIBwmSevY379_DjgPLzgdMZbURnd652F63dnaGxmFyULJ-Wn4ZWcknhI5vKPm-2A0_HM-BUDbIyokVnjKMCOTMcvWzxdCiXaljoqkfllTTvupC2xVGdf23P1onU3N412TYtsx2Xvd25fc0u3gjeGdx_UkPI_tdBOWWR5OpyB7IQHZFEaLaM4SfI8jbJ8tc4DPCJbb5Zptlpv8mjjo3QTnQN8Hy71M6XJ-R9PaLeG)
 
 The recognition reflects Google's AI-native Data Cloud strategy, which eliminates complexity for agentic AI workloads. The architecture unifies transactional and analytical processing with AI capabilities built in.
 
@@ -1413,21 +1145,7 @@ Elastic Elasticsearch 9.0 (released earlier in 2025) added ESQL, a new query lan
 
 InfluxDB 3's Python Processing Engine brings real-time AI to time-series data, with embeddings for anomaly detection and automatic pattern recognition.
 
-```mermaid
-graph TB
-    A[Traditional Database] --> B[AI Integration Layer]
-    B --> C[Vector Search]
-    B --> D[Embeddings Generation]
-    B --> E[ML Query Optimization]
-    B --> F[Natural Language Interface]
-    C --> G[RAG Applications]
-    D --> G
-    E --> H[Automatic Performance Tuning]
-    F --> I[Business User Access]
-    G --> J[AI-Powered Applications]
-    H --> J
-    I --> J
-```
+[![](https://mermaid.ink/img/pako:eNptkVtvGjEQhf-KNc-Asg2w7D5EWi4hVLTNhfah3jxM7GGxxNorr62WIP57jJdWihI_zfF8Z3zkOYIwkiCHymKzY5tpqVk4Bd9YlMopo3HP5ujwBVt6Zv3-DZvyYsVW2lGwnAG2xgPZ5844jciM_yLhjGVPhFbs3vXmfFG_kJRKVy1bkqZuyjtmwb-t2YMne2A_Gqdq9fqRueXf0Xkb4q1RVx4riqHsFgVdwFkEl_yxWLKiafZKxDHtpT3v2p1YRHHHC-9MHTDB7sMsY2vUgtjG65D34ruN6IpPfas0tS372ZJlhRChviDLiHwNP9W_N3_IkvwswF1HdWLVCeiFVSgJubOeelBTSHCWcDxjJbgd1VRCHkpJW_R7V0KpT8HWoP5tTP3PaY2vdpBvcd8G5RuJjuYKw9Lq_7eWtCQ7M147yJOrJA6B_Ah_g0yTQfJlNMqyNJlk18OsBwfIh-NBOrkejrNkHFrpODn14DW-ejWYpKPTG8cTtSo?type=png)](https://mermaid.live/edit#pako:eNptkVtvGjEQhf-KNc-Asg2w7D5EWi4hVLTNhfah3jxM7GGxxNorr62WIP57jJdWihI_zfF8Z3zkOYIwkiCHymKzY5tpqVk4Bd9YlMopo3HP5ujwBVt6Zv3-DZvyYsVW2lGwnAG2xgPZ5844jciM_yLhjGVPhFbs3vXmfFG_kJRKVy1bkqZuyjtmwb-t2YMne2A_Gqdq9fqRueXf0Xkb4q1RVx4riqHsFgVdwFkEl_yxWLKiafZKxDHtpT3v2p1YRHHHC-9MHTDB7sMsY2vUgtjG65D34ruN6IpPfas0tS372ZJlhRChviDLiHwNP9W_N3_IkvwswF1HdWLVCeiFVSgJubOeelBTSHCWcDxjJbgd1VRCHkpJW_R7V0KpT8HWoP5tTP3PaY2vdpBvcd8G5RuJjuYKw9Lq_7eWtCQ7M147yJOrJA6B_Ah_g0yTQfJlNMqyNJlk18OsBwfIh-NBOrkejrNkHFrpODn14DW-ejWYpKPTG8cTtSo)
 
 Trends visible across all AI-integrated databases:
 
