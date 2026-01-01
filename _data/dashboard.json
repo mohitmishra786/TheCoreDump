@@ -1,14 +1,14 @@
 {
-  "totalViews": 4055,
+  "totalViews": 4123,
   "siteViews": {
-    "chessman": 2418,
+    "chessman": 2461,
     "executables": 24,
-    "exploringos": 1033,
-    "learningresource": 351,
-    "legacy": 189,
+    "exploringos": 1045,
+    "learningresource": 359,
+    "legacy": 194,
     "osjourney": 19,
     "reversingbits": 21
   },
-  "lastUpdated": "2026-01-01T02:27:42.174Z",
+  "lastUpdated": "2026-01-01T06:42:41.287Z",
   "chartData": {}
 }
