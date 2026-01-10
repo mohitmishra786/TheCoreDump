@@ -13,6 +13,10 @@
 - type: rss
   icon: "fas fa-rss"
   noblank: true
+
+- type: buymecoffee
+  icon: "fas fa-coffee"
+  url: "https://www.buymeacoffee.com/mohitmishra7"
 # Uncomment and complete the url below to enable more contact options
 #
 # - type: mastodon
