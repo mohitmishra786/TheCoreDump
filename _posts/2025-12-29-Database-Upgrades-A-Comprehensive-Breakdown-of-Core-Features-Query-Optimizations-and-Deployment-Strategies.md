@@ -806,6 +806,7 @@ Tests validate schema contracts, data freshness, referential integrity, and cust
 Incremental model improvements in 2025 include better merge strategies and automatic detection of deleted rows. The merge_update_columns parameter provides fine-grained control:
 
 ```sql
+{% raw %}
 {{ config(
     materialized='incremental',
     unique_key='order_id',
@@ -824,6 +825,7 @@ FROM {{ source('raw', 'orders') }}
 {% if is_incremental() %}
 WHERE updated_at > (SELECT MAX(updated_at) FROM {{ this }})
 {% endif %}
+{% endraw %}
 ```
 
 This updates only status and updated_at on existing rows, preserving other columns. The on_schema_change setting automatically adapts to schema changes without manual intervention.

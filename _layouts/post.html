@@ -135,7 +135,7 @@ script_includes:
       <div class="post-meta mb-3">
         <i class="far fa-folder-open fa-fw me-1"></i>
         {% for category in page.categories %}
-          <a href="{{ site.baseurl }}/categories/{{ category | slugify | url_encode }}/">{{ category }}</a>
+          <a href="{{ site.baseurl }}/categories/{{ category | append: '' | slugify | url_encode }}/">{{ category }}</a>
           {%- unless forloop.last -%},{%- endunless -%}
         {% endfor %}
       </div>
@@ -147,7 +147,7 @@ script_includes:
         <i class="fa fa-tags fa-fw me-1"></i>
         {% for tag in page.tags %}
           <a
-            href="{{ site.baseurl }}/tags/{{ tag | slugify | url_encode }}/"
+            href="{{ site.baseurl }}/tags/{{ tag | append: '' | slugify | url_encode }}/"
             class="post-tag no-text-decoration"
           >
             {{- tag -}}
