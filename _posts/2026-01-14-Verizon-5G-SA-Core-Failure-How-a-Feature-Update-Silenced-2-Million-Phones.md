@@ -2,7 +2,7 @@
 title: "Verizon 5G SA Core Failure: How a Feature Update Silenced 2.3 Million Phones"
 date: 2026-01-14 00:00:00 +0530
 categories: [Telecom Infrastructure, Incident Response]
-tags: [Verizon, 5G, 5G-SA, Core Network, Outage, Telecom, Network Slicing, Authentication, Emergency Services, 911, FCC, LTE, Nationwide Outage]
+tags: [Verizon, 5G, 5G-SA, Core Network, Outage, Telecom, Network Slicing, Authentication, Emergency Services, "911", FCC, LTE, Nationwide Outage]
 author: mohitmishra786
 description: "A technical breakdown of the January 2026 Verizon 5G Standalone core failure that left over 2.3 million customers in SOS-only mode across major US cities, disrupted emergency services, and triggered a formal FCC investigation."
 toc: true
