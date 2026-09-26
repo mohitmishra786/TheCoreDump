@@ -42,46 +42,82 @@ Explorations of low-level software design and systems programming in C/C++. Area
 ## Publication Telemetry
 
 {% assign stats = site.data.dashboard %}
-{% assign total_views = stats.totalViews | default: 1158 %}
+
+{% assign total_views = stats.totalViews %}
+{% if total_views == nil or total_views == 0 or total_views == "" %}
+  {% assign total_views = 1158 %}
+{% endif %}
+
+{% assign gh_followers = stats.githubFollowers %}
+{% if gh_followers == nil or gh_followers == 0 or gh_followers == "" %}
+  {% assign gh_followers = 824 %}
+{% endif %}
+
+{% assign v_chessman = stats.siteViews.chessman %}
+{% if v_chessman == nil or v_chessman == 0 %}{% assign v_chessman = 776 %}{% endif %}
+
+{% assign v_exploringos = stats.siteViews.exploringos %}
+{% if v_exploringos == nil or v_exploringos == 0 %}{% assign v_exploringos = 148 %}{% endif %}
+
+{% assign v_learningresource = stats.siteViews.learningresource %}
+{% if v_learningresource == nil or v_learningresource == 0 %}{% assign v_learningresource = 102 %}{% endif %}
+
+{% assign v_legacy = stats.siteViews.legacy %}
+{% if v_legacy == nil or v_legacy == 0 %}{% assign v_legacy = 70 %}{% endif %}
+
+{% assign v_reversingbits = stats.siteViews.reversingbits %}
+{% if v_reversingbits == nil or v_reversingbits == 0 %}{% assign v_reversingbits = 25 %}{% endif %}
+
+{% assign v_executables = stats.siteViews.executables %}
+{% if v_executables == nil or v_executables == 0 %}{% assign v_executables = 23 %}{% endif %}
+
+{% assign v_osjourney = stats.siteViews.osjourney %}
+{% if v_osjourney == nil or v_osjourney == 0 %}{% assign v_osjourney = 14 %}{% endif %}
 
 <div class="metrics-container">
   <div class="metrics-grid">
     <div class="metric-card metric-hero">
       <div class="metric-label">Total Publication Views</div>
       <div class="metric-value" id="stat-total-views">{{ total_views }}</div>
-      <div class="metric-subtext">Cumulative readership across systems guides, OS series, and architecture deep dives</div>
+      <div class="metric-subtext">Cumulative readership across technical guides, OS series, and architecture deep dives</div>
     </div>
 
     <div class="metric-card">
+      <div class="metric-label">GitHub Community</div>
+      <div class="metric-value" id="stat-github-followers">{{ gh_followers }}</div>
+      <div class="metric-subtext">Developers following open-source implementations and engineering notes</div>
+    </div>
+
+    <div class="metric-card metric-full">
       <div class="metric-label">Publication Channels</div>
       <ul class="channel-list">
         <li class="channel-item">
           <span class="channel-name"><i class="fas fa-terminal fa-fw"></i> TheCoreDump Core</span>
-          <span class="channel-count" id="stat-site-chessman">{{ stats.siteViews.chessman | default: 776 }}</span>
+          <span class="channel-count" id="stat-site-chessman">{{ v_chessman }}</span>
         </li>
         <li class="channel-item">
           <span class="channel-name"><i class="fas fa-microchip fa-fw"></i> Exploring OS</span>
-          <span class="channel-count" id="stat-site-exploringos">{{ stats.siteViews.exploringos | default: 148 }}</span>
+          <span class="channel-count" id="stat-site-exploringos">{{ v_exploringos }}</span>
         </li>
         <li class="channel-item">
           <span class="channel-name"><i class="fas fa-book fa-fw"></i> Learning Resources</span>
-          <span class="channel-count" id="stat-site-learningresource">{{ stats.siteViews.learningresource | default: 102 }}</span>
+          <span class="channel-count" id="stat-site-learningresource">{{ v_learningresource }}</span>
         </li>
         <li class="channel-item">
           <span class="channel-name"><i class="fas fa-server fa-fw"></i> Architecture & Legacy</span>
-          <span class="channel-count" id="stat-site-legacy">{{ stats.siteViews.legacy | default: 70 }}</span>
+          <span class="channel-count" id="stat-site-legacy">{{ v_legacy }}</span>
         </li>
         <li class="channel-item">
           <span class="channel-name"><i class="fas fa-memory fa-fw"></i> Reversing Bits</span>
-          <span class="channel-count" id="stat-site-reversingbits">{{ stats.siteViews.reversingbits | default: 25 }}</span>
+          <span class="channel-count" id="stat-site-reversingbits">{{ v_reversingbits }}</span>
         </li>
         <li class="channel-item">
           <span class="channel-name"><i class="fas fa-code fa-fw"></i> Executables & Tooling</span>
-          <span class="channel-count" id="stat-site-executables">{{ stats.siteViews.executables | default: 23 }}</span>
+          <span class="channel-count" id="stat-site-executables">{{ v_executables }}</span>
         </li>
         <li class="channel-item">
           <span class="channel-name"><i class="fas fa-route fa-fw"></i> OS Journey</span>
-          <span class="channel-count" id="stat-site-osjourney">{{ stats.siteViews.osjourney | default: 14 }}</span>
+          <span class="channel-count" id="stat-site-osjourney">{{ v_osjourney }}</span>
         </li>
       </ul>
     </div>
@@ -201,6 +237,10 @@ For consulting inquiries, technical discussions, system architecture reviews, or
   gap: 0.6rem;
 }
 
+.metric-full {
+  grid-column: 1 / -1;
+}
+
 .channel-name i {
   color: var(--link-color, #0d6efd);
   font-size: 0.85rem;
@@ -248,7 +288,7 @@ For consulting inquiries, technical discussions, system architecture reviews, or
 
 <script>
 (function() {
-  /* Progressive enhancement: silently update metrics if newer dashboard.json is fetched */
+  /* Progressive enhancement: safely refresh stats if newer dashboard.json is available */
   var dataUrl = '{{ "/assets/data/dashboard.json" | relative_url }}';
   fetch(dataUrl)
     .then(function(res) {
@@ -259,22 +299,35 @@ For consulting inquiries, technical discussions, system architecture reviews, or
     })
     .then(function(data) {
       if (!data) return;
-      var fmt = new Intl.NumberFormat();
-      if (data.totalViews !== undefined) {
+      var fmt = new Intl.NumberFormat('en-US');
+
+      /* Total views: only update if positive number */
+      if (typeof data.totalViews === 'number' && data.totalViews > 0) {
         var totalEl = document.getElementById('stat-total-views');
         if (totalEl) totalEl.textContent = fmt.format(data.totalViews);
       }
-      if (data.siteViews) {
+
+      /* GitHub followers: only update if positive number */
+      if (typeof data.githubFollowers === 'number' && data.githubFollowers > 0) {
+        var ghEl = document.getElementById('stat-github-followers');
+        if (ghEl) ghEl.textContent = fmt.format(data.githubFollowers);
+      }
+
+      /* Channel views: only update if object with positive numbers */
+      if (data.siteViews && typeof data.siteViews === 'object') {
         for (var key in data.siteViews) {
           if (Object.prototype.hasOwnProperty.call(data.siteViews, key)) {
-            var siteEl = document.getElementById('stat-site-' + key);
-            if (siteEl) siteEl.textContent = fmt.format(data.siteViews[key]);
+            var count = data.siteViews[key];
+            if (typeof count === 'number' && count > 0) {
+              var siteEl = document.getElementById('stat-site-' + key);
+              if (siteEl) siteEl.textContent = fmt.format(count);
+            }
           }
         }
       }
     })
     .catch(function(err) {
-      /* Graceful no-op: statically pre-rendered Liquid values remain visible */
+      /* Graceful fallback: statically pre-rendered Liquid values remain intact */
     });
 })();
 </script>
