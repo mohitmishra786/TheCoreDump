@@ -40,8 +40,12 @@ const goatSites = [
 ];
 
 async function fetchJSON(url, headers = {}) {
-  return new Promise((resolve, reject) => {
-    const req = https.get(url, { headers }, (res) => {
+  const mergedHeaders = Object.assign(
+    { "User-Agent": "TheCoreDump-Stats-Pipeline" },
+    headers
+  );
+  return new Promise((resolve) => {
+    const req = https.get(url, { headers: mergedHeaders }, (res) => {
       let data = "";
       res.on("data", (chunk) => (data += chunk));
       res.on("end", () => {
@@ -61,12 +65,39 @@ async function fetchJSON(url, headers = {}) {
 }
 
 async function main() {
-  const stats = {
-    totalViews: 0,
-    siteViews: {},
+  let stats = {
+    totalViews: 1158,
+    siteViews: {
+      chessman: 776,
+      executables: 23,
+      exploringos: 148,
+      learningresource: 102,
+      legacy: 70,
+      osjourney: 14,
+      reversingbits: 25,
+    },
+    githubFollowers: 824,
     lastUpdated: new Date().toISOString(),
     chartData: {},
   };
+
+  // Load existing stats if available so we never overwrite with empty data
+  try {
+    if (fs.existsSync("_data/dashboard.json")) {
+      const fileContent = fs.readFileSync("_data/dashboard.json", "utf8");
+      const parsed = JSON.parse(fileContent);
+      if (parsed && typeof parsed === "object") {
+        if (parsed.totalViews && parsed.totalViews > 0) stats.totalViews = parsed.totalViews;
+        if (parsed.siteViews && Object.keys(parsed.siteViews).length > 0) stats.siteViews = parsed.siteViews;
+        if (parsed.githubFollowers) stats.githubFollowers = parsed.githubFollowers;
+        if (parsed.chartData) stats.chartData = parsed.chartData;
+      }
+    }
+  } catch (e) {
+    console.warn("Could not read previous _data/dashboard.json:", e.message);
+  }
+
+  let fetchedAnySite = false;
 
   // Fetch GoatCounter data
   for (const site of goatSites) {
@@ -79,10 +110,9 @@ async function main() {
 
     // Get total views
     const total = await fetchJSON(`${site.url}/api/v0/stats/total`, headers);
-    if (total && total.total) {
-      const views = total.total;
-      stats.siteViews[site.name] = views;
-      stats.totalViews += views;
+    if (total && typeof total.total === "number" && total.total > 0) {
+      stats.siteViews[site.name] = total.total;
+      fetchedAnySite = true;
     }
 
     // Get 7-day data
@@ -98,21 +128,34 @@ async function main() {
     }
   }
 
+  // Recalculate total views if any site views were fetched or exist
+  if (stats.siteViews && Object.keys(stats.siteViews).length > 0) {
+    const sum = Object.values(stats.siteViews).reduce((acc, v) => acc + (typeof v === "number" ? v : 0), 0);
+    if (sum > 0) {
+      stats.totalViews = sum;
+    }
+  }
+
   // Fetch GitHub data
   const github = await fetchJSON("https://api.github.com/users/mohitmishra786");
-  if (github) {
+  if (github && typeof github.followers === "number") {
     stats.githubFollowers = github.followers;
   }
 
-  // Ensure _data directory exists
+  stats.lastUpdated = new Date().toISOString();
+
+  // Ensure directories exist
   if (!fs.existsSync("_data")) {
     fs.mkdirSync("_data");
   }
+  if (!fs.existsSync("assets/data")) {
+    fs.mkdirSync("assets/data", { recursive: true });
+  }
 
-  // Write to Jekyll data file
+  // Write to Jekyll data files
   fs.writeFileSync("_data/dashboard.json", JSON.stringify(stats, null, 2));
   fs.writeFileSync("assets/data/dashboard.json", JSON.stringify(stats, null, 2));
-  console.log("Dashboard stats updated successfully!");
+  console.log("Dashboard stats updated successfully! Total views:", stats.totalViews, "GitHub followers:", stats.githubFollowers);
 }
 
 main().catch(console.error);
